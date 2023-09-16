@@ -4,15 +4,18 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RWResource\Pages;
 use App\Filament\Resources\RWResource\RelationManagers;
+use App\Models\RT;
 use App\Models\RW;
 use Faker\Provider\ar_EG\Text;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -28,6 +31,8 @@ class RWResource extends Resource
 
     protected static ?string $navigationLabel = 'Wilayah';
 
+    protected static ?string $pluralModelLabel = 'Rukun Warga';
+
 
     //get title
 
@@ -35,9 +40,20 @@ class RWResource extends Resource
     {
         return $form
             ->schema([
-                Card::make()
+                Section::make()
                     ->schema([
-                        TextInput::make('rw_nama')
+                        TextInput::make('rw_nama'),
+                        // Select::make('rt_nama')->options(RW::with('rt_group')->get()
+                        //     ->flatMap(function ($rw) {
+                        //         return $rw->rt_group->pluck('rt_nama', 'rt_id');
+                        //     }))
+                        //     ->multiple(),
+                        Select::make('rts')
+                            ->multiple()
+                            ->relationship('rt_group', 'rt_nama')
+                        // ->label('RT')
+                        // ->getSearchResultsUsing(fn (string $search): array => RT::where('rt_nama', 'like', "%{$search}%")->limit(50)->pluck('rt_nama', 'rt_id')->toArray())
+                        // ->getOptionLabelsUsing(fn (array $values): array => RT::whereIn('rt_id', $values)->pluck('rt_nama', 'rt_id')->toArray()),
 
                     ])->columnStart(1)
             ]);
@@ -59,6 +75,12 @@ class RWResource extends Resource
                     ->Label('Nama Rukun Warga')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('rt_group.rt_id')
+                    ->label('RT')
+                    // ->options(
+                    //     RT::pluck('rt_id')->toArray()
+                    // )
+                    ->searchable(),
 
             ])
             ->filters([

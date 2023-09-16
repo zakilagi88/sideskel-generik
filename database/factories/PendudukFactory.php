@@ -6,6 +6,7 @@ use App\Models\KartuKeluarga;
 use App\Models\Penduduk;
 use App\Models\RT;
 use App\Models\RW;
+use App\Models\SLS;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PendudukFactory extends Factory
@@ -21,7 +22,7 @@ class PendudukFactory extends Factory
     public function definition(): array
     {
         return [
-            'nik' => $this->faker->randomNumber(9),
+            'nik' => $this->faker->numerify('###############'),
             'nama_lengkap' => $this->faker->name(),
             'jenis_kelamin' => $this->faker->randomElement(['L', 'P']),
             'tempat_lahir' => $this->faker->city(),
@@ -32,10 +33,6 @@ class PendudukFactory extends Factory
             'status_pernikahan' => $this->faker->randomElement(['Kawin', 'Belum Kawin', 'Cerai Hidup', 'Cerai Mati']),
             'pekerjaan' => $this->faker->jobTitle(),
             'status_hubungan_dalam_keluarga' => $this->faker->randomElement(['Kepala Keluarga', 'Istri', 'Anak', 'Menantu', 'Cucu', 'Orang Tua', 'Mertua', 'Famili Lain', 'Pembantu', 'Lainnya']),
-            'alamat' => $this->faker->address(),
-            // 'kk_id' => function () {
-            //     return KartuKeluarga::factory()->create()->id;
-            // },
 
         ];
     }

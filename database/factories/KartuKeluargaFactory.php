@@ -6,6 +6,7 @@ use App\Models\KartuKeluarga;
 use App\Models\Penduduk;
 use App\Models\RT;
 use App\Models\RW;
+use App\Models\SLS;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -26,14 +27,9 @@ class KartuKeluargaFactory extends Factory
     public function definition(): array
     {
         return [
-            'kk_no' => $this->faker->unique()->randomNumber(9),
+            'kk_id' => $this->faker->numerify('##########'),
             'kk_alamat' => $this->faker->address(),
-            'rt_id' => function () {
-                return RT::inRandomOrder()->first()->rt_id;
-            },
-            'rw_id' => function () {
-                return RW::inRandomOrder()->first()->rw_id;
-            },
+            'sls_id' => SLS::inRandomOrder()->first()->sls_id,
         ];
     }
 

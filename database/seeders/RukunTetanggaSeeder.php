@@ -11,8 +11,18 @@ class RukunTetanggaSeeder extends Seeder
     public function run()
     {
         $data = [
-            ['rt_nama' => 'RT 001', 'rw_id' => 1],
-            ['rt_nama' => 'RT 002', 'rw_id' => 2],
+
+            // list rt 1 sampai dengan rt 10
+            ['rt_nama' => 'RT 001'],
+            ['rt_nama' => 'RT 002'],
+            ['rt_nama' => 'RT 003'],
+            ['rt_nama' => 'RT 004'],
+            ['rt_nama' => 'RT 005'],
+            ['rt_nama' => 'RT 006'],
+            ['rt_nama' => 'RT 007'],
+            ['rt_nama' => 'RT 008'],
+            ['rt_nama' => 'RT 009'],
+            ['rt_nama' => 'RT 010'],
             // Tambahkan data lain sesuai kebutuhan
         ];
 

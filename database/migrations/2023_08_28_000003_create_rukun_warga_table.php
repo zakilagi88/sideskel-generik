@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('rukun_warga', function (Blueprint $table) {
             $table->id('rw_id');
             $table->string('rw_nama');
-            $table->unsignedBigInteger('kelurahan_id');
-            $table->foreign('kelurahan_id')->references('kelurahan_id')->on('kelurahan')->cascadeOnUpdate()->cascadeOnDelete();
+            // $table->unsignedBigInteger('kelurahan_id');
+            // $table->foreign('kelurahan_id')->references('kelurahan_id')->on('kelurahan')->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }

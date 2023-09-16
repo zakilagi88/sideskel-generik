@@ -7,15 +7,18 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * 
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('anggota_keluarga', function (Blueprint $table) {
-
+        Schema::create('kematian', function (Blueprint $table) {
             $table->id();
+            $table->string('nik', 16);
+            $table->date('tanggal_kematian');
+            $table->string('tempat_kematian');
+            $table->string('sebab_kematian');
 
+            $table->foreign('nik')->references('nik')->on('penduduks')->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('anggota_keluarga');
+        Schema::dropIfExists('kematian');
     }
 };

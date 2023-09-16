@@ -8,6 +8,7 @@ use App\Models\Kategori;
 use Faker\Provider\ar_EG\Text;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
@@ -31,7 +32,7 @@ class KategoriResource extends Resource
     {
         return $form
             ->schema([
-                Card::make()
+                Section::make()
                     ->schema([
                         TextInput::make('kategori_nama')
                             ->label('Nama Kategori')

@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -20,10 +19,12 @@ class Penduduk extends Model
      */
 
     protected $table = 'penduduks';
-    protected $primaryKey = 'penduduk_id';
+
+    protected $primaryKey = 'nik';
+    protected $keyType = 'string';
+    // public $incrementing = false;
     protected $fillable = [
         'nik',
-        'kk_id',
         'nama_lengkap',
         'jenis_kelamin',
         'tempat_lahir',
@@ -33,8 +34,8 @@ class Penduduk extends Model
         'golongan_darah',
         'status_pernikahan',
         'pekerjaan',
-        'status_hubungan_dalam_keluarga',
-        'alamat',
+        'kewarganegaraan',
+        'status'
 
     ];
 
@@ -53,20 +54,5 @@ class Penduduk extends Model
     public function kartuKeluarga(): BelongsTo
     {
         return $this->belongsTo(KartuKeluarga::class, 'kk_id', 'kk_id');
-    }
-
-    public function kelurahan()
-    {
-        return $this->belongsTo(Kelurahan::class);
-    }
-
-    public function rw()
-    {
-        return $this->belongsTo(RW::class);
-    }
-
-    public function rt()
-    {
-        return $this->belongsTo(RT::class);
     }
 }

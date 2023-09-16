@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RT extends Model
 {
@@ -18,16 +20,31 @@ class RT extends Model
      */
 
     protected $table = 'rukun_tetangga';
-    protected $primaryKey = 'rt_id';
-    protected $fillable = [
-        'rt_nama',
-        'rw_id'
+
+    protected $casts = [
+        'rts' => 'array'
     ];
 
-    public function rw(): BelongsTo
-    {
-        return $this->belongsTo(RW::class, 'rw_id', 'rw_id');
-    }
+    protected $primaryKey = 'rt_id';
+    protected $fillable = [
+        'rt_id',
+        'rt_nama',
+        // 'rw_id'
+    ];
+
+
+
+    // public function rw_group(): BelongsTo
+    // {
+    //     return $this->belongsTo(RW::class, 'rw_id', 'rw_id');
+    // }
+
+
+    // public function sls_group(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(SLS::class, 'sls', 'rw_id', 'rt_id');
+    // }
+
 
     // public function penduduk()
     // {

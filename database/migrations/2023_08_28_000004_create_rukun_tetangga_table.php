@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('rukun_tetangga', function (Blueprint $table) {
             $table->id('rt_id');
             $table->string('rt_nama');
-            $table->unsignedBigInteger('rw_id');
-            $table->foreign('rw_id')->references('rw_id')->on('rukun_warga')->cascadeOnUpdate()->cascadeOnDelete();
+            // $table->unsignedBigInteger('rw_id');
+            // $table->foreign('rw_id')->references('rw_id')->on('rukun_warga')->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }

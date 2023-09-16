@@ -9,6 +9,7 @@ use Faker\Provider\ar_EG\Text;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -28,20 +29,20 @@ class RtResource extends Resource
 {
     protected static ?string $model = Rt::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationIcon = 'heroicon-o-flag';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Card::make()
+                Section::make()
                     ->schema([
                         Select::make('rw_id')
-                            ->relationship('rw', 'rw_nama')
-                            ->required(),
+                            ->label('RW')
+                            ->relationship('rw', 'rw_nama'),
                         TextInput::make('rt_nama')
-                            ->autofocus()
-                            ->required(),
+                            ->label('RT')
+                            ->autofocus(),
                         // TextInput::make('rt_ketua'),
                         // Textarea::make('rt_alamat'),
                         // FileUpload::make('rt_profile')

@@ -4,11 +4,14 @@ use App\Models\KartuKeluarga;
 use App\Models\Penduduk;
 use App\Models\RT;
 use App\Models\RW;
+use App\Models\SLS;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Database\Seeders\KelurahanSeeder;
 use Database\Seeders\RukunTetanggaSeeder;
 use Database\Seeders\RukunWargaSeeder;
+use Database\Seeders\SLSSeeder;
+use Illuminate\Support\Arr;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
@@ -33,21 +36,14 @@ class DatabaseSeeder extends Seeder
         $this->call([
             KelurahanSeeder::class,
             RukunWargaSeeder::class,
-            RukunTetanggaSeeder::class
+            RukunTetanggaSeeder::class,
+            SLSSeeder::class
         ]);
+    
+        $kk = KartuKeluarga::factory(5)
+            ->has(Penduduk::factory()->count(3), 'penduduks')
+            ->create();
 
-        $kartuKeluargaCount = 5; // Jumlah kartu keluarga yang akan dibuat
-        $pendudukCountPerKK = 2; // Jumlah penduduk per kartu keluarga
-
-        for ($i = 1; $i <= $kartuKeluargaCount; $i++) {
-            $kartuKeluarga = KartuKeluarga::factory()->create([
-                'kk_id' => $i,
-            ]);
-
-            Penduduk::factory()
-                ->count($pendudukCountPerKK)
-                ->for($kartuKeluarga, 'kartuKeluarga')
-                ->create();
-        }
+        // SLS::factory()->count(10)->create();
     }
 }

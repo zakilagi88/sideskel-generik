@@ -14,12 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('penduduks', function (Blueprint $table) {
-            $table->id('penduduk_id', 16);
-
-            $table->unsignedBigInteger('kk_id')->nullable();
-
-            // nik varchar
-            $table->string('nik')->unique();
+            $table->string('nik', 16)->unique()->primary();
             // nama varchar
             $table->string('nama_lengkap');
             // jenis_kelamin enum
@@ -38,14 +33,10 @@ return new class extends Migration
             $table->enum('status_pernikahan', ['Kawin', 'Belum Kawin', 'Cerai Hidup', 'Cerai Mati']);
             // pekerjaan varchar
             $table->string('pekerjaan');
-            // status_hubungan_dalam_keluarga enum
-            $table->enum('status_hubungan_dalam_keluarga', ['Kepala Keluarga', 'Istri', 'Anak', 'Menantu', 'Cucu', 'Orang Tua', 'Mertua', 'Famili Lain', 'Pembantu', 'Lainnya']);
-            // alamat varchar
-            $table->text('alamat');
 
+            $table->enum('kewarganegaraan', ['WNI', 'WNA']);
 
-            $table->foreign('kk_id')->references('kk_id')->on('kartu_keluarga')->cascadeOnUpdate()->cascadeOnDelete();
-
+            $table->enum('status', ['Warga', 'Mati', 'Pindah']);
 
             $table->timestamps();
         });

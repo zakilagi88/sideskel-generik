@@ -13,12 +13,16 @@ return new class extends Migration
     {
         Schema::create('sls', function (Blueprint $table) {
             $table->id('sls_id');
+            $table->string('sls_kode', 4)->unique(); // Tambahkan panjang maksimum dan indeks unik
+            $table->string('sls_nama', 100);
             $table->unsignedBigInteger('rw_id');
             $table->unsignedBigInteger('rt_id');
+
+            $table->unique(['rw_id', 'rt_id']);
+
             $table->foreign('rw_id')->references('rw_id')->on('rukun_warga')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('rt_id')->references('rt_id')->on('rukun_tetangga')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->string('sls_kode', 4);
-            $table->string('sls_nama', 100);
+
 
             $table->timestamps();
         });

@@ -7,6 +7,7 @@ use App\Filament\Resources\KartukeluargaResource;
 use App\Filament\Resources\RtResource;
 use App\Filament\Resources\RWResource;
 use App\Filament\Resources\Shield\RoleResource;
+use App\Filament\Resources\SLSResource;
 use App\Filament\Resources\UserResource;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -79,13 +80,17 @@ class AdminPanelProvider extends PanelProvider
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.dashboard'))
                                 ->url(fn (): string => Dashboard::getUrl()),
                         ]),
-                    NavigationGroup::make('Resource')
+                    NavigationGroup::make('Manajemen Data')
                         ->items([
                             ...KartukeluargaResource::getNavigationItems(),
+                        ]),
+                    NavigationGroup::make('Wilayah')
+                        ->items([
                             ...RWResource::getNavigationItems(),
                             ...RtResource::getNavigationItems(),
+                            ...SLSResource::getNavigationItems(),
                         ]),
-                    NavigationGroup::make('Setting')
+                    NavigationGroup::make('Pengaturan')
                         ->items([
                             ...RoleResource::getNavigationItems(),
                             ...UserResource::getNavigationItems(),

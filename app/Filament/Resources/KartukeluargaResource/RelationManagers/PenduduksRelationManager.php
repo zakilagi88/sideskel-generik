@@ -18,7 +18,7 @@ class PenduduksRelationManager extends RelationManager
 {
     protected static string $relationship = 'penduduks';
 
-    
+
 
     // protected static ?string $recordTitleAttribute = 'nik';
 
@@ -27,13 +27,17 @@ class PenduduksRelationManager extends RelationManager
         return $form
             ->schema([
                 TextInput::make('nik')
-                    ->readOnly(),
+                    ->default(random_int(1000000000000000, 9999999999999999))
+                    ->label('NIK')
+                    ->disabled()
+                    ->dehydrated()
+                    ->required(),
                 TextInput::make('nama_lengkap')->required()
                     ->maxLength(255),
                 TextInput::make('tempat_lahir')->required()
                     ->maxLength(255),
-                TextInput::make('tanggal_lahir')->required()
-                    ->maxLength(255),
+                // TextInput::make('tanggal_lahir')->required()
+                //     ->maxLength(255),
                 Select::make('jenis_kelamin')->options([
                     'L' => 'Laki-Laki',
                     'P' => 'Perempuan',
@@ -45,7 +49,7 @@ class PenduduksRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('kk_id')
+            ->recordTitleAttribute('kk_no')
             ->columns([
                 TextColumn::make('nik')->label('NIK'),
                 TextColumn::make('nama_lengkap')->label('Nama'),
@@ -55,6 +59,7 @@ class PenduduksRelationManager extends RelationManager
                 TextColumn::make('agama')->label('Agama'),
                 TextColumn::make('golongan_darah')->label('Golongan Darah'),
                 TextColumn::make('status_pernikahan')->label('Status Pernikahan'),
+                TextColumn::make('status_hubungan_dalam_keluarga')->label('Status Hubungan'),
                 TextColumn::make('pekerjaan')->label('Pekerjaan'),
                 TextColumn::make('alamat')->label('Alamat'),
             ])

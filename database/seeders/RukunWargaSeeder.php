@@ -10,9 +10,16 @@ class RukunWargaSeeder extends Seeder
     public function run()
     {
         $data = [
-            ['rw_nama' => 'RW 001', 'kelurahan_id' => 1],
-            ['rw_nama' => 'RW 002', 'kelurahan_id' => 2],
-            // Tambahkan data lain sesuai kebutuhan
+            ['rw_nama' => 'RW 001'],
+            ['rw_nama' => 'RW 002'],
+            ['rw_nama' => 'RW 003'],
+            ['rw_nama' => 'RW 004'],
+            ['rw_nama' => 'RW 005'],
+            ['rw_nama' => 'RW 006'],
+            ['rw_nama' => 'RW 007'],
+            ['rw_nama' => 'RW 008'],
+            ['rw_nama' => 'RW 009'],
+            ['rw_nama' => 'RW 010'],
         ];
 
         foreach ($data as $item) {
