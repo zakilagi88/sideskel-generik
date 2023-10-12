@@ -2,12 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
     /**
@@ -15,24 +13,29 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+    protected $model = User::class;
+
+    public function definition()
     {
+        $rwIndex = $this->faker->numberBetween(1, 2); // Pilih acak RW 1 atau 2
+        $rtIndex = $this->faker->numberBetween(1, 36); // Pilih acak RT 1 - 36
+
+        $email = '';
+
+        if ($this->faker->boolean) {
+            // Pengguna RW
+            $email = "RW" . str_pad($rwIndex, 3, '0', STR_PAD_LEFT) . "@kuripan.id";
+        } else {
+            // Pengguna RT
+            $email = "RT" . str_pad($rwIndex, 3, '0', STR_PAD_LEFT) . "_" . str_pad($rtIndex, 3, '0', STR_PAD_LEFT) . "@kuripan.id";
+        }
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => $this->faker->name(),
+            'email' => $email,
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => bcrypt('kuripan'),
             'remember_token' => Str::random(10),
         ];
-    }
-
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }

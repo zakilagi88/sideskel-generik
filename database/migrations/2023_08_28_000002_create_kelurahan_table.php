@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('kelurahan', function (Blueprint $table) {
-            $table->id('kelurahan_id');
-            $table->string('kelurahan_kode', 10)->unique();
-            $table->string('kelurahan_nama');
-
+            $table->string('kel_id')->primary();
+            $table->string('kec_id');
+            $table->string('kel_nama');
+            $table->foreign('kec_id')->references('kec_id')->on('kecamatans')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

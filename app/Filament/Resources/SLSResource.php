@@ -4,10 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SLSResource\Pages;
 use App\Filament\Resources\SLSResource\RelationManagers;
+use App\Models\Kelurahan;
 use App\Models\RT;
 use App\Models\RW;
 use App\Models\SLS;
 use Filament\Forms;
+use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -36,11 +38,18 @@ class SLSResource extends Resource
 
                 TextInput::make('sls_kode')
                     ->label('Kode SLS')
-                    ->readOnly()
+                    ->unique(ignoreRecord: true)
                     ->required(),
+                Select::make('kel_id')
+                    ->label('Kelurahan')
+                    ->relationship('kel_groups', 'kel_nama')
+                    ->options(function () {
+                        return Kelurahan::all()->pluck('kel_nama', 'kel_id');
+                    })
+                    ->live(),
+
                 TextInput::make('sls_nama')
                     ->label('Nama SLS')
-                    ->disabled()
                     ->required(
                         function (Get $get, Set $set) {
                             $rw_id = $get('rw_id');
@@ -50,7 +59,7 @@ class SLSResource extends Resource
                                 $rw_nama = RW::find($rw_id)->rw_nama;
                                 $rt_nama = RT::find($rt_id)->rt_nama;
 
-                                $set('sls_nama', "{$rw_nama} / {$rt_nama}");
+                                $set('sls_nama', "{$rt_nama}/{$rw_nama}");
                             }
 
                             return true;
@@ -63,13 +72,13 @@ class SLSResource extends Resource
                         return RW::all()->pluck('rw_nama', 'rw_id');
                     })
                     ->live(),
-
                 Select::make('rt_id')
                     ->label('RT')
                     ->options(function () {
                         return RT::all()->pluck('rt_nama', 'rt_id');
                     })
                     ->live(),
+
 
 
             ]);
@@ -79,7 +88,6 @@ class SLSResource extends Resource
     {
         return $table
             ->columns([
-
 
                 TextColumn::make('sls_kode')
                     ->label('Kode SLS')

@@ -9,11 +9,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class KartuKeluarga extends Model
+class KartuKeluarga extends Model implements Auditable
 {
     use HasFactory;
 
+    use \OwenIt\Auditing\Auditable;
     /**
      * The attributes that are mass assignable.
      *
@@ -24,13 +26,29 @@ class KartuKeluarga extends Model
 
     protected $primaryKey = 'kk_id';
     protected $keyType = 'string';
-    // public $incrementing = false;
+    public $incrementing = false;
+
     protected $fillable = [
         'kk_id',
         'kk_kepala',
         'kk_alamat',
-        'sls_id'
+        'sls_id',
+        'updated_at'
     ];
+
+    protected $casts = [
+        'kk_id' => 'string',
+    ];
+
+    protected $auditInclude = [
+        'kk_id',
+        'kk_kepala',
+        'kk_alamat',
+        'sls_id',
+        'updated_at'
+    ];
+
+    protected $auditTimestamps = true;
 
     public function penduduks(): HasManyThrough
     {
@@ -45,27 +63,17 @@ class KartuKeluarga extends Model
 
     public function kepalaKeluarga(): BelongsTo
     {
-        return $this->BelongsTo(Penduduk::class, 'kk_id', 'nik');
+        return $this->belongsTo(Penduduk::class, 'kk_kepala', 'nik');
     }
 
-    public function anggotaKK(): HasMany
+    public function kepalaKK(): HasOne
+    {
+        return $this->hasOne(AnggotaKeluarga::class, 'kk_id', 'kk_id')->where('hubungan', 'Kepala Keluarga');
+    }
+
+
+    public function anggotaKeluarga(): HasMany
     {
         return $this->hasMany(AnggotaKeluarga::class, 'kk_id', 'kk_id');
-    }
-
-
-
-    public function generateUniqueKKid()
-    {
-        $lastKartuKeluarga = KartuKeluarga::orderBy('kk_id', 'desc')->first();
-        if (!$lastKartuKeluarga) {
-            return 'KK0000000000000001';
-        }
-        $lastKartuKeluargaId = $lastKartuKeluarga->kk_id;
-        $lastKartuKeluargaId = substr($lastKartuKeluargaId, 2);
-        $lastKartuKeluargaId = (int) $lastKartuKeluargaId;
-        $lastKartuKeluargaId++;
-        $lastKartuKeluargaId = 'KK' . sprintf("%016d", $lastKartuKeluargaId);
-        return $lastKartuKeluargaId;
     }
 }

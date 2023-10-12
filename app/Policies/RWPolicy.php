@@ -14,7 +14,7 @@ class RWPolicy
      * Determine whether the user can view any models.
      *
      * @param  \App\Models\User  $user
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function viewAny(User $user): bool
     {
@@ -26,7 +26,7 @@ class RWPolicy
      *
      * @param  \App\Models\User  $user
      * @param  \App\Models\RW  $rW
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function view(User $user, RW $rW): bool
     {
@@ -37,7 +37,7 @@ class RWPolicy
      * Determine whether the user can create models.
      *
      * @param  \App\Models\User  $user
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function create(User $user): bool
     {
@@ -49,7 +49,7 @@ class RWPolicy
      *
      * @param  \App\Models\User  $user
      * @param  \App\Models\RW  $rW
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function update(User $user, RW $rW): bool
     {
@@ -61,7 +61,7 @@ class RWPolicy
      *
      * @param  \App\Models\User  $user
      * @param  \App\Models\RW  $rW
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function delete(User $user, RW $rW): bool
     {
@@ -72,7 +72,7 @@ class RWPolicy
      * Determine whether the user can bulk delete.
      *
      * @param  \App\Models\User  $user
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function deleteAny(User $user): bool
     {
@@ -84,7 +84,7 @@ class RWPolicy
      *
      * @param  \App\Models\User  $user
      * @param  \App\Models\RW  $rW
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function forceDelete(User $user, RW $rW): bool
     {
@@ -95,7 +95,7 @@ class RWPolicy
      * Determine whether the user can permanently bulk delete.
      *
      * @param  \App\Models\User  $user
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function forceDeleteAny(User $user): bool
     {
@@ -107,7 +107,7 @@ class RWPolicy
      *
      * @param  \App\Models\User  $user
      * @param  \App\Models\RW  $rW
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function restore(User $user, RW $rW): bool
     {
@@ -118,7 +118,7 @@ class RWPolicy
      * Determine whether the user can bulk restore.
      *
      * @param  \App\Models\User  $user
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function restoreAny(User $user): bool
     {
@@ -130,7 +130,7 @@ class RWPolicy
      *
      * @param  \App\Models\User  $user
      * @param  \App\Models\RW  $rW
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function replicate(User $user, RW $rW): bool
     {
@@ -141,7 +141,7 @@ class RWPolicy
      * Determine whether the user can reorder.
      *
      * @param  \App\Models\User  $user
-     * @return \Illuminate\Auth\Access\Response|bool
+     * @return bool
      */
     public function reorder(User $user): bool
     {

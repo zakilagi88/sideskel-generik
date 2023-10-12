@@ -22,14 +22,14 @@ class RW extends Model
     protected $fillable = [
         'rw_id',
         'rw_nama',
-        'kelurahan_id'
+        // 'kelurahan_id'
 
     ];
 
-    public function kelurahan()
-    {
-        return $this->belongsTo(Kelurahan::class, 'rw_id', 'rw_id');
-    }
+    // public function kelurahan()
+    // {
+    //     return $this->belongsTo(Kelurahan::class, 'rw_id', 'rw_id');
+    // }
 
     public function rt_group(): HasMany
     {

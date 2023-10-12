@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\AnggotaKeluarga;
 use App\Models\KartuKeluarga;
 use App\Models\Penduduk;
 use App\Models\RT;
@@ -7,10 +8,18 @@ use App\Models\RW;
 use App\Models\SLS;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use Database\Seeders\AnggotaKeluargaSeeder;
+use Database\Seeders\KabKotaSeeder;
+use Database\Seeders\KartuKeluargaSeeder;
+use Database\Seeders\KecamatanSeeder;
 use Database\Seeders\KelurahanSeeder;
+use Database\Seeders\PendudukSeeder;
+use Database\Seeders\ProvinsiSeeder;
 use Database\Seeders\RukunTetanggaSeeder;
 use Database\Seeders\RukunWargaSeeder;
 use Database\Seeders\SLSSeeder;
+use Database\Seeders\UserSeeder;
+use Database\Seeders\UserSlsRolesSeeder;
 use Illuminate\Support\Arr;
 use Spatie\Permission\Models\Role;
 
@@ -21,29 +30,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::factory()->create([
-            'name' => 'admin',
-            'email' => 'admin@test.com',
-        ]);
-        User::factory()->create([
-            'name' => 'user',
-            'email' => 'user@test.com',
-        ]);
-
-        $role = Role::create(['name' => 'Admin']);
-        $user->assignRole($role);
-
         $this->call([
+            UserSeeder::class,
+            ProvinsiSeeder::class,
+            KabKotaSeeder::class,
+            KecamatanSeeder::class,
             KelurahanSeeder::class,
             RukunWargaSeeder::class,
             RukunTetanggaSeeder::class,
-            SLSSeeder::class
-        ]);
-    
-        $kk = KartuKeluarga::factory(5)
-            ->has(Penduduk::factory()->count(3), 'penduduks')
-            ->create();
+            SLSSeeder::class,
+            UserSlsRolesSeeder::class,
+            // KartuKeluargaSeeder::class,
+            // PendudukSeeder::class,
+            // AnggotaKeluargaSeeder::class,
 
-        // SLS::factory()->count(10)->create();
+        ]);
     }
 }

@@ -22,6 +22,7 @@ class PendudukFactory extends Factory
     public function definition(): array
     {
         return [
+            // 'kk_id' => KartuKeluarga::inRandomOrder()->first()->kk_id,
             'nik' => $this->faker->numerify('###############'),
             'nama_lengkap' => $this->faker->name(),
             'jenis_kelamin' => $this->faker->randomElement(['L', 'P']),
@@ -32,8 +33,8 @@ class PendudukFactory extends Factory
             'golongan_darah' => $this->faker->randomElement(['A', 'B', 'AB', 'O']),
             'status_pernikahan' => $this->faker->randomElement(['Kawin', 'Belum Kawin', 'Cerai Hidup', 'Cerai Mati']),
             'pekerjaan' => $this->faker->jobTitle(),
-            'status_hubungan_dalam_keluarga' => $this->faker->randomElement(['Kepala Keluarga', 'Istri', 'Anak', 'Menantu', 'Cucu', 'Orang Tua', 'Mertua', 'Famili Lain', 'Pembantu', 'Lainnya']),
-
+            'kewarganegaraan' => $this->faker->randomElement(['WNI', 'WNA']),
+            'status' => $this->faker->randomElement(['Warga', 'Mati', 'Pindah']),
         ];
     }
 

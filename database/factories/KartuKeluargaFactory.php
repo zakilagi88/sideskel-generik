@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\AnggotaKeluarga;
 use App\Models\KartuKeluarga;
 use App\Models\Penduduk;
 use App\Models\RT;
@@ -27,7 +28,8 @@ class KartuKeluargaFactory extends Factory
     public function definition(): array
     {
         return [
-            'kk_id' => $this->faker->numerify('##########'),
+            'kk_id' => 'KK' . $this->faker->numerify('########'),
+            'kk_kepala' => null,
             'kk_alamat' => $this->faker->address(),
             'sls_id' => SLS::inRandomOrder()->first()->sls_id,
         ];
@@ -36,14 +38,4 @@ class KartuKeluargaFactory extends Factory
     /**
      * Indicate that the model's email address should be unverified.
      */
-
-    public function configure()
-    {
-        return $this->afterCreating(function (KartuKeluarga $kartuKeluarga) {
-            Penduduk::factory()
-                ->count(2)
-                ->for($kartuKeluarga, 'kartuKeluarga')
-                ->create();
-        });
-    }
 }

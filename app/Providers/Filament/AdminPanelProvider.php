@@ -2,13 +2,17 @@
 
 namespace App\Providers\Filament;
 
-use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
+use App\Filament\AvatarProviders\BoringAvatarsProvider;
+use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Resources\ArticleResource;
+use App\Filament\Resources\CategoryResource;
 use App\Filament\Resources\KartukeluargaResource;
-use App\Filament\Resources\RtResource;
-use App\Filament\Resources\RWResource;
+use App\Filament\Resources\PendudukResource;
 use App\Filament\Resources\Shield\RoleResource;
 use App\Filament\Resources\SLSResource;
+use App\Filament\Resources\TagResource;
 use App\Filament\Resources\UserResource;
+use Awcodes\FilamentGravatar\GravatarPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -28,6 +32,13 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Awcodes\FilamentGravatar\GravatarProvider;
+use Filament\Forms\Components\Hidden;
+use Filament\Navigation\MenuItem;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Support\Htmlable;
+use Tapp\FilamentAuthenticationLog\FilamentAuthenticationLogPlugin;
+use Tapp\FilamentAuthenticationLog\Resources\AuthenticationLogResource;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -36,9 +47,24 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth('8xl')
+            // ->topNavigation()
             ->id('admin')
             ->path('admin')
             ->login()
+
+            ->userMenuItems(
+                [
+                    'profile' => MenuItem::make()->label('Edit Profile'),
+                ]
+            )
+            ->globalSearchKeyBindings([
+                'command+f', 'ctrl+f'
+            ])
+            ->spa()
+            ->emailVerification()
+            // ->defaultAvatarProvider(GravatarProvider::class)
+            ->profile(EditProfile::class)
             ->colors([
                 'danger' => Color::Rose,
                 'gray' => Color::Gray,
@@ -46,12 +72,14 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Indigo,
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
+                // 'navy' => Color::Slate,
             ])
-            ->profile()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                // Pages\Dashboard::class, 
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -66,7 +94,8 @@ class AdminPanelProvider extends PanelProvider
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
-                DispatchServingFilamentEvent::class,
+                DispatchServingFilamentEvent::class
+
             ])
             ->authMiddleware([
                 Authenticate::class,
@@ -75,7 +104,7 @@ class AdminPanelProvider extends PanelProvider
                 return $builder->groups([
                     NavigationGroup::make()
                         ->items([
-                            NavigationItem::make('Dashboard')
+                            NavigationItem::make('Beranda')
                                 ->icon('heroicon-o-home')
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.dashboard'))
                                 ->url(fn (): string => Dashboard::getUrl()),
@@ -83,24 +112,41 @@ class AdminPanelProvider extends PanelProvider
                     NavigationGroup::make('Manajemen Data')
                         ->items([
                             ...KartukeluargaResource::getNavigationItems(),
+                            ...PendudukResource::getNavigationItems(),
                         ]),
                     NavigationGroup::make('Wilayah')
                         ->items([
-                            ...RWResource::getNavigationItems(),
-                            ...RtResource::getNavigationItems(),
+                            // ...RWResource::getNavigationItems(),
+                            // ...RtResource::getNavigationItems(),
                             ...SLSResource::getNavigationItems(),
+                        ]),
+                    NavigationGroup::make('Website')
+                        ->items([
+                            ...CategoryResource::getNavigationItems(),
+                             ...ArticleResource::getNavigationItems()
                         ]),
                     NavigationGroup::make('Pengaturan')
                         ->items([
                             ...RoleResource::getNavigationItems(),
                             ...UserResource::getNavigationItems(),
+                            ...AuthenticationLogResource::getNavigationItems(),
 
                         ])
                 ]);
             })
             ->viteTheme('resources/css/filament/admin/theme.css')
+            ->renderHook(
+                'panels::topbar.start',
+                fn () => view('filament.custom.topbar-start'),
+            )
             ->plugins([
-                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
+                FilamentAuthenticationLogPlugin::make(),
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+                GravatarPlugin::make()
+                    ->default('robohash')
+                    ->size(400)
+                    ->rating('pg'),
+
             ]);
     }
 }

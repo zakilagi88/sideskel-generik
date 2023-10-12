@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::create('anggota_keluarga', function (Blueprint $table) {
             $table->id('anggota_id');
-            $table->string('nik', 16);
-            $table->string('kk_id', 16);
-            $table->enum('hubungan', ['Kepala Keluarga', 'Istri', 'Anak', 'Menantu', 'Cucu', 'Orang Tua', 'Mertua', 'Famili Lain', 'Pembantu', 'Lainnya'])->default('Lainnya');
+            $table->string('nik', 16)->unique();
+            $table->string('kk_id', 16)->nullable();
+            $table->string('hubungan')->nullable();
+
+            $table->foreign('nik')->references('nik')->on('penduduks')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('kk_id')->references('kk_id')->on('kartu_keluarga')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

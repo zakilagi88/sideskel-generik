@@ -1,0 +1,727 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Enum\Penduduk\Agama;
+use App\Enum\Penduduk\JenisKelamin;
+use App\Enum\Penduduk\Pekerjaan;
+use App\Enum\Penduduk\Pendidikan;
+use App\Enum\Penduduk\Pengajuan;
+use App\Enum\Penduduk\Pernikahan;
+use App\Enum\Penduduk\Status;
+use App\Filament\Resources\PendudukResource\Pages;
+use App\Filament\Resources\PendudukResource\RelationManagers;
+use App\Filament\Resources\PendudukResource\Widgets\PendudukOverview;
+use App\Models\Penduduk;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
+use Filament\Infolists\Components\Actions;
+use Filament\Infolists\Components\Actions\Action as InfolistAction;
+use Filament\Infolists\Components\Grid;
+use Filament\Infolists\Components\Group as ComponentsGroup;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\Section as ComponentsSection;
+use Filament\Infolists\Components\Split;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables;
+use Filament\Tables\Actions\Action as ActionsAction;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Columns\Layout\Split as LayoutSplit;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+
+class PendudukResource extends Resource
+{
+    protected static ?string $model = Penduduk::class;
+
+    protected static ?string $recordTitleAttribute = 'nama_lengkap';
+
+    protected static ?string $navigationIcon = 'fas-people-group';
+
+    protected static ?string $navigationLabel = 'Data Penduduk';
+
+    protected static ?string $slug = 'penduduk';
+
+
+    public static function form(Form $form): Form
+    {
+
+        return $form
+            ->schema(
+                [
+                    Group::make()
+                        ->schema([
+                            Section::make()
+                                ->heading('Informasi Penduduk')
+                                ->description('Silahkan isi data penduduk dengan benar')
+                                ->schema([
+                                    TextInput::make('nik')
+                                        ->label('NIK')
+                                        ->unique(ignoreRecord: true)
+                                        ->live()
+                                        ->afterStateUpdated(function (HasForms $livewire, TextInput $component) {
+                                            $livewire->validateOnly($component->getStatePath());
+                                        })
+                                        ->required(),
+                                    TextInput::make('nama_lengkap')
+                                        ->label('Nama Lengkap')
+                                        ->required(),
+                                    Group::make()
+                                        ->label('Jenis Kelamin')
+                                        ->schema([
+                                            Select::make('agama')
+                                                ->options(Agama::class)
+                                                ->required(),
+                                            Select::make('jenis_kelamin')
+                                                ->options(JenisKelamin::class)
+                                                ->required(),
+                                        ])->columns(2),
+                                    Group::make()
+                                        ->label('Tempat dan Tanggal Lahir')
+                                        ->schema([
+                                            TextInput::make('tempat_lahir')
+                                                ->label('Tempat Lahir')
+                                                ->required(),
+                                            DatePicker::make('tanggal_lahir')
+                                                ->label('Tanggal Lahir')
+                                                ->required(),
+                                        ])->columns(2),
+                                ]),
+
+                            Section::make()
+                                ->heading('Informasi Tambahan')
+                                ->description('Silahkan isi data tambahan penduduk')
+                                ->schema([
+                                    Select::make('pendidikan')
+                                        ->label('Pendidikan')
+                                        ->options(Pendidikan::class),
+                                    Select::make('status_pernikahan')
+                                        ->label('Status Pernikahan')
+                                        ->options(Pernikahan::class),
+                                    Select::make('pekerjaan')
+                                        ->label('Pekerjaan')
+                                        ->options(Pekerjaan::class)
+                                        ->searchingMessage('Mencari Jenis Pekerjaan')
+                                        ->searchable()
+                                        ->required(),
+                                ])->collapsible(),
+                        ])->columnSpan(['lg' => 2]),
+                    Group::make()
+                        ->schema([
+                            Group::make()
+                                ->schema([
+                                    Section::make()
+                                        ->schema(
+                                            [
+                                                Placeholder::make('created_at')
+                                                    ->label('Dibuat Pada')
+                                                    ->content(fn (Penduduk $record): ?string => ($record->created_at?->diffForHumans()))
+                                                    ->disabledOn('create'),
+                                                Placeholder::make('updated_at')
+                                                    ->label('Diubah Pada')
+                                                    ->content(function (Penduduk $record) {
+                                                        if ($record->audits()->count() > 0) {
+                                                            $latestAudit = $record->audits()->latest()->first();
+                                                            $userName = $latestAudit->user->name;
+                                                            $timeDiff = $latestAudit->updated_at->diffForHumans();
+
+                                                            return $timeDiff . ' oleh ' . $userName;
+                                                        } else {
+                                                            return 'Belum ada yang mengubah';
+                                                        }
+                                                    })
+                                                    ->disabledOn('create')
+                                            ]
+                                        )->hidden(fn (?Penduduk $record) => $record === null),
+                                    Section::make()
+                                        ->heading('Data Lainnya')
+                                        ->description('Silahkan Isi Ada')
+                                        ->schema([
+                                            Select::make('kesehatan')
+                                                ->preload()
+                                                ->relationship('kesehatan', 'kesehatan_jaminan')
+                                                ->multiple()
+
+                                                ->searchingMessage('Mencari Jaminan Kesehatan')
+                                                ->createOptionForm(
+                                                    [
+                                                        TextInput::make('kesehatan_jaminan')
+                                                            ->label('Jaminan Kesehatan')
+                                                    ]
+                                                ),
+                                            Select::make('bantuan')
+                                                ->label('Bantuan')
+                                        ])->collapsible(),
+                                ]),
+                            Section::make()
+                                ->heading('Status Tempat Tinggal')
+                                ->description('Keterangan Status Tempat Tinggal')
+                                ->schema(
+                                    [
+                                        Select::make('status')
+                                            ->options(Status::class)
+                                            ->required(),
+                                        TextInput::make('alamat')
+                                            ->label('Alamat')
+                                            ->required(),
+                                    ]
+                                ),
+                            Section::make()
+                                ->heading('Status Pengajuan')
+                                ->description('Keterangan Status Pengajuan')
+                                ->schema(
+                                    [
+                                        Select::make('status_pengajuan')
+                                            ->options(Pengajuan::class)
+                                            ->disabledOn(['create', 'edit'])
+                                            ->required(),
+                                    ]
+                                ),
+
+                        ])->columnSpan(['lg' => 1]),
+                ]
+            )->columns(3);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('nik')
+                    ->label('NIK')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('nama_lengkap')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('jenis_kelamin')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('tempat_lahir')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('tanggal_lahir')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('agama')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('pendidikan')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('status_pernikahan')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('pekerjaan')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('alamat')
+                    ->searchable()
+                    ->toggleable()
+                    ->sortable(),
+                TextColumn::make('alamatKK')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('status')
+                    ->searchable()
+                    // ->badge()
+                    ->toggleable()
+                    ->sortable(),
+                TextColumn::make('status_pengajuan')
+                    ->searchable()
+                    ->badge()
+                    ->toggleable()
+                    ->sortable(),
+                TextColumn::make('kesehatan.kesehatan_jaminan')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+
+            ])
+            ->filters([
+                //
+            ])
+            ->actions(
+                [
+                    Tables\Actions\ViewAction::make()->button()->color('primary')->iconSize('sm'),
+
+                    ActionsAction::make('Batalkan')->action(
+                        function (Penduduk $record) {
+
+                            static::restoreAuditSelected($record);
+                            $record->update(['status_pengajuan' => 'SELESAI']);
+                        }
+                    )
+                        ->color('danger')->label(
+                            'Batalkan'
+                        )->button()
+                        ->requiresConfirmation()->after(fn (Penduduk $record) => Notification::make()
+                            ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
+                            ->body($record->nama_lengkap . ' dibatalkan , data penduduk akan dikembalikan ke sebelumnya. Silahkan periksa kembali data penduduk')
+                            ->danger()
+                            ->sendToDatabase(
+                                $record->audits()->latest()->first()->user
+                            )
+                            ->seconds(5)
+                            ->persistent()
+                            ->send())
+                        ->visible(function (Penduduk $record) {
+                            //kirim ke rt yang dengan sls id penduduk ini
+
+                            $roles = auth()->user()->roles->pluck('name');
+                            $pengajuan = $record->status_pengajuan->value;
+                            foreach ($roles as $role) {
+                                if ($role == 'RT' && ($pengajuan == 'DALAM PROSES')) {
+                                    return true;
+                                }
+                            }
+                        }),
+
+
+                    ActionGroup::make([
+                        ActionsAction::make('Tinjau')
+                            ->form([
+                                TextInput::make('catatan')
+                                    ->label('Catatan')
+                                    ->required(),
+                            ])
+                            ->action(
+                                function (Penduduk $record) {
+                                    $record->update(['status_pengajuan' => 'DIBATALKAN']);
+                                }
+                            )
+                            ->color('danger')->label(
+                                'Tinjau Ulang'
+                            )->icon('fas-circle-question')
+                            ->requiresConfirmation()->after(fn (Penduduk $record, array $data) => Notification::make()
+                                ->title('Penduduk ' . $record->nama_lengkap . ' perlu ditinjau ulang')
+                                ->body('Catatan : ' . $data['catatan'])
+                                ->danger()
+                                ->sendToDatabase(
+                                    $record->audits()->latest()->first()->user
+                                )
+                                ->seconds(5)
+                                ->persistent()
+                                ->send())
+                            ->visible(function (Penduduk $record) {
+                                $roles = auth()->user()->roles->pluck('name');
+                                $pengajuan = $record->status_pengajuan->value;
+                                foreach ($roles as $role) {
+                                    if ($role == 'super_admin' && ($pengajuan == 'DALAM PROSES' || $pengajuan == 'SELESAI')) {
+                                        return true;
+                                    }
+                                }
+                            }),
+
+                        Tables\Actions\DeleteAction::make(),
+                        Tables\Actions\ViewAction::make(),
+                        Tables\Actions\EditAction::make(),
+                    ])->icon("fas-gears")->iconPosition('after')->color('success')->iconButton()->label('Aksi'),
+                ],
+                position: ActionsPosition::AfterColumns
+            )
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('Verifikasi')->label('Verifikasi')->icon('heroicon-m-pencil-square')->color('success')
+                        ->action(
+                            function (Collection $records) {
+                                $records->each->update(['status_pengajuan' => 'SELESAI']);
+                            }
+                        )
+                        ->visible(
+                            function () {
+                                $roles = auth()->user()->roles->pluck('name');
+                                if ($roles->contains('super_admin')) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+
+                        )->deselectRecordsAfterCompletion()->requiresConfirmation(),
+                ]),
+                ExportBulkAction::make()
+            ])
+            ->emptyStateActions([])
+            ->striped();
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+
+                Grid::make(3)
+                    ->schema([
+                        ComponentsGroup::make([
+                            ComponentsSection::make()
+                                ->heading('Informasi Penduduk')
+                                ->description('Berikut adalah informasi penduduk')
+                                ->schema(
+                                    [
+                                        Split::make([
+                                            Grid::make(2)
+                                                ->schema([
+                                                    ComponentsGroup::make([
+                                                        TextEntry::make('nik')
+                                                            ->label('NIK')
+                                                            ->weight(FontWeight::Bold)
+                                                            ->inlineLabel()
+                                                            ->copyable()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                        TextEntry::make('nama_lengkap')
+                                                            ->label('Nama Lengkap')
+                                                            ->weight(FontWeight::Bold)
+                                                            ->copyable()
+                                                            ->inlineLabel()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                        TextEntry::make('alamat')
+                                                            ->label('Alamat')
+                                                            ->inlineLabel()
+                                                            ->weight(FontWeight::Bold)
+                                                            ->copyable()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                        TextEntry::make('pendidikan')
+                                                            ->label('   Pendidikan')
+                                                            ->weight(FontWeight::Bold)
+                                                            ->inlineLabel()
+                                                            ->weight(FontWeight::Bold)
+
+                                                            ->copyable()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                        TextEntry::make('status_pernikahan')
+                                                            ->label('Status Pernikahan')
+                                                            ->weight(FontWeight::Bold)
+                                                            ->copyable()
+                                                            ->inlineLabel()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                        TextEntry::make('pekerjaan')
+                                                            ->label('Pekerjaan')
+                                                            ->inlineLabel()
+                                                            ->weight(FontWeight::Bold)
+                                                            ->copyable()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                    ]),
+                                                    ComponentsGroup::make([
+                                                        TextEntry::make('jenis_kelamin')
+                                                            ->inlineLabel()
+                                                            ->weight(FontWeight::Bold)
+
+                                                            ->label('Jenis Kelamin'),
+                                                        TextEntry::make('tempat_lahir')
+                                                            ->inlineLabel()
+                                                            ->weight(FontWeight::Bold)
+
+                                                            ->label('Tempat Lahir'),
+                                                        TextEntry::make('tanggal_lahir')
+                                                            ->label('Tanggal Lahir')
+                                                            ->weight(FontWeight::Bold)
+                                                            ->inlineLabel(),
+                                                        TextEntry::make('agama')
+                                                            ->label('Agama')
+                                                            ->weight(FontWeight::Bold)
+                                                            ->inlineLabel()
+
+                                                            ->copyable()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                        TextEntry::make('status')
+                                                            ->label('Status')
+                                                            ->inlineLabel()
+                                                            ->weight(FontWeight::Bold)
+                                                            ->copyable()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                    ])
+                                                ])
+                                        ]),
+
+                                    ]
+                                )->columnSpan(['lg' => 2]),
+                            ComponentsSection::make()
+                                ->heading('Informasi Tambahan')
+                                ->description('Berikut adalah informasi tambahan dari penduduk')
+                                ->schema(
+                                    [
+                                        Split::make([
+                                            Grid::make(2)
+                                                ->schema([
+                                                    ComponentsGroup::make([
+                                                        TextEntry::make('kesehatan.kesehatan_jaminan')
+                                                            ->label('Kesehatan')
+                                                            ->weight(FontWeight::Bold)
+                                                            ->badge()
+                                                            ->copyable()
+                                                            ->inlineLabel()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                        TextEntry::make('bantuan')
+                                                            ->label('Bantuan')
+                                                            ->weight(FontWeight::Bold)
+                                                            ->copyable()
+                                                            ->inlineLabel()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                    ]),
+
+                                                ])
+                                        ]),
+                                    ]
+                                )->columnSpan(['lg' => 2]),
+                        ])->columnSpan(['lg' => 2], ['sm' => 2]),
+
+                        ComponentsGroup::make([
+                            ComponentsSection::make('')
+                                ->schema([
+                                    TextEntry::make('created_at')
+                                        ->label('Dibuat Pada')
+                                        ->since(),
+                                    TextEntry::make('updated_at')
+                                        ->label('Diubah Pada')
+                                        ->formatStateUsing(
+                                            function (Penduduk $record) {
+                                                // cari user rt dengan sls id penduduk ini
+                                                if ($record->audits()->count() > 0) {
+                                                    $latestAudit = $record->audits()->latest()->first();
+                                                    $userName = $latestAudit->user->name;
+                                                    $timeDiff = $record->updated_at->diffForHumans();
+
+                                                    return $timeDiff . ' oleh ' . $userName;
+                                                } else {
+                                                    return 'Belum ada yang mengubah';
+                                                }
+                                            }
+                                        ),
+                                ]),
+                            ComponentsSection::make('')
+                                ->schema([
+                                    TextEntry::make('status_pengajuan')
+                                        ->label('Pengajuan')
+                                        ->inlineLabel()
+                                        ->badge()
+                                        ->weight(FontWeight::Bold)
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    Actions::make([
+                                        InfolistAction::make('verifikasi')
+                                            ->action(
+                                                fn (Penduduk $record) => $record->update(['status_pengajuan' => 'SELESAI']),
+                                            )->color('success')->label(
+                                                'Verifikasi'
+                                            )->button()
+                                            ->requiresConfirmation()->after(fn (Penduduk $record) => Notification::make()
+                                                ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
+                                                ->body($record->nama_lengkap . ' sudah diverifikasi')
+                                                ->success()
+                                                ->sendToDatabase(
+                                                    $record->audits()->latest()->first()->user
+                                                )
+                                                ->seconds(5)
+                                                ->persistent()
+                                                ->send())->visible(function (Penduduk $record) {
+                                                $roles = auth()->user()->roles->pluck('name');
+                                                if ($roles->contains('super_admin') && $record->status_pengajuan->value == 'DALAM PROSES') {
+                                                    return true;
+                                                } else {
+                                                    return false;
+                                                }
+                                            }),
+                                        InfolistAction::make('Batalkan')->action(
+                                            function (Penduduk $record) {
+
+                                                static::restoreAuditSelected($record);
+                                                $record->update(['status_pengajuan' => 'SELESAI']);
+                                            }
+                                        )
+                                            ->color('danger')->label(
+                                                'Batalkan'
+                                            )->button()
+                                            ->requiresConfirmation()->after(fn (Penduduk $record) => Notification::make()
+                                                ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
+                                                ->body($record->nama_lengkap . ' dibatalkan , data penduduk akan dikembalikan ke sebelumnya. Silahkan periksa kembali data penduduk')
+                                                ->danger()
+                                                ->sendToDatabase(
+                                                    // kirim ke rt yang dengan sls id penduduk ini
+                                                    $record->audits()->latest()->first()->user
+                                                )
+                                                ->seconds(5)
+                                                ->persistent()
+                                                ->send())
+                                            ->visible(function (Penduduk $record) {
+                                                $roles = auth()->user()->roles->pluck('name');
+                                                $pengajuan = $record->status_pengajuan->value;
+                                                foreach ($roles as $role) {
+                                                    if ($role == 'RT' && ($pengajuan == 'DALAM PROSES')) {
+                                                        return true;
+                                                    }
+                                                }
+                                            }),
+                                        InfolistAction::make('Tinjau')
+                                            ->form([
+                                                TextInput::make('catatan')
+                                                    ->label('Catatan')
+                                                    ->required(),
+                                            ])
+                                            ->action(
+                                                function (Penduduk $record) {
+                                                    $record->update(['status_pengajuan' => 'DIBATALKAN']);
+                                                }
+                                            )
+                                            ->color('danger')->label(
+                                                'Tinjau Ulang'
+                                            )->button()
+                                            ->requiresConfirmation()->after(fn (Penduduk $record, array $data) => Notification::make()
+                                                ->title('Penduduk ' . $record->nama_lengkap . ' perlu ditinjau ulang')
+                                                ->body('Catatan : ' . $data['catatan'])
+                                                ->danger()
+                                                ->sendToDatabase(
+                                                    $record->audits()->latest()->first()->user
+                                                )
+                                                ->seconds(5)
+                                                ->persistent()
+                                                ->send())
+                                            ->visible(function (Penduduk $record) {
+                                                $roles = auth()->user()->roles->pluck('name');
+                                                $pengajuan = $record->status_pengajuan->value;
+                                                foreach ($roles as $role) {
+                                                    if ($role == 'super_admin' && ($pengajuan == 'DALAM PROSES' || $pengajuan == 'SELESAI')) {
+                                                        return true;
+                                                    }
+                                                }
+                                            }),
+
+                                    ])
+                                ])
+                        ])->columnSpan(['lg' => 1], ['sm' => 2]),
+                    ]),
+
+            ]);
+    }
+
+
+    public static function getRelations(): array
+    {
+        return [
+            AuditsRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListPenduduks::route('/'),
+            'create' => Pages\CreatePenduduk::route('/create'),
+            'view' => Pages\ViewPenduduk::route('/{record}'),
+            'edit' => Pages\EditPenduduk::route('/{record}/edit'),
+        ];
+    }
+    public function getTableBulkActions()
+    {
+        return  [
+            ExportBulkAction::make(),
+
+        ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        ($roles = auth()->user()->roles->pluck('name'));
+
+        if ($roles->contains('RT')) {
+            // Pengguna dengan peran RT
+            $slsId = auth()->user()->slsRoles->pluck('sls.sls_id')->first();
+            $queryRT = parent::getEloquentQuery()->whereHas('kartuKeluarga', function ($query) use ($slsId) {
+                $query->where('sls_id', $slsId);
+            });
+        } elseif ($roles->contains('RW')) {
+            $slsId = auth()->user()->slsRoles->pluck('sls.sls_id');
+            $queryRW = parent::getEloquentQuery()->whereHas('kartuKeluarga', function ($query) use ($slsId) {
+                $query->whereIn('sls_id', $slsId);
+            });
+        } else {
+            $queryAdmin = parent::getEloquentQuery();
+        }
+
+        return $queryRT ?? $queryRW ?? $queryAdmin;
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            PendudukOverview::class,
+        ];
+    }
+
+    protected static function restoreAuditSelected($audit)
+    {
+        $oldvalues = $audit->audits()->latest()->first()->old_values;
+
+        Arr::pull($oldvalues, 'id');
+
+        if (is_array($oldvalues)) {
+
+            foreach ($oldvalues as $key => $item) {
+                $decode = json_decode($item);
+
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $oldvalues[$key] = $decode;
+                }
+            }
+            $audit->update($oldvalues);
+
+            self::restoredAuditNotification();
+        }
+    }
+
+
+    protected static function restoredAuditNotification()
+    {
+        Notification::make()
+            ->title('Data Berhasil di Perbarui')
+            ->success()
+            ->send();
+    }
+
+    protected static function unchangedAuditNotification()
+    {
+        Notification::make()
+            ->title(trans('filament-auditing::filament-auditing.notification.unchanged'))
+            ->warning()
+            ->send();
+    }
+}

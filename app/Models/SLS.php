@@ -24,13 +24,13 @@ class SLS extends Model
     protected $guarded = [];
     protected $table = 'sls';
     protected $primaryKey = 'sls_id';
-    // public $keyType = 'string';
     protected $fillable = [
         'sls_id',
         'sls_kode',
         'sls_nama',
-        'rw_id',
         'rt_id',
+        'rw_id',
+        'kel_id',
     ];
 
     public function rw_groups(): BelongsTo
@@ -54,79 +54,13 @@ class SLS extends Model
         return $this->hasManyThrough(Penduduk::class, KartuKeluarga::class, 'sls_id', 'kk_id', 'sls_id', 'kk_id');
     }
 
-    // public function getSlsNamaAttribute()
-    // {
-    //     $rw_nama = $this->rw_groups->rw_nama;
-    //     $rt_nama = $this->rt_groups->rt_nama;
+    public function kel_groups(): BelongsTo
+    {
+        return $this->belongsTo(Kelurahan::class, 'kel_id', 'kel_id');
+    }
 
-    //     return "{$rw_nama} / {$rt_nama}";
-    // }
-
-    // public function setSlsNamaAttribute($value)
-    // {
-    //     // Memastikan sls_nama mengikuti accessor
-    //     $this->attributes['sls_nama'] = $this->getSlsNamaAttribute();
-    // }
-
-
-    // public static function generateUniqueSlsKode($rw_id, $rt_id)
-    // {
-    //     // Mencari kode sls terbaru dengan kombinasi rw_id dan rt_id
-    //     $latestSLS = SLS::where('rw_id', $rw_id)
-    //         ->where('rt_id', $rt_id)
-    //         ->orderBy('sls_kode', 'desc')
-    //         ->first();
-
-    //     // Jika sudah ada kode sls sebelumnya, tambahkan 1
-    //     if ($latestSLS) {
-    //         $nextCode = (int) $latestSLS->sls_kode + 1;
-    //     } else {
-    //         $nextCode = 1; // Jika belum ada kode sls, mulai dari 1
-    //     }
-
-    //     // Format kode sls menjadi 4 digit dengan leading zeros
-    //     $formattedCode = sprintf('%04d', $nextCode);
-
-    //     return $formattedCode;
-    // }
-
-
-
-
-    // protected static function boot()
-    // {
-    //     parent::boot();
-
-    //     static::saving(function ($sls) {
-    //         // Saat akan menyimpan data, lakukan validasi unik kombinasi rw_id dan rt_id
-    //         $sls->validateUniqueRWRTCombination();
-
-    //         $sls->sls_kode = $sls->generateUniqueSlsKode($sls->rw_id, $sls->rt_id);
-    //     });
-    // }
-
-    // public function validateUniqueRWRTCombination()
-    // {
-    //     $rules = [
-    //         'rw_id' => [
-    //             'required',
-    //             'exists:rukun_warga,rw_id', // Pastikan rw_id ada dalam tabel rukun_warga
-    //         ],
-    //         'rt_id' => [
-    //             'required',
-    //             'exists:rukun_tetangga,rt_id', // Pastikan rt_id ada dalam tabel rukun_tetangga
-    //             Rule::unique('sls')->where(function ($query) {
-    //                 // Validasi unik kombinasi rw_id dan rt_id dalam tabel sls
-    //                 return $query->where('rw_id', $this->rw_id)
-    //                     ->where('rt_id', $this->rt_id);
-    //             })->ignore($this->getKey()), // Ignore saat memperbarui
-    //         ],
-    //     ];
-
-    //     $validator = Validator::make($this->attributes, $rules);
-
-    //     if ($validator->fails()) {
-    //         throw new \Exception($validator->messages()->first());
-    //     }
-    // }
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_sls_roles', 'sls_id', 'user_id')->as('sls')->withPivot('role_id')->withTimestamps();
+    }
 }

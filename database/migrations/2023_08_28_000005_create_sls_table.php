@@ -15,11 +15,13 @@ return new class extends Migration
             $table->id('sls_id');
             $table->string('sls_kode', 4)->unique(); // Tambahkan panjang maksimum dan indeks unik
             $table->string('sls_nama', 100);
+            $table->string('kel_id');
             $table->unsignedBigInteger('rw_id');
             $table->unsignedBigInteger('rt_id');
 
-            $table->unique(['rw_id', 'rt_id']);
+            $table->unique(['rw_id', 'rt_id', 'kel_id']);
 
+            $table->foreign('kel_id')->references('kel_id')->on('kelurahan')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('rw_id')->references('rw_id')->on('rukun_warga')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('rt_id')->references('rt_id')->on('rukun_tetangga')->cascadeOnDelete()->cascadeOnUpdate();
 

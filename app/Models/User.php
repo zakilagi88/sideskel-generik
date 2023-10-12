@@ -7,14 +7,16 @@ namespace App\Models;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, AuthenticationLoggable;
 
     /**
      * The attributes that are mass assignable.
@@ -47,15 +49,29 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // public function canAccessPanel(Panel $panel): bool
-    // {
-    //     return true;
-    //     // return $this->hasRole(
-    //     //     [
-    //     //         'Admin',
-    //     //         // 'rt',
-    //     //     ]
-    //     // );
-    //     // return $this->hasRole('Admin', 'User');
-    // }
+    /**
+     * The attributes that should be appended.
+     *
+     * @var array<int, string>
+     */
+
+    // protected $appends = [
+    //     'profile_photo_url',
+    // ];
+
+
+    public function articles()
+    {
+        return $this->hasMany(Article::class);
+    }
+
+    public function slsRoles()
+    {
+        return $this->belongsToMany(SLS::class, 'user_sls_roles', 'user_id', 'sls_id')->as('sls')->withPivot('role_id')->withTimestamps();
+    }
+
+    public function kelurahan()
+    {
+        return $this->slsRoles()->first()->kel_groups()->first();
+    }
 }
