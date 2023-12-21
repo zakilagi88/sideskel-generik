@@ -14,7 +14,7 @@ class Kematian extends Model
 
     protected $fillable = [
         'nik',
-        'sls_id',
+        'wilayah_id',
         'tanggal_kematian',
         'tempat_kematian',
         'sebab_kematian',

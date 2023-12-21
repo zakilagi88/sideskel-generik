@@ -34,7 +34,6 @@ class RWResource extends Resource
     protected static ?string $pluralModelLabel = 'Rukun Warga';
 
 
-    //get title
 
     public static function form(Form $form): Form
     {

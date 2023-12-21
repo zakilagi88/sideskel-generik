@@ -2,41 +2,31 @@
 
 namespace App\Providers\Filament;
 
+
 use App\Filament\AvatarProviders\BoringAvatarsProvider;
 use App\Filament\Pages\Auth\EditProfile;
-use App\Filament\Resources\ArticleResource;
-use App\Filament\Resources\CategoryResource;
-use App\Filament\Resources\KartukeluargaResource;
-use App\Filament\Resources\PendudukResource;
+use App\Filament\Pages\{CustomLogin, Generator, PendudukStats};
 use App\Filament\Resources\Shield\RoleResource;
-use App\Filament\Resources\SLSResource;
-use App\Filament\Resources\TagResource;
-use App\Filament\Resources\UserResource;
-use Awcodes\FilamentGravatar\GravatarPlugin;
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\NavigationBuilder;
-use Filament\Navigation\NavigationGroup;
-use Filament\Navigation\NavigationItem;
-use Filament\Pages;
+use App\Filament\Resources\{ArticleResource, CategoryResource, KartuKeluargaResource, PendudukResource, StatistikResource, WilayahResource, UserResource};
+use App\Http\Middleware\FilamentSettings;
+use App\Livewire\SettingsComponent;
+use Filament\Forms\Components\FileUpload;
+use Filament\Http\Middleware\{Authenticate, DisableBladeIconComponents, DispatchServingFilamentEvent};
+use Filament\Navigation\{NavigationBuilder, NavigationItem, NavigationGroup};
+use Filament\{Panel, PanelProvider, Widgets};
 use Filament\Pages\Dashboard;
-use Filament\Panel;
-use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Awcodes\FilamentGravatar\GravatarProvider;
-use Filament\Forms\Components\Hidden;
-use Filament\Navigation\MenuItem;
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Contracts\Support\Htmlable;
+use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Tapp\FilamentAuthenticationLog\FilamentAuthenticationLogPlugin;
 use Tapp\FilamentAuthenticationLog\Resources\AuthenticationLogResource;
 
@@ -48,31 +38,25 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth('8xl')
-            // ->topNavigation()
             ->id('admin')
             ->path('admin')
-            ->login()
-
-            ->userMenuItems(
-                [
-                    'profile' => MenuItem::make()->label('Edit Profile'),
-                ]
-            )
+            ->brandLogo(asset('images/cek1.png'))
+            ->brandLogoHeight('7rem')
+            ->favicon(asset('images/cek1.png'))
+            ->login(CustomLogin::class)
+            ->authGuard('web')
             ->globalSearchKeyBindings([
                 'command+f', 'ctrl+f'
             ])
             ->spa()
             ->emailVerification()
-            // ->defaultAvatarProvider(GravatarProvider::class)
-            ->profile(EditProfile::class)
             ->colors([
                 'danger' => Color::Rose,
                 'gray' => Color::Gray,
-                'info' => Color::Blue,
-                'primary' => Color::Indigo,
+                'info' => Color::Indigo,
+                'primary' => Color::Blue,
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
-                // 'navy' => Color::Slate,
             ])
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
@@ -94,7 +78,8 @@ class AdminPanelProvider extends PanelProvider
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
-                DispatchServingFilamentEvent::class
+                DispatchServingFilamentEvent::class,
+                FilamentSettings::class
 
             ])
             ->authMiddleware([
@@ -113,23 +98,31 @@ class AdminPanelProvider extends PanelProvider
                         ->items([
                             ...KartukeluargaResource::getNavigationItems(),
                             ...PendudukResource::getNavigationItems(),
+                            NavigationItem::make('Statistik Penduduk')
+                                ->icon('heroicon-o-home')
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.penduduk-stats'))
+                                ->url(fn (): string => PendudukStats::getUrl()),
                         ]),
                     NavigationGroup::make('Wilayah')
                         ->items([
-                            // ...RWResource::getNavigationItems(),
-                            // ...RtResource::getNavigationItems(),
-                            ...SLSResource::getNavigationItems(),
+                            ...WilayahResource::getNavigationItems(),
+                            NavigationItem::make('Generator')
+                                ->icon('heroicon-o-home')
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.generator'))
+                                ->url(fn (): string => Generator::getUrl()),
                         ]),
                     NavigationGroup::make('Website')
                         ->items([
+                            ...StatistikResource::getNavigationItems(),
                             ...CategoryResource::getNavigationItems(),
-                             ...ArticleResource::getNavigationItems()
+                            ...ArticleResource::getNavigationItems()
                         ]),
                     NavigationGroup::make('Pengaturan')
                         ->items([
                             ...RoleResource::getNavigationItems(),
                             ...UserResource::getNavigationItems(),
                             ...AuthenticationLogResource::getNavigationItems(),
+
 
                         ])
                 ]);
@@ -142,11 +135,22 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentAuthenticationLogPlugin::make(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
-                GravatarPlugin::make()
-                    ->default('robohash')
-                    ->size(400)
-                    ->rating('pg'),
+                BreezyCore::make()
+                    ->avatarUploadComponent(fn () => FileUpload::make('avatar_url')->directory('profile-photos'))
+                    ->passwordUpdateRules(
+                        rules: [Password::default()->mixedCase()->uncompromised(3)], // you may pass an array of validation rules as well. (default = ['min:8'])
+                        requiresCurrentPassword: true, // when false, the user can update their password without entering their current password. (default = true)
+                    )
+                    ->myProfile(
+                        shouldRegisterUserMenu: true, // Sets the 'account' link in the panel User Menu (default = true)
+                        shouldRegisterNavigation: true, // Adds a main navigation item for the My Profile page (default = false)
+                        hasAvatars: true, // Enables the avatar upload form component (default = false)
+                        slug: 'my-profile' // Sets the slug for the profile page (default = 'my-profile')
 
+                    )
+                    ->myProfileComponents([
+                        'personal_info' => SettingsComponent::class
+                    ]),
             ]);
     }
 }

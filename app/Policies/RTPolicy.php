@@ -18,7 +18,7 @@ class RtPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_rt');
+        return $user->can('view_any_r::t');
     }
 
     /**
@@ -30,7 +30,7 @@ class RtPolicy
      */
     public function view(User $user, Rt $rt): bool
     {
-        return $user->can('view_rt');
+        return $user->can('view_r::t');
     }
 
     /**
@@ -41,7 +41,7 @@ class RtPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_rt');
+        return $user->can('create_r::t');
     }
 
     /**
@@ -53,7 +53,7 @@ class RtPolicy
      */
     public function update(User $user, Rt $rt): bool
     {
-        return $user->can('update_rt');
+        return $user->can('update_r::t');
     }
 
     /**
@@ -65,7 +65,7 @@ class RtPolicy
      */
     public function delete(User $user, Rt $rt): bool
     {
-        return $user->can('delete_rt');
+        return $user->can('delete_r::t');
     }
 
     /**
@@ -76,7 +76,7 @@ class RtPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_rt');
+        return $user->can('delete_any_r::t');
     }
 
     /**
@@ -88,7 +88,7 @@ class RtPolicy
      */
     public function forceDelete(User $user, Rt $rt): bool
     {
-        return $user->can('force_delete_rt');
+        return $user->can('force_delete_r::t');
     }
 
     /**
@@ -99,7 +99,7 @@ class RtPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_rt');
+        return $user->can('force_delete_any_r::t');
     }
 
     /**
@@ -111,7 +111,7 @@ class RtPolicy
      */
     public function restore(User $user, Rt $rt): bool
     {
-        return $user->can('restore_rt');
+        return $user->can('restore_r::t');
     }
 
     /**
@@ -122,7 +122,7 @@ class RtPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_rt');
+        return $user->can('restore_any_r::t');
     }
 
     /**
@@ -134,7 +134,7 @@ class RtPolicy
      */
     public function replicate(User $user, Rt $rt): bool
     {
-        return $user->can('replicate_rt');
+        return $user->can('replicate_r::t');
     }
 
     /**
@@ -145,7 +145,7 @@ class RtPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_rt');
+        return $user->can('reorder_r::t');
     }
 
 }

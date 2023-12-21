@@ -11,17 +11,19 @@ class Kelurahan extends Model
 {
     use HasFactory;
 
-
-
     protected $table = 'kelurahan';
 
     protected $primaryKey = 'kel_id';
-    protected $keyType = 'string'; // Set the primary key data type
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'kel_id',
         'kel_nama',
+        'kel_profil',
+        'kel_tipe',
         'kec_id',
+
     ];
 
     public function kec_groups(): BelongsTo
@@ -29,8 +31,8 @@ class Kelurahan extends Model
         return $this->belongsTo(Kecamatan::class, 'kec_id', 'kec_id');
     }
 
-    public function sls_groups(): HasMany
+    public function wilayah_groups(): HasMany
     {
-        return $this->hasMany(SLS::class, 'kel_id', 'kel_id');
+        return $this->hasMany(Wilayah::class, 'kel_id', 'kel_id');
     }
 }

@@ -14,7 +14,7 @@ class Kepindahan extends Model
 
     protected $fillable = [
         'nik',
-        'sls_id',
+        'wilayah_id',
         'tanggal_pindah',
         'alamat_tujuan',
         'keterangan',

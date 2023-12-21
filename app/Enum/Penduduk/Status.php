@@ -9,15 +9,15 @@ use Filament\Support\Contracts\HasIcon;
 
 enum Status: string implements HasLabel, HasColor, HasIcon
 {
-    case YA = 'YA';
-    case TIDAK = 'TIDAK';
+    case WARGA = 'WARGA';
+    case PINDAH = 'PINDAH';
     case PENDATANG = 'PENDATANG';
     case MENINGGAL = 'MENINGGAL';
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::YA => 'WARGA',
-            self::TIDAK => 'PINDAH',
+            self::WARGA => 'WARGA',
+            self::PINDAH => 'PINDAH',
             self::PENDATANG => 'PENDATANG',
             self::MENINGGAL => 'MENINGGAL',
         };
@@ -26,8 +26,8 @@ enum Status: string implements HasLabel, HasColor, HasIcon
     public function getColor(): string | null | array
     {
         return match ($this) {
-            self::YA => 'success',
-            self::TIDAK => 'primary',
+            self::WARGA => 'success',
+            self::PINDAH => 'primary',
             self::PENDATANG => 'info',
             self::MENINGGAL => 'danger',
         };
@@ -36,8 +36,8 @@ enum Status: string implements HasLabel, HasColor, HasIcon
     public function   getIcon(): ?string
     {
         return match ($this) {
-            self::YA => 'fas-children',
-            self::TIDAK => 'fas-person-walking-dashed-line-arrow-right',
+            self::WARGA => 'fas-children',
+            self::PINDAH => 'fas-person-walking-dashed-line-arrow-right',
             self::PENDATANG => 'fas-arrows-down-to-people',
             self::MENINGGAL => 'fas-person-falling-burst',
         };

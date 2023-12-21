@@ -109,7 +109,6 @@ class PenduduksRelationManager extends RelationManager
                                                             $latestAudit = $record->audits()->latest()->first();
                                                             $userName = $latestAudit->user->name;
                                                             $timeDiff = $latestAudit->updated_at->diffForHumans();
-
                                                             return $timeDiff . ' oleh ' . $userName;
                                                         } else {
                                                             return 'Belum ada yang mengubah';

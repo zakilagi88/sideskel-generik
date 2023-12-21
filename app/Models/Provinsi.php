@@ -10,9 +10,11 @@ class Provinsi extends Model
 {
     use HasFactory;
 
-    protected $table = 'provinsis';
+    protected $table = 'provinsi';
 
     protected $primaryKey = 'prov_id';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'prov_id',

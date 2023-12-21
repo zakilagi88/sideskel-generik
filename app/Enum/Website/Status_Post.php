@@ -9,49 +9,37 @@ use Filament\Support\Contracts\HasIcon;
 
 enum Status_Post: string implements HasLabel, HasColor, HasIcon
 {
-    case draft = 'draft';
-    case publish = 'publish';
-    case pending = 'pending';
-    case private = 'private';
+    case DRAFT = 'DRAFT';
+    case PUBLISH = 'PUBLISH';
+    case PENDING = 'PENDING';
+    case PRIVATE = 'PRIVATE';
 
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::draft => 'draft',
-            self::publish => 'publish',
-            self::pending => 'pending',
-            self::private => 'private',
+            self::DRAFT => 'DRAFT',
+            self::PUBLISH => 'PUBLISH',
+            self::PENDING => 'PENDING',
+            self::PRIVATE => 'PRIVATE',
         };
     }
-
     public function getColor(): string | null | array
     {
         return match ($this) {
-            self::draft => 'primary',
-            self::publish => 'success',
-            self::pending => 'info',
-            self::private => 'danger',
+            self::DRAFT => 'primary',
+            self::PUBLISH => 'success',
+            self::PENDING => 'info',
+            self::PRIVATE => 'danger',
         };
     }
 
-    // public function getIcon(): string | null
-    // {
-    //     return match ($this) {
-    //         self::draft => 'heroicon-o-document-duplicate',
-    //         self::publish => 'heroicon-o-document',
-    //         self::pending => 'heroicon-o-clock',
-    //         self::private => 'heroicon-o-lock-closed',
-    //     };
-    // }
-
-    // using fontawesome
     public function getIcon(): string | null
     {
         return match ($this) {
-            self::draft => 'fas-file-alt',
-            self::publish => 'fas-file-signature',
-            self::pending => 'fas-clock',
-            self::private => 'fas-lock',
+            self::DRAFT => 'fas-file-alt',
+            self::PUBLISH => 'fas-file-signature',
+            self::PENDING => 'fas-clock',
+            self::PRIVATE => 'fas-lock',
         };
     }
 }

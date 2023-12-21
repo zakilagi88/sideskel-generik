@@ -32,7 +32,7 @@ class KartuKeluarga extends Model implements Auditable
         'kk_id',
         'kk_kepala',
         'kk_alamat',
-        'sls_id',
+        'wilayah_id',
         'updated_at'
     ];
 
@@ -44,7 +44,7 @@ class KartuKeluarga extends Model implements Auditable
         'kk_id',
         'kk_kepala',
         'kk_alamat',
-        'sls_id',
+        'wilayah_id',
         'updated_at'
     ];
 
@@ -55,20 +55,15 @@ class KartuKeluarga extends Model implements Auditable
         return $this->hasManyThrough(Penduduk::class, AnggotaKeluarga::class, 'kk_id', 'nik', 'kk_id', 'nik');
     }
 
-    public function sls(): BelongsTo
+    public function wilayah(): BelongsTo
     {
-        return $this->belongsTo(SLS::class, 'sls_id', 'sls_id');
+        return $this->belongsTo(wilayah::class, 'wilayah_id', 'wilayah_id');
     }
 
 
     public function kepalaKeluarga(): BelongsTo
     {
         return $this->belongsTo(Penduduk::class, 'kk_kepala', 'nik');
-    }
-
-    public function kepalaKK(): HasOne
-    {
-        return $this->hasOne(AnggotaKeluarga::class, 'kk_id', 'kk_id')->where('hubungan', 'Kepala Keluarga');
     }
 
 

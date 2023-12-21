@@ -9,14 +9,14 @@ use Filament\Support\Contracts\HasIcon;
 
 enum Pengajuan: string implements HasLabel, HasColor, HasIcon
 {
-    case DALAM_PROSES = 'DALAM PROSES';
-    case SELESAI = 'SELESAI';
+    case BELUM_DIVERIFIKASI = 'BELUM DIVERIFIKASI';
+    case DIVERIFIKASI = 'DIVERIFIKASI';
     case DIBATALKAN = 'DIBATALKAN';
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::DALAM_PROSES => 'DALAM PROSES',
-            self::SELESAI => 'SELESAI',
+            self::BELUM_DIVERIFIKASI => 'BELUM DIVERIFIKASI',
+            self::DIVERIFIKASI => 'DIVERIFIKASI',
             self::DIBATALKAN => 'DIBATALKAN',
         };
     }
@@ -24,8 +24,8 @@ enum Pengajuan: string implements HasLabel, HasColor, HasIcon
     public function getColor(): string | null | array
     {
         return match ($this) {
-            self::DALAM_PROSES => 'info',
-            self::SELESAI => 'success',
+            self::BELUM_DIVERIFIKASI => 'info',
+            self::DIVERIFIKASI => 'success',
             self::DIBATALKAN => 'danger',
         };
     }
@@ -33,8 +33,8 @@ enum Pengajuan: string implements HasLabel, HasColor, HasIcon
     public function getIcon(): ?string
     {
         return match ($this) {
-            self::DALAM_PROSES => 'fas-spinner',
-            self::SELESAI => 'fas-check-double',
+            self::BELUM_DIVERIFIKASI => 'fas-spinner',
+            self::DIVERIFIKASI => 'fas-check-double',
             self::DIBATALKAN => 'fas-xmark',
         };
     }

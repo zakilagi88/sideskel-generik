@@ -6,13 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class kecamatan extends Model
+class Kecamatan extends Model
 {
     use HasFactory;
 
-    protected $table = 'kecamatans';
+    protected $table = 'kecamatan';
 
     protected $primaryKey = 'kec_id';
+
+    protected $keyType = 'string';
+
 
     protected $fillable = [
         'kec_id',

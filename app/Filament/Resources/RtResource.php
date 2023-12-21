@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\RtResource\Pages;
-use App\Filament\Resources\RtResource\RelationManagers;
+use App\Filament\Resources\RTResource\Pages;
+use App\Filament\Resources\RTResource\RelationManagers;
 use App\Models\Rt;
 use Faker\Provider\ar_EG\Text;
 use Filament\Forms;
@@ -25,7 +25,7 @@ use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Factories\Relationship;
 use stdClass;
 
-class RtResource extends Resource
+class RTResource extends Resource
 {
     protected static ?string $model = Rt::class;
 

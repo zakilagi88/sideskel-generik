@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class RW extends Model
 {
@@ -22,17 +23,13 @@ class RW extends Model
     protected $fillable = [
         'rw_id',
         'rw_nama',
-        // 'kelurahan_id'
+        'kel_id',
+        'dusun_id',
 
     ];
 
-    // public function kelurahan()
-    // {
-    //     return $this->belongsTo(Kelurahan::class, 'rw_id', 'rw_id');
-    // }
-
-    public function rt_group(): HasMany
+    public function kepala(): MorphOne
     {
-        return $this->hasMany(RT::class, 'rw_id', 'rw_id');
+        return $this->morphOne(KepalaEntitas::class, 'entitas');
     }
 }

@@ -23,17 +23,23 @@ class CategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'fas-layer-group';
 
+    protected static ?string $navigationLabel = 'Kategori';
+
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->live()
+                    ->live(onBlur: true)
                     ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
 
                 Forms\Components\TextInput::make('slug')
+                    ->disabled()
+                    ->dehydrated()
                     ->required()
+                    ->unique(Category::class, 'slug', ignoreRecord: true),
             ]);
     }
 
@@ -49,13 +55,16 @@ class CategoryResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('articles_count')
                     ->searchable()
+                    ->label('Jumlah Artikel')
                     ->counts('articles'),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Dibuat pada')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
 
                     ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Diperbarui pada')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
 

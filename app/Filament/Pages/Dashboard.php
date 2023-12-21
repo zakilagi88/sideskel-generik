@@ -3,8 +3,10 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets;
-use App\Filament\Widgets\PendudukApexBarChart;
+
 use App\Filament\Widgets\StatsOverview;
+use App\Livewire\Widgets\Chart\PendudukApexBarChart;
+use App\Livewire\Widgets\Chart\PendudukChart;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Pages\Dashboard as BasePage;
@@ -59,12 +61,12 @@ class Dashboard extends BasePage
     {
         return [
             PendudukApexBarChart::class,
-            Widgets\PendudukChart::class,
+            PendudukChart::class,
         ];
     }
 
     public function getMaxContentWidth(): ?string
     {
-        return '9xl';
+        return '8xl';
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Penduduk;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,12 +14,11 @@ return new class extends Migration
     {
         Schema::create('kedatangan', function (Blueprint $table) {
             $table->id();
-            $table->string('nik', 16);
-            $table->date('tanggal_datang');
-            $table->string('alamat_asal');
-            $table->string('keterangan');
+            $table->foreignIdFor(Penduduk::class, 'nik')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->date('tanggal_datang')->nullable();
+            $table->string('alamat_asal')->nullable();
+            $table->string('keterangan')->nullable();
 
-            $table->foreign('nik')->references('nik')->on('penduduks')->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -32,7 +32,7 @@ class Article extends Model
     ];
 
     protected $casts = [
-        'featured_image_url' => 'array', // 'array' or 'json
+        'featured_image_url' => 'array',
         'scheduled_for' => 'datetime',
         'published_at' => 'datetime',
         'status' => Status_Post::class
@@ -47,5 +47,10 @@ class Article extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('status', Status_Post::PUBLISH);
     }
 }

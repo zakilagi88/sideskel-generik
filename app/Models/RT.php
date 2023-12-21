@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class RT extends Model
 {
@@ -29,25 +30,11 @@ class RT extends Model
     protected $fillable = [
         'rt_id',
         'rt_nama',
-        // 'rw_id'
+        'rw_id',
     ];
 
-
-
-    // public function rw_group(): BelongsTo
-    // {
-    //     return $this->belongsTo(RW::class, 'rw_id', 'rw_id');
-    // }
-
-
-    // public function sls_group(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(SLS::class, 'sls', 'rw_id', 'rt_id');
-    // }
-
-
-    // public function penduduk()
-    // {
-    //     return $this->hasMany(Penduduk::class, 'rt_id', 'penduduk_id');
-    // }
+    public function kepala(): MorphOne
+    {
+        return $this->morphOne(KepalaEntitas::class, 'entitas');
+    }
 }

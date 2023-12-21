@@ -17,6 +17,7 @@ use Database\Seeders\PendudukSeeder;
 use Database\Seeders\ProvinsiSeeder;
 use Database\Seeders\RukunTetanggaSeeder;
 use Database\Seeders\RukunWargaSeeder;
+use Database\Seeders\ShieldSeeder;
 use Database\Seeders\SLSSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\UserSlsRolesSeeder;
@@ -32,17 +33,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            ProvinsiSeeder::class,
-            KabKotaSeeder::class,
-            KecamatanSeeder::class,
-            KelurahanSeeder::class,
             RukunWargaSeeder::class,
             RukunTetanggaSeeder::class,
             SLSSeeder::class,
+            ShieldSeeder::class,
             UserSlsRolesSeeder::class,
-            // KartuKeluargaSeeder::class,
-            // PendudukSeeder::class,
-            // AnggotaKeluargaSeeder::class,
 
         ]);
     }

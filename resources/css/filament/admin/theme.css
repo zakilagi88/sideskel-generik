@@ -11,24 +11,20 @@
         @apply bg-[#96B6C5] mr-4 rounded-lg dark:bg-slate-800  !important;
     }
 
-    .fi-sidebar-open {
-        @apply !bg-[#96B6C5] px-4 dark:bg-slate-800   !important;
-    }
-
     .fi-sidebar-header {
-        @apply ring-0 bg-[#96B6C5] shadow-none rounded-lg dark:bg-slate-800 !important;
+        @apply ring-0  bg-[#96B6C5] shadow-none rounded-lg dark:bg-slate-800 !important;
     }
 
     .fi-sidebar-header button {
-        @apply mx-auto !text-blue-950 dark:!text-white !important;
+        @apply pl-4 !text-blue-950 dark:!text-white !important;
     }
 
     .fi-sidebar-open .fi-sidebar-header button {
-        @apply !text-blue-950 left-6 dark:text-white !important;
+        @apply !text-blue-950  dark:text-white !important;
     }
 
     .fi-sidebar-open .fi-sidebar-header {
-        @apply !bg-[#F1F0E8] mt-4 shadow-none px-4 dark:bg-slate-800   !important;
+        @apply mt-4 shadow-none dark:bg-slate-800   !important;
     }
 
     nav {
@@ -44,11 +40,11 @@
     }
 
     .fi-sidebar-item-label {
-        @apply !text-gray-800 dark:text-slate-800 !important;
+        @apply !text-gray-800 dark:text-slate-800  !important;
     }
 
     .fi-sidebar-group div button {
-        @apply !text-gray-800 dark:text-white !important;
+        @apply !text-gray-800 dark:text-white focus:ring-transparent !important;
     }
     .fi-sidebar-group div span {
         @apply !text-gray-800 dark:text-white !important;
@@ -82,8 +78,15 @@
     .fi-topbar nav {
         @apply mr-4 bg-[#96B6C5] rounded-lg dark:bg-slate-800 !important;
     }
+
+    .fi-sidebar-nav ul{
+        @apply gap-y-2 !important;
+    }
+
+    .fi-sidebar-nav ul li{
+        @apply hover:bg-[#F1F0E8] rounded-lg !important;
+    }
+
+    
 }
 
-/* .fi-main-ctn {
-    @apply bg-primary-800 bg-gradient-to-tl from-indigo-300 to-indigo-50 dark:bg-gray-800 dark:border-gray-700 dark:from-gray-800 dark:to-gray-800 !important;}
- */

@@ -10,8 +10,8 @@ use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Actions as ComponentsActions;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
+use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Resources\Pages\ListRecords\Tab;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -58,10 +58,10 @@ class ListPenduduks extends ListRecords
     {
         return [
             'Semua' => Tab::make('Semua')->icon('fas-people-group')->badge($this->statuswarga->sum())->badgeColor('primary'),
-            'Warga' => Tab::make()->modifyQueryUsing(fn (Builder $query) => ($query->where('status', 'YA')))->badge($this->statuswarga[Status::YA->value] ?? '0')->icon('fas-children')->badgeColor('success'),
-            'Tidak' => Tab::make()->modifyQueryUsing(function (Builder $query) {
-                $query->where('status', 'TIDAK');
-            })->label('Pindah')->badge($this->statuswarga[Status::TIDAK->value] ?? '0')->icon('fas-person-walking-dashed-line-arrow-right')->badgeColor('warning'),
+            'Warga' => Tab::make()->modifyQueryUsing(fn (Builder $query) => ($query->where('status', 'WARGA')))->badge($this->statuswarga[Status::WARGA->value] ?? '0')->icon('fas-children')->badgeColor('success'),
+            'Pindah' => Tab::make()->modifyQueryUsing(function (Builder $query) {
+                $query->where('status', 'PINDAH');
+            })->label('Pindah')->badge($this->statuswarga[Status::PINDAH->value] ?? '0')->icon('fas-person-walking-dashed-line-arrow-right')->badgeColor('warning'),
             'Pendatang' => Tab::make()->modifyQueryUsing(function (Builder $query) {
                 $query->where('status', 'PENDATANG');
             })->badge($this->statuswarga[Status::PENDATANG->value] ?? '0')->icon('fas-arrows-down-to-people')->badgeColor('info'),

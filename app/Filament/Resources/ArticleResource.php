@@ -6,18 +6,11 @@ use App\Enum\Website\Status_Post;
 use App\Filament\Resources\ArticleResource\Pages;
 use App\Filament\Resources\ArticleResource\RelationManagers;
 use App\Models\Article;
+use Carbon\Carbon;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\SpatieTagsInput;
-use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -29,6 +22,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 use Spatie\Tags\Tag;
@@ -38,6 +32,11 @@ class ArticleResource extends Resource
     protected static ?string $model = Article::class;
 
     protected static ?string $navigationIcon = 'fas-newspaper';
+    protected static ?string $recordTitleAttribute = 'title';
+
+    protected static ?string $navigationLabel = 'Berita';
+
+
 
     public static function form(Form $form): Form
     {
@@ -55,9 +54,18 @@ class ArticleResource extends Resource
                                     ->schema([
                                         Forms\Components\TextInput::make('title')
                                             ->required()
+
                                             ->label('Judul')
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn (string $operation, $state, Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
+
+                                            ->afterStateUpdated(
+                                                function (string $operation, $state, Set $set) {
+                                                    if ($operation === 'create') {
+                                                        $set('title', Str::title($state));
+                                                        $set('slug', Str::slug($state));
+                                                    }
+                                                }
+                                            ),
 
                                         Forms\Components\TextInput::make('slug')
                                             ->disabled()
@@ -85,8 +93,9 @@ class ArticleResource extends Resource
                                             ->required(),
 
 
-                                        SpatieTagsInput::make('tags')
+                                        Forms\Components\SpatieTagsInput::make('tags')
                                             ->label('Meta Tags')
+                                            ->type('tags-article')
                                             ->hint('Meta Tags untuk SEO')
                                             ->hintColor('info')
                                             ->hintIcon('heroicon-o-information-circle', tooltip: 'Meta Tags untuk SEO')
@@ -98,10 +107,9 @@ class ArticleResource extends Resource
                                     ->schema([
                                         Forms\Components\FileUpload::make('featured_image_url')
                                             ->label('Image')
-                                            ->image()
                                             ->hiddenLabel()
-                                            ->directory('images/articles')
-
+                                            ->disk('public')
+                                            ->directory('articles')
                                             ->image()
                                             ->imageEditor()
                                             ->imageEditorAspectRatios([
@@ -241,7 +249,8 @@ class ArticleResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options(Status_Post::class),
+                    ->options(Status_Post::class)
+                    ->preload(),
                 SelectFilter::make('category_id')
                     ->relationship('category', 'name')
                     ->label('Kategori')
@@ -249,12 +258,45 @@ class ArticleResource extends Resource
                     ->preload(),
                 SelectFilter::make('tags')
                     ->multiple()
+                    ->preload()
                     ->options(Tag::getWithType('tags-article')->pluck('name', 'name'))
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when($data['values'], function (Builder $query, $data): Builder {
                             return $query->withAnyTags(array_values($data), 'tags-article');
                         });
+                    }),
+
+                Tables\Filters\Filter::make('published_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('published_from')
+                            ->label('Dipublikasikan dari')
+                            ->placeholder(fn ($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
+                        Forms\Components\DatePicker::make('published_until')
+                            ->label('Dipublikasikan sampai')
+                            ->placeholder(fn ($state): string => now()->format('M d, Y')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['published_from'] ?? null,
+                                fn (Builder $query, $date): Builder => $query->whereDate('published_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['published_until'] ?? null,
+                                fn (Builder $query, $date): Builder => $query->whereDate('published_at', '<=', $date),
+                            );
                     })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['published_from'] ?? null) {
+                            $indicators['published_from'] = 'Published from ' . Carbon::parse($data['published_from'])->toFormattedDateString();
+                        }
+                        if ($data['published_until'] ?? null) {
+                            $indicators['published_until'] = 'Published until ' . Carbon::parse($data['published_until'])->toFormattedDateString();
+                        }
+
+                        return $indicators;
+                    }),
 
             ])
             ->actions([
@@ -279,5 +321,36 @@ class ArticleResource extends Resource
             'create' => Pages\CreateArticle::route('/create'),
             'edit' => Pages\EditArticle::route('/{record}/edit'),
         ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['user', 'category']);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'user.name', 'category.name', 'tags.name'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        /** @var Article $record */
+        $details = [];
+
+
+        if ($record->user) {
+            $details['User'] = $record->user->name;
+        }
+
+        if ($record->category) {
+            $details['Category'] = $record->category->name;
+        }
+
+        if ($record->tags) {
+            $details['Tags'] = $record->tags->pluck('name')->join(', ');
+        }
+
+        return $details;
     }
 }

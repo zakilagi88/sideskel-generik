@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\{KartuKeluarga, Penduduk, Wilayah};
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -13,7 +14,7 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Kartu Keluarga', \App\Models\KartuKeluarga::count())
+            Stat::make('Kartu Keluarga', KartuKeluarga::count())
                 ->icon('heroicon-o-user-group')
                 ->description('Kepala Keluarga')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
@@ -26,7 +27,7 @@ class StatsOverview extends BaseWidget
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
-            Stat::make('Penduduk', \App\Models\Penduduk::count())
+            Stat::make('Penduduk', Penduduk::count())
                 ->icon('heroicon-o-user-group')
                 ->description('Jumlah Penduduk')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
@@ -40,7 +41,7 @@ class StatsOverview extends BaseWidget
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
-            Stat::make('RT', \App\Models\SLS::count())
+            Stat::make('RT', Wilayah::count())
                 ->icon('heroicon-o-user-group')
                 ->description('Jumlah RT')
                 ->descriptionIcon('heroicon-o-user-group')
@@ -51,24 +52,6 @@ class StatsOverview extends BaseWidget
                 ->chart([
                     20, 10, 3, 12, 1, 14, 10, 1, 4, 20
                 ]),
-            // Stat::make('RW', \App\Models\RW::count())
-            //     ->description('Jumlah RW')
-            //     ->descriptionIcon('heroicon-o-user-group')
-            //     ->color('primary')
-            //     ->chart([
-            //         'labels' => \App\Models\RW::pluck('nama'),
-            //         'values' => \App\Models\RW::pluck('anggotaKeluarga')->map->count(),
-            //     ]),
-            // Stat::make('SLS', \App\Models\SLS::count())
-            //     ->description('Jumlah SLS')
-            //     ->descriptionIcon('heroicon-o-user-group')
-            //     ->color('primary')
-            //     ->chart(
-            //         [
-            //             'labels' => \App\Models\SLS::pluck('nama'),
-            //             'values' => \App\Models\SLS::pluck('anggotaKeluarga')->map->count(),
-            //         ]
-            //     ),
         ];
     }
 }

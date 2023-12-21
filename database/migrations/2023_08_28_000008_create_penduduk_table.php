@@ -18,8 +18,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('penduduks', function (Blueprint $table) {
+        Schema::create('penduduk', function (Blueprint $table) {
             $table->string('nik', 16)->unique();
+
+            $table->foreignId('wilayah_id')->nullable()->constrained('wilayah', 'wilayah_id')->cascadeOnUpdate()->cascadeOnDelete();
+
+            $table->string('foto')->nullable();
             // nama varchar
             $table->string('nama_lengkap');
             // jenis_kelamin enum
@@ -33,15 +37,33 @@ return new class extends Migration
             // pendidikan enum
             $table->string('pendidikan');
             // status_pernikahan enum
-            $table->string('status_pernikahan');
-            // pekerjaan varchar
             $table->string('pekerjaan');
 
+            $table->string('status_perkawinan');
+            // pekerjaan varchar
+            $table->string('kewarganegaraan')->default('WNI');
+
+            $table->string('ayah')->nullable();
+
+            $table->string('ibu')->nullable();
+
+            $table->string('golongan_darah')->nullable();
+
             $table->string('status');
+
+            $table->string('status_pengajuan')->default('BELUM DIVERIFIKASI');
+            
+            $table->string('status_tempat_tinggal')->nullable();
+
+            $table->string('etnis_suku')->nullable();
 
             $table->string('alamat');
 
             $table->boolean('alamatKK')->nullable()->default(false);
+
+            $table->string('telepon')->nullable();
+
+            $table->string('email')->nullable();
 
             $table->timestamps();
         });
@@ -53,6 +75,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('penduduks');
+        Schema::dropIfExists('penduduk');
     }
 };

@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Kartukeluarga;
+use App\Models\KartuKeluarga;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class KartukeluargaPolicy
+class KartuKeluargaPolicy
 {
     use HandlesAuthorization;
 
@@ -25,10 +25,10 @@ class KartukeluargaPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Kartukeluarga  $kartukeluarga
+     * @param  \App\Models\KartuKeluarga  $kartuKeluarga
      * @return bool
      */
-    public function view(User $user, Kartukeluarga $kartukeluarga): bool
+    public function view(User $user, KartuKeluarga $kartuKeluarga): bool
     {
         return $user->can('view_kartukeluarga');
     }
@@ -48,10 +48,10 @@ class KartukeluargaPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Kartukeluarga  $kartukeluarga
+     * @param  \App\Models\KartuKeluarga  $kartuKeluarga
      * @return bool
      */
-    public function update(User $user, Kartukeluarga $kartukeluarga): bool
+    public function update(User $user, KartuKeluarga $kartuKeluarga): bool
     {
         return $user->can('update_kartukeluarga');
     }
@@ -60,10 +60,10 @@ class KartukeluargaPolicy
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Kartukeluarga  $kartukeluarga
+     * @param  \App\Models\KartuKeluarga  $kartuKeluarga
      * @return bool
      */
-    public function delete(User $user, Kartukeluarga $kartukeluarga): bool
+    public function delete(User $user, KartuKeluarga $kartuKeluarga): bool
     {
         return $user->can('delete_kartukeluarga');
     }
@@ -83,10 +83,10 @@ class KartukeluargaPolicy
      * Determine whether the user can permanently delete.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Kartukeluarga  $kartukeluarga
+     * @param  \App\Models\KartuKeluarga  $kartuKeluarga
      * @return bool
      */
-    public function forceDelete(User $user, Kartukeluarga $kartukeluarga): bool
+    public function forceDelete(User $user, KartuKeluarga $kartuKeluarga): bool
     {
         return $user->can('force_delete_kartukeluarga');
     }
@@ -106,10 +106,10 @@ class KartukeluargaPolicy
      * Determine whether the user can restore.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Kartukeluarga  $kartukeluarga
+     * @param  \App\Models\KartuKeluarga  $kartuKeluarga
      * @return bool
      */
-    public function restore(User $user, Kartukeluarga $kartukeluarga): bool
+    public function restore(User $user, KartuKeluarga $kartuKeluarga): bool
     {
         return $user->can('restore_kartukeluarga');
     }
@@ -129,10 +129,10 @@ class KartukeluargaPolicy
      * Determine whether the user can replicate.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Kartukeluarga  $kartukeluarga
+     * @param  \App\Models\KartuKeluarga  $kartuKeluarga
      * @return bool
      */
-    public function replicate(User $user, Kartukeluarga $kartukeluarga): bool
+    public function replicate(User $user, KartuKeluarga $kartuKeluarga): bool
     {
         return $user->can('replicate_kartukeluarga');
     }

@@ -5,12 +5,14 @@ module.exports = {
     presets: [preset],
 
     content: [
+        "./app/Filament/**/*.php",
         "./resources/**/*.blade.php",
         "./resources/**/*.js",
         "./resources/**/*.vue",
-        "./app/Filament/**/*.php",
         "./resources/views/filament/**/*.blade.php",
+        "./vendor/bezhansalleh/filament-exceptions/resources/views/**/*.blade.php", // Language Switch Views
         "./vendor/filament/**/*.blade.php",
+        "./resources/views/livewire/**/*.blade.php",
     ],
     theme: {
         extend: {},

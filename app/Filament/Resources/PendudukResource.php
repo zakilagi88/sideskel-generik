@@ -2,52 +2,32 @@
 
 namespace App\Filament\Resources;
 
-use App\Enum\Penduduk\Agama;
-use App\Enum\Penduduk\JenisKelamin;
-use App\Enum\Penduduk\Pekerjaan;
-use App\Enum\Penduduk\Pendidikan;
-use App\Enum\Penduduk\Pengajuan;
-use App\Enum\Penduduk\Pernikahan;
-use App\Enum\Penduduk\Status;
+use App\Enum\Penduduk\{Agama, JenisKelamin, Pekerjaan, Pendidikan, Pengajuan, Perkawinan, Status};
 use App\Filament\Resources\PendudukResource\Pages;
-use App\Filament\Resources\PendudukResource\RelationManagers;
 use App\Filament\Resources\PendudukResource\Widgets\PendudukOverview;
 use App\Models\Penduduk;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Filament\Infolists\Components\Actions;
-use Filament\Infolists\Components\Actions\Action as InfolistAction;
-use Filament\Infolists\Components\Grid;
-use Filament\Infolists\Components\Group as ComponentsGroup;
-use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\Section as ComponentsSection;
-use Filament\Infolists\Components\Split;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
-use Filament\Notifications\Notification;
+use Filament\Forms\Components\{Group, Section, Select, TextInput, DatePicker, Placeholder};
+
+use Filament\Forms\Contracts\HasForms;
 use Filament\Resources\Resource;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\{Actions, Grid, Group as ComponentsGroup, Section as ComponentsSection, Split, TextEntry};
+use Filament\Infolists\Components\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
-use Filament\Tables\Actions\Action as ActionsAction;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Columns\Layout\Split as LayoutSplit;
+use Filament\Tables\Table;
+use Filament\Tables\Actions\{Action as ActionsAction, ActionGroup, BulkAction};
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Illuminate\Validation\Rule;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class PendudukResource extends Resource
 {
@@ -114,9 +94,9 @@ class PendudukResource extends Resource
                                     Select::make('pendidikan')
                                         ->label('Pendidikan')
                                         ->options(Pendidikan::class),
-                                    Select::make('status_pernikahan')
-                                        ->label('Status Pernikahan')
-                                        ->options(Pernikahan::class),
+                                    Select::make('status_perkawinan')
+                                        ->label('Status Perkawinan')
+                                        ->options(Perkawinan::class),
                                     Select::make('pekerjaan')
                                         ->label('Pekerjaan')
                                         ->options(Pekerjaan::class)
@@ -158,13 +138,13 @@ class PendudukResource extends Resource
                                         ->schema([
                                             Select::make('kesehatan')
                                                 ->preload()
-                                                ->relationship('kesehatan', 'kesehatan_jaminan')
+                                                ->relationship('kesehatan', 'kes_id')
                                                 ->multiple()
 
                                                 ->searchingMessage('Mencari Jaminan Kesehatan')
                                                 ->createOptionForm(
                                                     [
-                                                        TextInput::make('kesehatan_jaminan')
+                                                        TextInput::make('kes_id')
                                                             ->label('Jaminan Kesehatan')
                                                     ]
                                                 ),
@@ -233,7 +213,7 @@ class PendudukResource extends Resource
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
-                TextColumn::make('status_pernikahan')
+                TextColumn::make('status_perkawinan')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
@@ -259,7 +239,7 @@ class PendudukResource extends Resource
                     ->badge()
                     ->toggleable()
                     ->sortable(),
-                TextColumn::make('kesehatan.kesehatan_jaminan')
+                TextColumn::make('kesehatan.kes_id')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
@@ -293,8 +273,8 @@ class PendudukResource extends Resource
                             ->persistent()
                             ->send())
                         ->visible(function (Penduduk $record) {
-                            //kirim ke rt yang dengan sls id penduduk ini
 
+                            //kirim ke rt yang dengan wilayah id penduduk ini
                             $roles = auth()->user()->roles->pluck('name');
                             $pengajuan = $record->status_pengajuan->value;
                             foreach ($roles as $role) {
@@ -303,7 +283,6 @@ class PendudukResource extends Resource
                                 }
                             }
                         }),
-
 
                     ActionGroup::make([
                         ActionsAction::make('Tinjau')
@@ -421,8 +400,8 @@ class PendudukResource extends Resource
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
-                                                        TextEntry::make('status_pernikahan')
-                                                            ->label('Status Pernikahan')
+                                                        TextEntry::make('status_perkawinan')
+                                                            ->label('Status Perkawinan')
                                                             ->weight(FontWeight::Bold)
                                                             ->copyable()
                                                             ->inlineLabel()
@@ -514,7 +493,7 @@ class PendudukResource extends Resource
                                         ->label('Diubah Pada')
                                         ->formatStateUsing(
                                             function (Penduduk $record) {
-                                                // cari user rt dengan sls id penduduk ini
+                                                // cari user rt dengan wilayah id penduduk ini
                                                 if ($record->audits()->count() > 0) {
                                                     $latestAudit = $record->audits()->latest()->first();
                                                     $userName = $latestAudit->user->name;
@@ -538,7 +517,7 @@ class PendudukResource extends Resource
                                         ->copyMessage('Telah Disalin!')
                                         ->copyMessageDuration(1000),
                                     Actions::make([
-                                        InfolistAction::make('verifikasi')
+                                        Action::make('verifikasi')
                                             ->action(
                                                 fn (Penduduk $record) => $record->update(['status_pengajuan' => 'SELESAI']),
                                             )->color('success')->label(
@@ -561,7 +540,7 @@ class PendudukResource extends Resource
                                                     return false;
                                                 }
                                             }),
-                                        InfolistAction::make('Batalkan')->action(
+                                        Action::make('Batalkan')->action(
                                             function (Penduduk $record) {
 
                                                 static::restoreAuditSelected($record);
@@ -576,7 +555,7 @@ class PendudukResource extends Resource
                                                 ->body($record->nama_lengkap . ' dibatalkan , data penduduk akan dikembalikan ke sebelumnya. Silahkan periksa kembali data penduduk')
                                                 ->danger()
                                                 ->sendToDatabase(
-                                                    // kirim ke rt yang dengan sls id penduduk ini
+                                                    // kirim ke rt yang dengan wilayah id penduduk ini
                                                     $record->audits()->latest()->first()->user
                                                 )
                                                 ->seconds(5)
@@ -591,7 +570,7 @@ class PendudukResource extends Resource
                                                     }
                                                 }
                                             }),
-                                        InfolistAction::make('Tinjau')
+                                        Action::make('Tinjau')
                                             ->form([
                                                 TextInput::make('catatan')
                                                     ->label('Catatan')
@@ -663,15 +642,14 @@ class PendudukResource extends Resource
         ($roles = auth()->user()->roles->pluck('name'));
 
         if ($roles->contains('RT')) {
-            // Pengguna dengan peran RT
-            $slsId = auth()->user()->slsRoles->pluck('sls.sls_id')->first();
-            $queryRT = parent::getEloquentQuery()->whereHas('kartuKeluarga', function ($query) use ($slsId) {
-                $query->where('sls_id', $slsId);
+            $wilayahId = auth()->user()->wilayahRoles->pluck('wilayah.wilayah_id')->first();
+            $queryRT = parent::getEloquentQuery()->whereHas('kartuKeluarga', function ($query) use ($wilayahId) {
+                $query->where('wilayah_id', $wilayahId);
             });
         } elseif ($roles->contains('RW')) {
-            $slsId = auth()->user()->slsRoles->pluck('sls.sls_id');
-            $queryRW = parent::getEloquentQuery()->whereHas('kartuKeluarga', function ($query) use ($slsId) {
-                $query->whereIn('sls_id', $slsId);
+            $wilayahId = auth()->user()->wilayahRoles->pluck('wilayah.wilayah_id');
+            $queryRW = parent::getEloquentQuery()->whereHas('kartuKeluarga', function ($query) use ($wilayahId) {
+                $query->whereIn('wilayah_id', $wilayahId);
             });
         } else {
             $queryAdmin = parent::getEloquentQuery();

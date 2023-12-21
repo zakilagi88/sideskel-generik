@@ -170,7 +170,9 @@ return [
         App\Providers\Filament\AdminPanelProvider::class,
         App\Providers\RouteServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
-        \Maatwebsite\Excel\ExcelServiceProvider::class, OwenIt\Auditing\AuditingServiceProvider::class,
+        \Maatwebsite\Excel\ExcelServiceProvider::class,
+        OwenIt\Auditing\AuditingServiceProvider::class,
+
 
     ])->toArray(),
 

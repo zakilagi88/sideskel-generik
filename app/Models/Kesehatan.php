@@ -11,12 +11,17 @@ class Kesehatan extends Model
 {
     use HasFactory;
 
-    protected $table = 'kesehatans';
+    protected $table = 'kesehatan';
 
-    protected $primaryKey = 'kesehatan_id';
+    protected $primaryKey = 'kes_id';
 
     protected $fillable = [
-        'kesehatan_jaminan',
+        'kes_id',
+        'kes_cacat_mental_fisik',
+        'kes_penyakit_menahun',
+        'kes_penyakit_lain',
+        'kes_akseptor_kb',
+
     ];
 
     protected $casts = [];

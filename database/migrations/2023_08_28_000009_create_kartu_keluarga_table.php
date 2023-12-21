@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Penduduk;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,11 +14,9 @@ return new class extends Migration
     {
         Schema::create('kartu_keluarga', function (Blueprint $table) {
             $table->string('kk_id', 16)->primary();
+            $table->foreignId('wilayah_id')->constrained('wilayah', 'wilayah_id')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignIdFor(Penduduk::class, 'kk_kepala')->nullable()->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('kk_alamat');
-            $table->string('kk_kepala')->nullable();
-            $table->unsignedBigInteger('sls_id');
-            $table->foreign('sls_id')->references('sls_id')->on('sls')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreign('kk_kepala')->references('nik')->on('penduduks')->cascadeOnUpdate()->cascadeOnDelete();
 
             $table->timestamps();
         });

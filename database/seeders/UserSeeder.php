@@ -14,12 +14,13 @@ class UserSeeder extends Seeder
     {
         // Membuat pengguna admin
         $admin = User::factory()->create([
-            'name' => 'admin',
+            'name' => 'super admin',
+            'username' => 'super_admin',
             'email' => 'admin@kuripan.id',
             'password' => Hash::make('kuripan'),
         ]);
 
-        $adminRole = Role::create(['name' => 'Admin']);
+        $adminRole = Role::create(['name' => 'super_admin']);
         $admin->assignRole($adminRole);
 
         // Perulangan untuk membuat RW 001 dan RW 002

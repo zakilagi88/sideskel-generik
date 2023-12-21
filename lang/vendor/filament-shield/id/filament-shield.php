@@ -63,6 +63,21 @@ return [
     |--------------------------------------------------------------------------
     */
 
+    'resource_permission_prefixes_labels' => [
+        'view' => 'Lihat',
+        'view_any' => 'Lihat Semua',
+        'create' => 'Buat',
+        'update' => 'Ubah',
+        'delete' => 'Hapus',
+        'delete_any' => 'Hapus Semua',
+        'force_delete' => 'Hapus Permanen',
+        'force_delete_any' => 'Hapus Permanen Semua',
+        'restore' => 'Pulihkan',
+        'replicate' => 'Duplikat',
+        'reorder' => 'Urutkan',
+        'restore_any' => 'Pulihkan Semua',
+    ],
+
     // 'resource_permission_prefixes_labels' => [
     //     'view' => 'View',
     //     'view_any' => 'View Any',

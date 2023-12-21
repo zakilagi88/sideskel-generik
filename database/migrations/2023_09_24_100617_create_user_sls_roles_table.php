@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Models\Role;
 
 return new class extends Migration
 {
@@ -11,18 +13,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_sls_roles', function (Blueprint $table) {
+        Schema::create('user_wilayah_roles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('sls_id');
-            $table->unsignedBigInteger('role_id');
 
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('sls_id')->references('sls_id')->on('sls')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('role_id')->references('id')->on('roles')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(User::class, 'user_id')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignIdFor(Role::class, 'role_id')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('wilayah_id')->constrained('wilayah', 'wilayah_id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
 
-            $table->unique(['user_id', 'sls_id', 'role_id']);
+            $table->unique(['user_id', 'wilayah_id', 'role_id']);
         });
     }
 
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_sls_roles');
+        Schema::dropIfExists('user_wilayah_roles');
     }
 };
