@@ -6,6 +6,7 @@ use App\Filament\Imports\KartuKeluargaImporter;
 use Closure;
 
 use App\Filament\Resources\KartukeluargaResource;
+use App\Filament\Resources\PendudukResource;
 use App\Imports\KartuKeluargaImport;
 use App\Jobs\ImportJob;
 use App\Models\{Kelurahan, KartuKeluarga, Penduduk, Provinsi, User, Wilayah, AnggotaKeluarga, KabKota, Kecamatan};
@@ -25,6 +26,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
 
@@ -72,7 +74,7 @@ class ListKartukeluargas extends ListRecords
                                                 ->preload()
                                                 ->createOptionForm(
                                                     [
-                                                        KartukeluargaResource::getFormSchema()
+                                                        PendudukResource::getFormSchema()
                                                     ]
                                                 )
                                                 ->createOptionAction(
@@ -158,7 +160,6 @@ class ListKartukeluargas extends ListRecords
                                                         ->where('kel_id', $get('kel_id'))
                                                         ->pluck('wilayah_nama', 'wilayah_id')
                                                 )
-                                                ->live()
 
                                                 ->dehydrated(),
 
@@ -185,7 +186,7 @@ class ListKartukeluargas extends ListRecords
                                                         ->preload()
                                                         ->createOptionForm(
                                                             [
-                                                                KartukeluargaResource::getFormSchema()
+                                                                PendudukResource::getFormSchema()
                                                             ]
                                                         )
                                                         ->createOptionAction(
@@ -255,30 +256,51 @@ class ListKartukeluargas extends ListRecords
                 )
                 ->using(function (array $data) {
 
-                    $kartuKeluarga = KartuKeluarga::create([
-                        'kk_id' => $data['kk_id'],
-                        'kk_alamat' => strtoupper($data['kk_alamat']),
-                        'kel_id' => $data['kel_id'],
-                        'wilayah_id' => $data['wilayah_id'],
-                    ]);
-
-                    $kepalaKeluarga = $kartuKeluarga->kepalaKK()->create([
-                        'nik' => $data['kk_kepala'],
-                        'hubungan' => 'KEPALA KELUARGA',
-                    ]);
-
-
-                    foreach ($data['anggotaKeluarga'] as $anggota) {
-                        $kartuKeluarga->anggotaKeluarga()->create([
-                            'nik' => $anggota['nik'],
-                            'hubungan' => $anggota['hubungan'],
+                    DB::beginTransaction();
+                    try {
+                        // $kartuKeluarga = self::tambahKartukeluarga($data);
+                        // self::tambahKepalaKeluarga($data, $kartuKeluarga);
+                        // self::tambahAnggotaKeluarga($data, $kartuKeluarga);
+                        // self::assosiasiKepalaKeluarga($data, $kartuKeluarga);
+                        $kartuKeluarga = KartuKeluarga::create([
+                            'kk_id' => $data['kk_id'],
+                            'kk_alamat' => strtoupper($data['kk_alamat']),
+                            'kel_id' => $data['kel_id'],
+                            'wilayah_id' => $data['wilayah_id'],
                         ]);
+
+                        // dd($data, $kartuKeluarga);
+
+                        $kepalaKeluarga = Penduduk::findOrFail($data['kk_kepala']);
+                        $kartuKeluarga->kepalaKeluarga()->associate($kepalaKeluarga);
+
+
+                        $kartuKeluarga->anggotaKeluarga()->create([
+                            'nik' => $kepalaKeluarga->nik,
+                            'hubungan' => 'KEPALA KELUARGA',
+                        ]);
+
+
+                        foreach ($data['anggotaKeluarga'] as $anggota) {
+                            $anggotaKeluarga = Penduduk::findOrFail($anggota['nik']);
+
+                            $hubungan = $anggota['hubungan'];
+
+                            $kartuKeluarga->anggotaKeluarga()->create([
+                                'nik' => $anggotaKeluarga->nik,
+                                'hubungan' => $hubungan,
+                            ]);
+                        }
+
+                        $kartuKeluarga->save();
+                        // $penduduk = Penduduk::where('nik', $data['kk_kepala'])->first();
+                        // $kartuKeluarga->kepalaKeluarga()->associate($penduduk);
+
+                        DB::commit();
+                    } catch (\Throwable $th) {
+                        DB::rollback();
+                        throw $th;
                     }
-
-                    $penduduk = Penduduk::where('nik', $data['kk_kepala'])->first();
-                    $kartuKeluarga->kepalaKeluarga()->associate($penduduk);
-
-                    $kartuKeluarga->save();
 
                     $admin = User::whereHas('roles', function ($query) {
                         $query->where('name', 'super_admin');
@@ -309,13 +331,6 @@ class ListKartukeluargas extends ListRecords
 
                 ->action(
                     function (array $data) {
-                        // Notification::make()
-                        //     ->title('Import Data Kartu Keluarga')
-                        //     ->body(
-                        //         'Data kartu keluarga sedang diimport, silahkan tunggu hingga selesai'
-                        //     )
-                        //     ->send()
-                        //     ->duration(5000);
                         self::import($data['file']);
                         Notification::make()
                             ->title('Import Data Kartu Keluarga')
@@ -329,11 +344,55 @@ class ListKartukeluargas extends ListRecords
                     }
 
                 ),
-            Actions\ImportAction::make()
-                ->importer(KartuKeluargaImporter::class)
-
         ];
     }
+
+    protected function tambahKartukeluarga(array $data)
+    {
+        $kartuKeluarga = KartuKeluarga::create([
+            'kk_id' => $data['kk_id'],
+            'kk_alamat' => strtoupper($data['kk_alamat']),
+            'kel_id' => $data['kel_id'],
+            'wilayah_id' => $data['wilayah_id'],
+        ]);
+
+        return $kartuKeluarga;
+    }
+
+    protected function tambahKepalaKeluarga(array $data, KartuKeluarga $kartuKeluarga)
+    {
+        $kepalaKeluarga = $kartuKeluarga->kepalaKeluarga()->create([
+            'nik' => $data['kk_kepala'],
+            'hubungan' => 'KEPALA KELUARGA',
+        ]);
+
+        return $kepalaKeluarga;
+    }
+
+    protected function tambahAnggotaKeluarga(array $data, KartuKeluarga $kartuKeluarga)
+    {
+        foreach ($data['anggotaKeluarga'] as $anggota) {
+            $kartuKeluarga->anggotaKeluarga()->create([
+                'nik' => $anggota['nik'],
+                'hubungan' => $anggota['hubungan'],
+            ]);
+        }
+
+        return $kartuKeluarga;
+    }
+
+    protected function assosiasiKepalaKeluarga(array $data, KartuKeluarga $kartuKeluarga)
+    {
+        $penduduk = Penduduk::where('nik', $data['kk_kepala'])->first();
+        $kartuKeluarga->kepalaKeluarga()->associate($penduduk);
+        $kartuKeluarga->save();
+
+        return $kartuKeluarga;
+    }
+
+
+
+
 
     // public function getHeader(): ?View
     // {

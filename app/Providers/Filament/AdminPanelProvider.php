@@ -41,7 +41,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandLogo(asset('images/cek1.png'))
-            ->brandLogoHeight('7rem')
+            ->brandLogoHeight('5rem')
             ->favicon(asset('images/cek1.png'))
             ->login(CustomLogin::class)
             ->authGuard('web')

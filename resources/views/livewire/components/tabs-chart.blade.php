@@ -206,7 +206,7 @@
     </div>
 
     <!-- Banner with links -->
-    <div class="fixed bottom-0 right-0 w-full md:bottom-6 md:right-12 md:w-auto z-50"
+    {{-- <div class="fixed bottom-0 right-0 w-full md:bottom-6 md:right-12 md:w-auto z-50"
         :class="bannerOpen ? '' : 'hidden'" x-data="{ bannerOpen: true }">
         <div class="bg-slate-800 text-sm p-3 md:rounded shadow flex justify-between">
             <div class="text-slate-500 inline-flex">
@@ -234,6 +234,6 @@
                 </svg>
             </button>
         </div>
-    </div>
+    </div> --}}
 
 </div>

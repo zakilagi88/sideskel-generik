@@ -51,4 +51,6 @@ class AnggotaKeluarga extends Model
     {
         return $this->belongsTo(Penduduk::class, 'nik', 'nik');
     }
+
+    
 }

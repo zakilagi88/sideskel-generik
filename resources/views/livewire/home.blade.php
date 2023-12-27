@@ -340,22 +340,3 @@
             return false;
         });
     </script>
-    {{-- widget hidden first then fade up after scroll using dataaos --}}
-    {{-- <script>
-    // Fungsi untuk menampilkan elemen saat di-scroll
-    function showWidget() {
-        const widget = document.getElementById('widget');
-        const scrollY = window.scrollY;
-
-        // Tampilkan widget saat posisi scroll sudah melewati posisi top dari elemen
-        if (scrollY > 100) {
-            widget.style.opacity = 1;
-        }
-    }
-
-    // Tambahkan event listener saat menggulir halaman
-    window.addEventListener('scroll', showWidget);
-
-    // Panggil fungsi saat halaman dimuat (untuk menampilkan elemen jika sudah di-scroll)
-    window.addEventListener('load', showWidget);
-</script> --}}

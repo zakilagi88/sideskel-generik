@@ -46,13 +46,13 @@ class KartukeluargaResource extends Resource
     {
         return $form
             ->schema([
-                Section::make('Informasi Kartu Keluarga')
-                    ->description('Masukkan informasi kartu keluarga')
+                Group::make()
                     ->schema([
-                        Group::make()
+                        Section::make('Informasi Kartu Keluarga')
+                            ->description('Detail Kartu Keluarga')
                             ->schema([
                                 TextInput::make('kk_id')
-                                    ->label('No KK')
+                                    ->label('Nomor Kartu Keluarga')
                                     ->unique(ignoreRecord: true)
                                     ->dehydrated()
                                     ->placeholder('Masukkan nomor kartu keluarga')
@@ -61,13 +61,13 @@ class KartukeluargaResource extends Resource
                                     )
                                     ->required(fn (string $operation): bool => $operation === 'create'),
                                 Select::make('kk_kepala')
-                                    ->label('KK Kepala Keluarga')
+                                    ->label('Kepala Keluarga')
                                     ->relationship('kepalaKeluarga', 'nama_lengkap')
                                     ->searchable()
                                     ->preload()
                                     ->createOptionForm(
                                         [
-                                            KartukeluargaResource::getFormSchema()
+                                            PendudukResource::getFormSchema()
                                         ]
                                     )
                                     ->createOptionAction(
@@ -98,87 +98,82 @@ class KartukeluargaResource extends Resource
                                     ->required(),
                             ])
                             ->columnStart(1),
-                        Select::make('kec_id')
-                            ->relationship('wilayah')
-                            ->label('Kecamatan')
-                            ->searchable()
-                            ->options(
-                                fn (Get $get): Collection => Kecamatan::query()
-                                    ->where('kec_id', $get('kec_id'))
-                                    ->pluck('kec_nama', 'kec_id')
-
-                            )
-                            ->dehydrated()
-                            ->live()
-                            ->preload(),
-                        Group::make()
-                            ->relationship('wilayah')
-                            ->schema([
-                                Select::make('wilayah_id')
-                                    ->label('RW/RT')
-                                    ->options(
-                                        fn (Get $get): Collection => Wilayah::query()
-                                            ->where('kel_id', $get('kel_id'))
-                                            ->pluck('wilayah_nama', 'wilayah_id')
-                                    )
-
-                                    ->dehydrated(),
-
-                                Select::make('kel_id')
-                                    ->label('Desa/Kelurahan')
-                                    ->searchable()
-                                    ->options(
-                                        fn (Get $get): Collection => Kelurahan::query()
-                                            ->with('kec_groups')
-                                            ->where('kel_id', $get('kel_id'))
-                                            ->pluck('kel_nama', 'kel_id')
-                                    )
-
-                                    ->dehydrated(),
-
-                                Select::make('kabkota_id')
-                                    ->label('Kab/Kota')
-                                    ->searchable()
-                                    ->options(
-                                        function (Get $get, Set $set) {
-
-                                            $prov_id = KabKota::query()
-                                                ->where('kabkota_id', $get('kabkota_id'))
-                                                ->pluck('prov_id')
-                                                ->first();
-
-                                            $set('prov_id', $prov_id);
-                                            return KabKota::query()
-                                                ->pluck('kabkota_nama', 'kabkota_id');
-                                        }
-                                    )
-                                    ->dehydrated()
-                                    ->live()
-                                    ->preload(),
-                                Select::make('prov_id')
-                                    ->label('Provinsi')
-                                    ->searchable()
-                                    ->options(
-                                        function (Get $get, Set $set) {
-                                            $prov_id = Provinsi::query()
-                                                ->where('prov_id', $get('prov_id'))
-                                                ->pluck('prov_id')
-                                                ->first();
-
-                                            $set('prov_id', $prov_id);
-                                            return Provinsi::query()
-                                                ->pluck('prov_nama', 'prov_id');
-                                        }
-                                    )
-                                    ->dehydrated(),
-
-
-                            ])->columnSpan(['lg' => 1]),
-
                     ])->columns(2)->columnSpanFull(),
+                Group::make()
+                    ->schema([
+                        Section::make('Informasi Wilayah')
+                            ->description('Detail Wilayah')
+                            ->schema([
+                                Group::make()
+                                    ->relationship('wilayah')
+                                    ->schema([
+                                        Select::make('prov_id')
+                                            ->label('Provinsi')
+                                            ->options(
+                                                fn (): Collection => Provinsi::query()
+                                                    ->pluck('prov_nama', 'prov_id')
+                                            )
+                                            ->live()
+                                            ->dehydrated(),
+
+                                        Select::make('kabkota_id')
+                                            ->label('Kab/Kota')
+                                            ->searchable()
+                                            ->options(
+                                                fn (Get $get): Collection => KabKota::query()
+                                                    ->where('prov_id', $get('prov_id'))
+                                                    ->pluck('kabkota_nama', 'kabkota_id')
+                                            )
+                                            ->dehydrated(),
+
+                                        Select::make('kec_id')
+                                            ->label('Kecamatan')
+                                            ->searchable()
+                                            ->options(
+                                                fn (Get $get): Collection => Kecamatan::query()
+                                                    ->where('kabkota_id', $get('kabkota_id'))
+                                                    ->pluck('kec_nama', 'kec_id')
+
+                                            )
+                                            ->dehydrated()
+                                            ->preload(),
+                                        Select::make('kel_id')
+                                            ->label('Kelurahan')
+                                            ->searchable()
+                                            ->options(
+                                                fn (Get $get): Collection => Kelurahan::query()
+                                                    ->where('kec_id', $get('kec_id'))
+                                                    ->pluck('kel_nama', 'kel_id')
+                                            )
+                                            ->dehydrated(),
+                                        Select::make('wilayah_id')
+                                            ->label('RW/RT')
+                                            ->searchable()
+                                            ->options(
+                                                fn (Get $get): Collection => Wilayah::query()
+                                                    ->where('kel_id', $get('kel_id'))
+                                                    ->pluck('wilayah_nama', 'wilayah_id')
+                                            )
+                                            ->dehydrated()
+                                            ->preload(),
+                                        Select::make('wilayah_kodepos')
+                                            ->label('Kode Pos')
+                                            // ->options(
+                                            //     fn (Get $get): Collection => Wilayah::query()
+                                            //         ->where('wilayah_id', $get('wilayah_id'))
+                                            //         ->pluck('wilayah_kodepos', 'wilayah_kodepos')
+                                            // )
+                                            ->dehydrated()
+                                            ->preload(),
+
+                                    ])->columns(2)->columnSpanFull(),
+                            ])
+                            ->columnStart(1),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
             ]);
     }
-
 
     public static function table(Table $table): Table
     {
@@ -198,7 +193,7 @@ class KartukeluargaResource extends Resource
                     ->copyMessage('Telah Disalin!')
                     ->copyMessageDuration(500),
                 TextColumn::make('wilayah.wilayah_nama')
-                    ->label('wilayah')
+                    ->label('Wilayah')
                     ->copyable()
                     ->copyMessage('Telah Disalin!')
                     ->copyMessageDuration(500)
@@ -211,7 +206,7 @@ class KartukeluargaResource extends Resource
                     ->copyMessageDuration(500)
                     ->searchable()
                     ->sortable()
-                    ->hidden(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('wilayah.rts.rt_nama')
                     ->label('RT')
                     ->copyable()
@@ -219,7 +214,7 @@ class KartukeluargaResource extends Resource
                     ->copyMessageDuration(500)
                     ->searchable()
                     ->sortable()
-                    ->hidden(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('anggotaKeluarga')
                     ->label('Anggota Keluarga')
@@ -309,6 +304,10 @@ class KartukeluargaResource extends Resource
             ->emptyStateHeading('Kartu Keluarga belum ada')
             ->emptyStateDescription('Silahkan buat Kartu Keluarga baru dengan menekan tombol berikut:')
             ->striped()
+            ->deferLoading()
+            ->defaultPaginationPageOption(20)
+            ->paginated([10, 25, 50])
+
             ->defaultSort('wilayah_id', 'asc');
     }
 
@@ -408,77 +407,7 @@ class KartukeluargaResource extends Resource
         ];
     }
 
-    public static function getFormSchema(): Component
-    {
-        return
-            Forms\Components\Group::make()
-            ->schema([
-                Forms\Components\Section::make()
-                    ->heading('Informasi Penduduk')
-                    ->description('Silahkan isi data penduduk dengan benar')
-                    ->schema([
-                        Forms\Components\TextInput::make('nik')
-                            ->label('NIK')
-                            ->unique(AnggotaKeluarga::class, 'nik')
-                            ->dehydrated()
-                            ->placeholder('Masukkan NIK')
-                            ->required(),
-                        Forms\Components\TextInput::make('nama_lengkap')
-                            ->label('Nama Lengkap')
-                            ->required(),
-                        Forms\Components\Group::make()
-                            ->label('Jenis Kelamin')
-                            ->schema([
-                                Forms\Components\Select::make('agama')
-                                    ->options(Agama::class)
-                                    ->required(),
-                                Forms\Components\Select::make('jenis_kelamin')
-                                    ->options(JenisKelamin::class)
-                                    ->required(),
-                            ])->columns(2),
-                        Forms\Components\Group::make()
-                            ->label('Tempat dan Tanggal Lahir')
-                            ->schema([
-                                Forms\Components\TextInput::make('tempat_lahir')
-                                    ->label('Tempat Lahir')
-                                    ->required(),
-                                Forms\Components\DatePicker::make('tanggal_lahir')
-                                    ->label('Tanggal Lahir')
-                                    ->required(),
-                            ])->columns(2),
-                    ]),
-                Forms\Components\Section::make()
-                    ->heading('Informasi Tambahan')
-                    ->description('Silahkan isi data tambahan penduduk')
-                    ->schema([
-                        Forms\Components\Select::make('pendidikan')
-                            ->label('Pendidikan')
-                            ->options(Pendidikan::class),
-                        Forms\Components\Select::make('status_perkawinan')
-                            ->label('Status Perkawinan')
-                            ->options(Perkawinan::class),
-                        Forms\Components\Select::make('pekerjaan')
-                            ->label('Pekerjaan')
-                            ->options(Pekerjaan::class)
-                            ->searchingMessage('Mencari Jenis Pekerjaan')
-                            ->searchable()
-                            ->required(),
-                    ])->collapsible(),
-                Forms\Components\Section::make()
-                    ->heading('Status Tempat Tinggal')
-                    ->description('Keterangan Status Tempat Tinggal')
-                    ->schema(
-                        [
-                            Forms\Components\Select::make('status')
-                                ->options(Status::class)
-                                ->required(),
-                            Forms\Components\TextInput::make('alamat')
-                                ->label('Alamat')
-                                ->required(),
-                        ]
-                    ),
-            ])->columnSpan(['lg' => 2]);
-    }
+
 
     public static function getPages(): array
     {

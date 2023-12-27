@@ -7,7 +7,7 @@ use App\Filament\Resources\PendudukResource\Pages;
 use App\Filament\Resources\PendudukResource\Widgets\PendudukOverview;
 use App\Models\Penduduk;
 use Filament\Forms\Form;
-use Filament\Forms\Components\{Group, Section, Select, TextInput, DatePicker, Placeholder};
+use Filament\Forms\Components\{Component, Group, Section, Select, TextInput, DatePicker, Placeholder};
 
 use Filament\Forms\Contracts\HasForms;
 use Filament\Resources\Resource;
@@ -350,6 +350,7 @@ class PendudukResource extends Resource
                 ExportBulkAction::make()
             ])
             ->emptyStateActions([])
+            ->deferLoading()
             ->striped();
     }
 
@@ -701,5 +702,77 @@ class PendudukResource extends Resource
             ->title(trans('filament-auditing::filament-auditing.notification.unchanged'))
             ->warning()
             ->send();
+    }
+
+    public static function getFormSchema(): Component
+    {
+        return
+            Group::make()
+            ->schema([
+                Section::make()
+                    ->heading('Informasi Penduduk')
+                    ->description('Silahkan isi data penduduk dengan benar')
+                    ->schema([
+                        TextInput::make('nik')
+                            ->label('NIK')
+                            ->unique(Penduduk::class, 'nik')
+                            ->dehydrated()
+                            ->placeholder('Masukkan NIK')
+                            ->required(),
+                        TextInput::make('nama_lengkap')
+                            ->label('Nama Lengkap')
+                            ->required(),
+                        Group::make()
+                            ->label('Jenis Kelamin')
+                            ->schema([
+                                Select::make('agama')
+                                    ->options(Agama::class)
+                                    ->required(),
+                                Select::make('jenis_kelamin')
+                                    ->options(JenisKelamin::class)
+                                    ->required(),
+                            ])->columns(2),
+                        Group::make()
+                            ->label('Tempat dan Tanggal Lahir')
+                            ->schema([
+                                TextInput::make('tempat_lahir')
+                                    ->label('Tempat Lahir')
+                                    ->required(),
+                                DatePicker::make('tanggal_lahir')
+                                    ->label('Tanggal Lahir')
+                                    ->required(),
+                            ])->columns(2),
+                    ]),
+                Section::make()
+                    ->heading('Informasi Tambahan')
+                    ->description('Silahkan isi data tambahan penduduk')
+                    ->schema([
+                        Select::make('pendidikan')
+                            ->label('Pendidikan')
+                            ->options(Pendidikan::class),
+                        Select::make('status_perkawinan')
+                            ->label('Status Perkawinan')
+                            ->options(Perkawinan::class),
+                        Select::make('pekerjaan')
+                            ->label('Pekerjaan')
+                            ->options(Pekerjaan::class)
+                            ->searchingMessage('Mencari Jenis Pekerjaan')
+                            ->searchable()
+                            ->required(),
+                    ])->collapsible(),
+                Section::make()
+                    ->heading('Status Tempat Tinggal')
+                    ->description('Keterangan Status Tempat Tinggal')
+                    ->schema(
+                        [
+                            Select::make('status')
+                                ->options(Status::class)
+                                ->required(),
+                            TextInput::make('alamat')
+                                ->label('Alamat')
+                                ->required(),
+                        ]
+                    ),
+            ])->columnSpan(['lg' => 2]);
     }
 }

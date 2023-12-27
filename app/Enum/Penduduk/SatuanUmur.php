@@ -1,0 +1,167 @@
+<?php
+
+namespace App\Enum\Penduduk;
+
+use Filament\Support\Contracts\HasLabel;
+
+enum SatuanUmur: string
+{
+    case UMUR_0 = '0';
+    case UMUR_1 = '1';
+    case UMUR_2 = '2';
+    case UMUR_3 = '3';
+    case UMUR_4 = '4';
+    case UMUR_5 = '5';
+    case UMUR_6 = '6';
+    case UMUR_7 = '7';
+    case UMUR_8 = '8';
+    case UMUR_9 = '9';
+    case UMUR_10 = '10';
+    case UMUR_11 = '11';
+    case UMUR_12 = '12';
+    case UMUR_13 = '13';
+    case UMUR_14 = '14';
+    case UMUR_15 = '15';
+    case UMUR_16 = '16';
+    case UMUR_17 = '17';
+    case UMUR_18 = '18';
+    case UMUR_19 = '19';
+    case UMUR_20 = '20';
+    case UMUR_21 = '21';
+    case UMUR_22 = '22';
+    case UMUR_23 = '23';
+    case UMUR_24 = '24';
+    case UMUR_25 = '25';
+    case UMUR_26 = '26';
+    case UMUR_27 = '27';
+    case UMUR_28 = '28';
+    case UMUR_29 = '29';
+    case UMUR_30 = '30';
+    case UMUR_31 = '31';
+    case UMUR_32 = '32';
+    case UMUR_33 = '33';
+    case UMUR_34 = '34';
+    case UMUR_35 = '35';
+    case UMUR_36 = '36';
+    case UMUR_37 = '37';
+    case UMUR_38 = '38';
+    case UMUR_39 = '39';
+    case UMUR_40 = '40';
+    case UMUR_41 = '41';
+    case UMUR_42 = '42';
+    case UMUR_43 = '43';
+    case UMUR_44 = '44';
+    case UMUR_45 = '45';
+    case UMUR_46 = '46';
+    case UMUR_47 = '47';
+    case UMUR_48 = '48';
+    case UMUR_49 = '49';
+    case UMUR_50 = '50';
+    case UMUR_51 = '51';
+    case UMUR_52 = '52';
+    case UMUR_53 = '53';
+    case UMUR_54 = '54';
+    case UMUR_55 = '55';
+    case UMUR_56 = '56';
+    case UMUR_57 = '57';
+    case UMUR_58 = '58';
+    case UMUR_59 = '59';
+    case UMUR_60 = '60';
+    case UMUR_61 = '61';
+    case UMUR_62 = '62';
+    case UMUR_63 = '63';
+    case UMUR_64 = '64';
+    case UMUR_65 = '65';
+    case UMUR_66 = '66';
+    case UMUR_67 = '67';
+    case UMUR_68 = '68';
+    case UMUR_69 = '69';
+    case UMUR_70 = '70';
+    case UMUR_71 = '71';
+    case UMUR_72 = '72';
+    case UMUR_73 = '73';
+    case UMUR_74 = '74';
+    case UMUR_75_PLUS = '75+';
+
+    public function getLabel(): ?string
+    {
+        return match ($this) {
+            self::UMUR_0 => '0',
+            self::UMUR_1 => '1',
+            self::UMUR_2 => '2',
+            self::UMUR_3 => '3',
+            self::UMUR_4 => '4',
+            self::UMUR_5 => '5',
+            self::UMUR_6 => '6',
+            self::UMUR_7 => '7',
+            self::UMUR_8 => '8',
+            self::UMUR_9 => '9',
+            self::UMUR_10 => '10',
+            self::UMUR_11 => '11',
+            self::UMUR_12 => '12',
+            self::UMUR_13 => '13',
+            self::UMUR_14 => '14',
+            self::UMUR_15 => '15',
+            self::UMUR_16 => '16',
+            self::UMUR_17 => '17',
+            self::UMUR_18 => '18',
+            self::UMUR_19 => '19',
+            self::UMUR_20 => '20',
+            self::UMUR_21 => '21',
+            self::UMUR_22 => '22',
+            self::UMUR_23 => '23',
+            self::UMUR_24 => '24',
+            self::UMUR_25 => '25',
+            self::UMUR_26 => '26',
+            self::UMUR_27 => '27',
+            self::UMUR_28 => '28',
+            self::UMUR_29 => '29',
+            self::UMUR_30 => '30',
+            self::UMUR_31 => '31',
+            self::UMUR_32 => '32',
+            self::UMUR_33 => '33',
+            self::UMUR_34 => '34',
+            self::UMUR_35 => '35',
+            self::UMUR_36 => '36',
+            self::UMUR_37 => '37',
+            self::UMUR_38 => '38',
+            self::UMUR_39 => '39',
+            self::UMUR_40 => '40',
+            self::UMUR_41 => '41',
+            self::UMUR_42 => '42',
+            self::UMUR_43 => '43',
+            self::UMUR_44 => '44',
+            self::UMUR_45 => '45',
+            self::UMUR_46 => '46',
+            self::UMUR_47 => '47',
+            self::UMUR_48 => '48',
+            self::UMUR_49 => '49',
+            self::UMUR_50 => '50',
+            self::UMUR_51 => '51',
+            self::UMUR_52 => '52',
+            self::UMUR_53 => '53',
+            self::UMUR_54 => '54',
+            self::UMUR_55 => '55',
+            self::UMUR_56 => '56',
+            self::UMUR_57 => '57',
+            self::UMUR_58 => '58',
+            self::UMUR_59 => '59',
+            self::UMUR_60 => '60',
+            self::UMUR_61 => '61',
+            self::UMUR_62 => '62',
+            self::UMUR_63 => '63',
+            self::UMUR_64 => '64',
+            self::UMUR_65 => '65',
+            self::UMUR_66 => '66',
+            self::UMUR_67 => '67',
+            self::UMUR_68 => '68',
+            self::UMUR_69 => '69',
+            self::UMUR_70 => '70',
+            self::UMUR_71 => '71',
+            self::UMUR_72 => '72',
+            self::UMUR_73 => '73',
+            self::UMUR_74 => '74',
+            self::UMUR_75_PLUS => '75+',
+        };
+    }
+}

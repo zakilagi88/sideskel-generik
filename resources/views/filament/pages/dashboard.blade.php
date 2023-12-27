@@ -11,7 +11,7 @@
         <x-filament-widgets::widgets :columns="$this->getColumns()" :data="$this->getWidgetData()" :widgets="$this->getVisibleWidgets()" />
     </div>
 
-    <x-filament::section aside>
+    {{-- <x-filament::section aside>
         <x-slot name="heading">
             User details for {{ $user->name }}
         </x-slot>
@@ -22,7 +22,7 @@
 
         Kenapa tidak bisa diakses?
 
-    </x-filament::section>
+    </x-filament::section> --}}
 
 
 

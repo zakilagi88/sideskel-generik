@@ -7,7 +7,7 @@ use Filament\Pages\Auth\Login;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Support\Htmlable;
-
+use Illuminate\Validation\ValidationException;
 
 class CustomLogin extends Login
 {
@@ -19,13 +19,7 @@ class CustomLogin extends Login
         if (Filament::auth()->check()) {
             redirect()->intended(Filament::getUrl());
         }
-
-        if (app()->environment('local')) {
-            $this->form->fill([
-                'username' => 'admin',
-                'password' => null,
-            ]);
-        }
+        $this->form->fill();
     }
     protected function getCredentialsFromFormData(array $data): array
     {
@@ -33,6 +27,14 @@ class CustomLogin extends Login
             'username' => $data['username'],
             'password' => $data['password'],
         ];
+    }
+
+    protected function throwFailureValidationException(): never
+    {
+        throw ValidationException::withMessages([
+            'data.username' => __('filament-panels::pages/auth/login.messages.failed'),
+            'data.password' => __('filament-panels::pages/auth/login.messages.failed'),
+        ]);
     }
 
     public function getTitle(): string|Htmlable

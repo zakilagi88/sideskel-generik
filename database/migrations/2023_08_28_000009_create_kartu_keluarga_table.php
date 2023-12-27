@@ -14,8 +14,8 @@ return new class extends Migration
     {
         Schema::create('kartu_keluarga', function (Blueprint $table) {
             $table->string('kk_id', 16)->primary();
-            $table->foreignId('wilayah_id')->constrained('wilayah', 'wilayah_id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignIdFor(Penduduk::class, 'kk_kepala')->nullable()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('wilayah_id')->constrained('wilayah', 'wilayah_id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('kk_alamat');
 
             $table->timestamps();

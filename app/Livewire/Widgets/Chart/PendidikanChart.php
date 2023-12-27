@@ -3,22 +3,19 @@
 namespace App\Livewire\Widgets\Chart;
 
 use App\Enum\Penduduk\JenisKelamin;
+use App\Livewire\Widgets\Table\PendidikanTable;
 use App\Models\Penduduk;
 use Carbon\Carbon;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Support\RawJs;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Reactive;
 
-class AgamaChart extends ApexChartWidget
+class PendidikanChart extends ApexChartWidget
 
 {
-
     /**
      * Chart Id
      *
@@ -26,14 +23,14 @@ class AgamaChart extends ApexChartWidget
      */
     // protected int | string | array $columnSpan = 'full';
     protected static ?string $loadingIndicator = 'Loading...';
-    protected static string $chartId = 'AgamaChart';
+    protected static string $chartId = 'PendidikanChart';
 
     /**
      * Widget Title
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Grafik Penduduk Berdasarkan Agama';
+    protected static ?string $heading = 'Grafik Penduduk Berdasarkan Pendidikan';
 
     /**
      * Chart options (series, labels, types, size, animations...)
@@ -41,36 +38,23 @@ class AgamaChart extends ApexChartWidget
      *
      * @return array
      */
-    // protected function getOptions(): array
-    // {
-
 
     protected function getData(): array
     {
-        $penduduk = Penduduk::all();
+        $datatabel = app(PendidikanTable::class)->data();
+        $pendidikanSeries = [];
+        $totalSeries = [];
+        $items = $datatabel['data'];
+        $pendidikanSeries = array_column($items, 'PENDIDIKAN');
+        $totalSeries = array_column($items, 'TOTAL');
 
-        $dataAgama = [];
+        // Resulting arrays
+        $result = [
+            'pendidikan' => $pendidikanSeries,
+            'total' => $totalSeries,
+        ];
 
-        foreach ($penduduk as $individu) {
-            $agama = $individu->agama;
-            $dataAgama[] = $agama ?? 0;
-        }
-        $agamaCount = [];
-
-        foreach ($dataAgama as $agama) {
-            $namaAgama = $agama->value;
-
-            if (isset($agamaCount[$namaAgama])) {
-                $agamaCount[$namaAgama]++;
-            } else {
-                $agamaCount[$namaAgama] = 1;
-            }
-        }
-
-        // Urutkan data secara descending (dari besar ke kecil)
-        arsort($agamaCount);
-
-        return [$agamaCount];
+        return $result;
     }
 
     /**
@@ -79,22 +63,42 @@ class AgamaChart extends ApexChartWidget
      *
      * @return array
      */
+
     protected function getOptions(): array
     {
 
-        $agama = $this->getData();
+        $pendidikan = self::getData();
+        $jenisPendidikan = $pendidikan['pendidikan'];
+        $jumlahPendidikan = $pendidikan['total'];
 
-        $top10Agama = array_keys($agama[0]);
-        $jumlahAgama = array_values($agama[0]);
+        // $optionsPie =
+        //     [
+        //         'series' => $jumlahPendidikan,
+        //         'labels' => $jenisPendidikan,
+        //         'chart' => [
+        //             'type' => 'donut',
 
-
+        //         ],
+        //         'plotOptions' => [
+        //             'pie' => [
+        //                 'expandOnClick' => true,
+        //                 'size' => 200,
+        //                 'donut' => [
+        //                     'labels' => [
+        //                         'show' => true,
+        //                     ],
+        //                     'size' => '65%',
+        //                 ],
+        //             ],
+        //         ],
+        //     ];
         $options =
             [
                 'chart' => [
                     'type' => 'bar',
-                    'height' => 500,
+                    'height' => 600,
                     'toolbar' => [
-                        'show' => false
+                        'show' => true
                     ],
                     'sparkline' => [
                         'enabled' => false
@@ -104,18 +108,25 @@ class AgamaChart extends ApexChartWidget
                 ],
                 'series' => [
                     [
-                        'name' => 'Agama',
-                        'data' => ($jumlahAgama),
+                        'name' => 'Pendidikan',
+                        'data' => ($jumlahPendidikan),
                     ],
 
                 ],
                 'plotOptions' => [
+                    'pie' => [
+                        'expandOnClick' => true,
+                        'size' => 100,
+                        'donut' => [
+                            'size' => '65%',
+                        ],
+                    ],
                     'bar' => [
                         'borderRadius' => 2,
                     ],
                 ],
                 'xaxis' => [
-                    'categories' => $top10Agama,
+                    'categories' => $jenisPendidikan,
                     'labels' => [
                         'style' => [
                             'fontWeight' => 400,
@@ -152,8 +163,8 @@ class AgamaChart extends ApexChartWidget
                 'plotOptions' => [
                     'bar' => [
                         'borderRadius' => 3,
-                        'horizontal' => true,
-                        'barHeight' => '40%',
+                        'horizontal' => false,
+                        'barHeight' => '100%',
                         'distributed' => true,
                     ],
                 ],
@@ -179,7 +190,6 @@ class AgamaChart extends ApexChartWidget
 
 
                 'colors' => [
-                    // sediakan 10 warna gradasi
                     '#008FFB',
                     '#00E396',
                     '#FEB019',
@@ -196,6 +206,8 @@ class AgamaChart extends ApexChartWidget
 
         return $options;
     }
+
+
 
     protected function getFilters(): ?array
     {

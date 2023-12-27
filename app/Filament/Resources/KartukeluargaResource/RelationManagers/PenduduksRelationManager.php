@@ -7,6 +7,7 @@ use App\Enum\Penduduk\JenisKelamin;
 use App\Enum\Penduduk\Pekerjaan;
 use App\Enum\Penduduk\Pendidikan;
 use App\Enum\Penduduk\Pengajuan;
+use App\Enum\Penduduk\Perkawinan;
 use App\Enum\Penduduk\Pernikahan;
 use App\Enum\Penduduk\Status;
 use App\Models\Penduduk;
@@ -82,7 +83,7 @@ class PenduduksRelationManager extends RelationManager
                                         ->options(Pendidikan::class),
                                     Select::make('status_pernikahan')
                                         ->label('Status Pernikahan')
-                                        ->options(Pernikahan::class),
+                                        ->options(Perkawinan::class),
                                     Select::make('pekerjaan')
                                         ->label('Pekerjaan')
                                         ->options(Pekerjaan::class)

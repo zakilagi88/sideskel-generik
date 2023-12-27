@@ -3,23 +3,19 @@
 namespace App\Livewire\Widgets\Chart;
 
 use App\Enum\Penduduk\JenisKelamin;
+use App\Livewire\Widgets\Table\PerkawinanTable;
 use App\Models\Penduduk;
 use Carbon\Carbon;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Support\RawJs;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Reactive;
 
-class PendudukApexBarChart extends ApexChartWidget
+class PerkawinanChart extends ApexChartWidget
 
 {
-
     /**
      * Chart Id
      *
@@ -27,14 +23,14 @@ class PendudukApexBarChart extends ApexChartWidget
      */
     // protected int | string | array $columnSpan = 'full';
     protected static ?string $loadingIndicator = 'Loading...';
-    protected static string $chartId = 'pendudukApexBarChart';
+    protected static string $chartId = 'PerkawinanChart';
 
     /**
      * Widget Title
      *
      * @var string|null
      */
-    protected static ?string $heading = 'Grafik Penduduk Berdasarkan Pekerjaan';
+    protected static ?string $heading = 'Grafik Penduduk Berdasarkan Perkawinan';
 
     /**
      * Chart options (series, labels, types, size, animations...)
@@ -43,68 +39,24 @@ class PendudukApexBarChart extends ApexChartWidget
      * @return array
      */
 
-    // #[On('pekerjaans')]
-
-
+    public $perkawinanSeries = [];
+    public $totalSeries = [];
 
     protected function getData(): array
     {
+        $datatabel = app(PerkawinanTable::class)->data();
+        $items = $datatabel['data'];
+        $perkawinanSeries = array_column($items, 'STATUS_PERKAWINAN');
+        $totalSeries = array_column($items, 'TOTAL');
 
-        $penduduk = Penduduk::allPekerjaan()->get();
-        $dataPekerjaan = [];
+        // Resulting arrays
+        $result = [
+            'perkawinan' => $perkawinanSeries,
+            'total' => $totalSeries,
+        ];
 
-        foreach ($penduduk as $individu) {
-            $jenisPekerjaan = $individu->pekerjaan;
-            $total = $individu->total;
-
-            $dataPekerjaan[] = [
-                'pekerjaan' => $jenisPekerjaan,
-                'total' => $total,
-            ];
-        }
-
-        return $dataPekerjaan;
-
-
-
-        // $penduduk = Penduduk::all();
-
-        // // Inisialisasi array untuk menyimpan data berdasarkan kelompok umur dan jenis kelamin
-        // $dataPekerjaan = [];
-
-        // // Iterasi melalui data penduduk
-        // foreach ($penduduk as $individu) {
-        //     $jenisPekerjaan = $individu->pekerjaan;
-        //     $dataPekerjaan[] = $jenisPekerjaan ?? 0;
-        // }
-        // $pekerjaanCount = [];
-
-        // // Loop melalui data pekerjaan
-        // foreach ($dataPekerjaan as $pekerjaan) {
-        //     // Ambil nama pekerjaan
-        //     $namaPekerjaan = $pekerjaan->value; // Sesuaikan dengan metode yang benar
-
-        //     // Tambahkan jumlah pekerjaan ke dalam array $pekerjaanCount
-        //     if (isset($pekerjaanCount[$namaPekerjaan])) {
-        //         $pekerjaanCount[$namaPekerjaan]++;
-        //     } else {
-        //         $pekerjaanCount[$namaPekerjaan] = 1;
-        //     }
-        // }
-
-        // // Urutkan array $pekerjaanCount berdasarkan jumlah pekerjaan
-        // arsort($pekerjaanCount);
-
-        // // Ambil 10 pekerjaan teratas
-        // $top10Pekerjaan = array_slice($pekerjaanCount, 0, 11);
-
-        // // Output hasilnya
-        // return
-        //     [$top10Pekerjaan];
+        return $result;
     }
-
-
-
 
     /**
      * Chart options (series, labels, types, size, animations...)
@@ -112,24 +64,42 @@ class PendudukApexBarChart extends ApexChartWidget
      *
      * @return array
      */
+
     protected function getOptions(): array
     {
 
-        $pekerjaan = $this->getData();
-        $jenisPekerjaan = array_map(function ($item) {
-            return $item['pekerjaan']->value;
-        }, $pekerjaan);
-        $jumlahPekerjaan = array_map(function ($item) {
-            return $item['total'];
-        }, $pekerjaan);
+        $perkawinan = self::getData();
+        $jenisPerkawinan = $perkawinan['perkawinan'];
+        $jumlahPerkawinan = $perkawinan['total'];
 
+        // $optionsPie =
+        //     [
+        //         'series' => $jumlahPerkawinan,
+        //         'labels' => $jenisPerkawinan,
+        //         'chart' => [
+        //             'type' => 'donut',
+
+        //         ],
+        //         'plotOptions' => [
+        //             'pie' => [
+        //                 'expandOnClick' => true,
+        //                 'size' => 200,
+        //                 'donut' => [
+        //                     'labels' => [
+        //                         'show' => true,
+        //                     ],
+        //                     'size' => '65%',
+        //                 ],
+        //             ],
+        //         ],
+        //     ];
         $options =
             [
                 'chart' => [
                     'type' => 'bar',
-                    'height' => 500,
+                    'height' => 600,
                     'toolbar' => [
-                        'show' => false
+                        'show' => true
                     ],
                     'sparkline' => [
                         'enabled' => false
@@ -139,18 +109,25 @@ class PendudukApexBarChart extends ApexChartWidget
                 ],
                 'series' => [
                     [
-                        'name' => 'Pekerjaan',
-                        'data' => ($jumlahPekerjaan),
+                        'name' => 'Perkawinan',
+                        'data' => ($jumlahPerkawinan),
                     ],
 
                 ],
                 'plotOptions' => [
+                    'pie' => [
+                        'expandOnClick' => true,
+                        'size' => 100,
+                        'donut' => [
+                            'size' => '65%',
+                        ],
+                    ],
                     'bar' => [
                         'borderRadius' => 2,
                     ],
                 ],
                 'xaxis' => [
-                    'categories' => $jenisPekerjaan,
+                    'categories' => $jenisPerkawinan,
                     'labels' => [
                         'style' => [
                             'fontWeight' => 400,
@@ -187,8 +164,8 @@ class PendudukApexBarChart extends ApexChartWidget
                 'plotOptions' => [
                     'bar' => [
                         'borderRadius' => 3,
-                        'horizontal' => true,
-                        'barHeight' => '40%',
+                        'horizontal' => false,
+                        'barHeight' => '100%',
                         'distributed' => true,
                     ],
                 ],
@@ -214,7 +191,6 @@ class PendudukApexBarChart extends ApexChartWidget
 
 
                 'colors' => [
-                    // sediakan 10 warna gradasi
                     '#008FFB',
                     '#00E396',
                     '#FEB019',
@@ -231,6 +207,8 @@ class PendudukApexBarChart extends ApexChartWidget
 
         return $options;
     }
+
+
 
     protected function getFilters(): ?array
     {

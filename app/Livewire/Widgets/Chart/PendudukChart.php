@@ -2,6 +2,9 @@
 
 namespace App\Livewire\Widgets\Chart;
 
+
+use App\Livewire\Widgets\Table\RentangUmurTable;
+use App\Livewire\Widgets\Table\SatuanUmurTable;
 use App\Models\Penduduk;
 use Carbon\Carbon;
 use Filament\Support\RawJs;
@@ -13,83 +16,45 @@ class PendudukChart extends ChartWidget
 
     protected static string $color = 'success';
 
-    protected static ?string $maxHeight = '900px';
+    protected static ?string $maxHeight = '800px';
 
-    public ?string $filter = 'Kelompok Umur';
+    public ?string $filter = 'Rentang Umur';
 
-    public function groupByGender($penduduk)
-    {
-        $totals = ['LAKI-LAKI' => [], 'PEREMPUAN' => []];
+    public $umurSeries = [];
+    public $lkSeries = [];
+    public $prSeries = [];
+    public $totalSeries = [];
 
-        foreach ($penduduk as $individu) {
-            $jenisKelamin = $individu->jenis_kelamin->value;
-            $kelompokUmur = $individu->kelompok_umur;
-            $total = $individu->total;
-
-            if (!isset($totals[$jenisKelamin][$kelompokUmur])) {
-                $totals[$jenisKelamin][$kelompokUmur] = 0;
-            }
-
-            $totals[$jenisKelamin][$kelompokUmur] += $total;
-        }
-
-        return ($totals);
-    }
-
-    public function prepareData($totals, $categories)
-    {
-        $preparedData = ['LAKI-LAKI' => [], 'PEREMPUAN' => []];
-
-        foreach (['LAKI-LAKI', 'PEREMPUAN'] as $gender) {
-            foreach ($categories as $category) {
-                $preparedData[$gender][$category] = $totals[$gender][$category] ?? 0;
-            }
-        }
-
-        $preparedData['UMUR'] = $categories;
-        $preparedData['LAKI-LAKI'] = array_values($preparedData['LAKI-LAKI']);
-        $preparedData['PEREMPUAN'] = array_values($preparedData['PEREMPUAN']);
-
-        return $preparedData;
-    }
 
     protected function getData(): array
     {
-        if ($this->filter === 'Kelompok Umur') {
+        if ($this->filter === 'Rentang Umur') {
 
-            $Umur = Penduduk::groupUJ()->get();
-            $Kategori = ["0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75+"];
-
-            $totals = self::groupByGender($Umur);
-            $totals = self::prepareData($totals, $Kategori);
+            $datatabel = app(RentangUmurTable::class)->data();
+            $items = $datatabel['data'];
+            $umurSeries = array_column($items, 'RENTANG_UMUR');
+            $lkSeries = array_column($items, 'LAKI-LAKI');
+            $prSeries = array_column($items, 'PEREMPUAN');
+            $totalSeries = array_column($items, 'TOTAL');
         } else {
-
-            $Umur = Penduduk::satuanUJ()->get();
-            $Kategori = [
-                "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
-                "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
-                "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
-                "40", "41", "42", "43", "44", "45", "46", "47", "48", "49",
-                "50", "51", "52", "53", "54", "55", "56", "57", "58", "59",
-                "60", "61", "62", "63", "64", "65", "66", "67", "68", "69",
-                "70", "71", "72", "73", "74", "75+"
-            ];
-
-            $totals = self::groupByGender($Umur);
-            $totals = self::prepareData($totals, $Kategori);
+            $datatabel = app(SatuanUmurTable::class)->data();
+            $items = $datatabel['data'];
+            $umurSeries = array_column($items, 'SATUAN_UMUR');
+            $lkSeries = array_column($items, 'LAKI-LAKI');
+            $prSeries = array_column($items, 'PEREMPUAN');
+            $totalSeries = array_column($items, 'TOTAL');
         }
 
-        $totals['PEREMPUAN'] = array_map(function ($item) {
-            return -1 * $item;
-        }, $totals['PEREMPUAN']);
+        array_walk_recursive($prSeries, function (&$item) {
+            $item = -1 * $item;
+        });
 
 
         return [
             'datasets' => [
                 [
                     'label' => 'Laki-laki',
-                    'data' => $totals['LAKI-LAKI'],
+                    'data' => $lkSeries,
                     'barWidth' => '20px', // default: '10px
                     'barPercentage' => 1,
                     'backgroundColor' => ' rgba(54, 162, 235, 0.2)',
@@ -98,7 +63,7 @@ class PendudukChart extends ChartWidget
                 ],
                 [
                     'label' => 'Perempuan',
-                    'data' => $totals['PEREMPUAN'],
+                    'data' => $prSeries,
                     'barPercentage' => 1,
                     'barWidth' => '20px', // default: '10px
                     'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
@@ -106,7 +71,7 @@ class PendudukChart extends ChartWidget
                     'borderWidth' => 1,
                 ],
             ],
-            'labels' => $totals['UMUR'],
+            'labels' => $umurSeries,
         ];
     }
 

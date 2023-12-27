@@ -3,11 +3,53 @@
 @config './tailwind.config.js';
 
 @layer components {
-    .fi-badge .grid .truncate {
-        @apply overflow-visible whitespace-normal !important;
-    }
 
     .fi-sidebar {
+        @apply bg-primary-300 mr-4 rounded-2xl shadow-none dark:bg-slate-900  !important;
+    }
+
+    .fi-sidebar button {
+        @apply !text-primary-600 dark:!text-primary-200 !important;
+    }
+
+    .fi-sidebar-header {
+        @apply ring-0 bg-primary-300 rounded-r-2xl shadow-none dark:bg-slate-900 !important;
+    }
+
+    .fi-sidebar-header button {
+        @apply  !text-primary-600 dark:!text-primary-200 !important;
+    }
+
+    .fi-sidebar-item-icon {
+        @apply !text-gray-600 dark:text-primary-200 !important;
+    }
+    .fi-sidebar-item-active .fi-sidebar-item-icon {
+        @apply !text-primary-600 dark:text-primary-300 !important;
+    }
+
+    .fi-sidebar-item-active .fi-sidebar-item-label {
+        @apply !text-primary-600 dark:text-primary-300  !important;
+    }
+
+    .fi-sidebar-group-label {
+        @apply !text-gray-600 dark:text-primary-200  !important;
+    }
+
+    .fi-topbar nav {
+        @apply bg-primary-300 rounded-2xl dark:bg-slate-900 !important;
+    }
+
+    .fi-topbar nav button {
+        @apply !text-gray-500 dark:!text-primary-200 !important;
+    }
+
+
+
+    /* .fi-badge .grid .truncate {
+        @apply overflow-visible whitespace-normal !important;
+    } */
+
+    /* .fi-sidebar {
         @apply bg-[#96B6C5] mr-4 rounded-lg dark:bg-slate-800  !important;
     }
 
@@ -81,11 +123,11 @@
 
     .fi-sidebar-nav ul{
         @apply gap-y-2 !important;
-    }
+    } */
 
-    .fi-sidebar-nav ul li{
+    /* .fi-sidebar-nav ul li{
         @apply hover:bg-[#F1F0E8] rounded-lg !important;
-    }
+    } */
 
     
 }

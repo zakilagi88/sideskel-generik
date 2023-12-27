@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Filament\Widgets;
 
 use App\Filament\Widgets\StatsOverview;
+use App\Livewire\Widgets\Chart\PekerjaanChart;
 use App\Livewire\Widgets\Chart\PendudukApexBarChart;
 use App\Livewire\Widgets\Chart\PendudukChart;
 use Filament\Actions\Action;
@@ -60,7 +61,7 @@ class Dashboard extends BasePage
     public function getWidgets(): array
     {
         return [
-            PendudukApexBarChart::class,
+            PekerjaanChart::class,
             PendudukChart::class,
         ];
     }
