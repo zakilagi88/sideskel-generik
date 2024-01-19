@@ -11,8 +11,8 @@ class Author extends Model
 
     protected $guarded = ['id'];
 
-    public function articles()
+    public function beritas()
     {
-        return $this->hasMany(Article::class);
+        return $this->hasMany(Berita::class);
     }
 }

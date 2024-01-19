@@ -25,7 +25,7 @@ class RT extends Model
     protected $casts = [
         'rts' => 'array'
     ];
-
+                                    
     protected $primaryKey = 'rt_id';
     protected $fillable = [
         'rt_id',

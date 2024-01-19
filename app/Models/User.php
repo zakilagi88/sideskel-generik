@@ -9,11 +9,14 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
+use Spatie\Permission\Contracts\Permission;
+use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
@@ -27,6 +30,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      */
     protected $fillable = [
         'name',
+        'nik',
+        'username',
         'email',
         'password',
         'avatar_url',
@@ -70,23 +75,67 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return true;
     }
 
-    public function articles()
-    {
-        return $this->hasMany(Article::class);
-    }
-
-    public function wilayahRoles()
-    {
-        return $this->belongsToMany(wilayah::class, 'user_wilayah_roles', 'user_id', 'wilayah_id')->as('wilayah')->withPivot('role_id')->withTimestamps();
-    }
-
-    public function kelurahan()
-    {
-        return $this->wilayahRoles()->first()->kel_groups()->first();
-    }
-
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->avatar_url ? Storage::url($this->avatar_url) : 'https://ui-avatars.com/api/?name=' . $this->name . '&color=random&background=random&rounded=true&bold=true&size=128';
+    }
+
+    // public function assignRole($role, $wilayahId = null)
+    // {
+    //     $roles = $this->collectRoles([$role]);
+
+    //     $model = $this->getModel();
+    //     $teamPivot = app(PermissionRegistrar::class)->teams && !is_a($this, Permission::class) ?
+    //         [app(PermissionRegistrar::class)->teamsKey => getPermissionsTeamId()] : [];
+
+    //     if ($model->exists) {
+    //         $currentRoles = $this->roles->map(fn ($role) => $role->getKey())->toArray();
+
+    //         $this->roles()->attach(array_diff($roles, $currentRoles), $teamPivot);
+
+    //         if (!is_null($wilayahId)) {
+    //             $this->roles()->updateExistingPivot($roles, ['wilayah_id' => $wilayahId]);
+    //         }
+
+    //         $model->unsetRelation('roles');
+    //     } else {
+    //         $class = \get_class($model);
+
+    //         $class::saved(function ($object) use ($roles, $model, $teamPivot, $wilayahId) {
+    //             if ($model->getKey() != $object->getKey()) {
+    //                 return;
+    //             }
+
+    //             $this->roles()->attach($roles, $teamPivot);
+
+    //             if (!is_null($wilayahId)) {
+    //                 $this->roles()->updateExistingPivot($roles, ['wilayah_id' => $wilayahId]);
+    //             }
+
+    //             $model->unsetRelation('roles');
+    //         });
+    //     }
+
+    //     if (is_a($this, Permission::class)) {
+    //         $this->forgetCachedPermissions();
+    //     }
+
+    //     return $this;
+    // }
+
+    public function wilayah(): BelongsToMany
+    {
+        return $this->belongsToMany(Wilayah::class, 'user_wilayahs', 'user_id', 'wilayah_id');
+    }
+
+    public function beritas()
+    {
+        return $this->hasMany(Berita::class);
+    }
+
+
+    public function penduduk()
+    {
+        return $this->belongsTo(Penduduk::class, 'nik', 'nik');
     }
 }

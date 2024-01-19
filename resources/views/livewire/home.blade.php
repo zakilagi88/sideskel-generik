@@ -306,7 +306,7 @@
             <!-- Weather/News Segment -->
             <div class="pt-12 flex flex-row flex-wrap md:justify-around bg-gray-200">
                 <!-- Weather Segment -->
-                @livewire('article.grid')
+                @livewire('berita.grid')
 
             </div>
         </div>

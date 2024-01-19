@@ -6,25 +6,40 @@ use Filament\Facades\Filament;
 use Filament\Pages\Auth\Login;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Validation\ValidationException;
 
 class CustomLogin extends Login
 {
 
-    protected static string $view = 'filament.pages.auth.login';
-
-    public function mount(): void
+    public function form(Form $form): Form
     {
-        if (Filament::auth()->check()) {
-            redirect()->intended(Filament::getUrl());
-        }
-        $this->form->fill();
+        return $form
+            ->schema([
+                $this->getUsernameFormComponent(),
+                $this->getPasswordFormComponent(),
+                $this->getRememberFormComponent(),
+            ])
+            ->statePath('data');
     }
+
+    protected function getUsernameFormComponent(): Component
+    {
+        return TextInput::make('username')
+            ->label('Username')
+            ->required()
+            ->autocomplete()
+            ->autofocus()
+            ->extraInputAttributes(['tabindex' => 1]);
+    }
+
     protected function getCredentialsFromFormData(array $data): array
     {
+        $type = filter_var($data['username'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
         return [
-            'username' => $data['username'],
+            $type => $data['username'],
             'password' => $data['password'],
         ];
     }
@@ -37,23 +52,9 @@ class CustomLogin extends Login
         ]);
     }
 
-    public function getTitle(): string|Htmlable
-    {
-        return __('Selamat Datang di Sistem Informasi Desa');
-    }
 
     public function getHeading(): string|Htmlable
     {
         return __('Kelurahan Kuripan');
-    }
-
-    protected function getEmailFormComponent(): Component
-    {
-        return TextInput::make('username')
-            ->label('Username')
-            ->required()
-            ->autofocus()
-            ->extraInputAttributes(['tabindex' => 1])
-            ->autocomplete();
     }
 }

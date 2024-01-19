@@ -1,9 +1,9 @@
 <?php
 
-use App\Livewire\Article\Display;
-use App\Livewire\Article\Grid;
-use App\Livewire\Category;
+use App\Livewire\Berita\Display;
+
 use App\Livewire\Home;
+use App\Livewire\KategoriBerita;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,15 +21,15 @@ Route::get('/', Home::class)->name('home');
 
 
 Route::get(
-    '/{article:slug}',
+    '/{berita:slug}',
     Display::class
-)->name('article');
+)->name('berita');
 
 
 Route::get(
-    '/{category:slug}',
-    Category::class
-)->name('category');
+    '/{kategori_berita:slug}',
+    KategoriBerita::class
+)->name('kategori_berita');
 
 // buat route untuk admin/penduduk-stats/umur admin/penduduk-stats/agama gunakan group
 

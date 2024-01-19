@@ -12,6 +12,7 @@ use Filament\Forms\Components\Actions as ComponentsActions;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -69,5 +70,14 @@ class ListPenduduks extends ListRecords
                 $query->where('status', 'MENINGGAL');
             })->badge($this->statuswarga[Status::MENINGGAL->value] ?? '0')->icon('fas-person-falling-burst')->badgeColor('danger'),
         ];
+    }
+
+    protected function paginateTableQuery(Builder $query): Paginator
+    {
+        return $query->fastPaginate(
+            $this->getTableRecordsPerPage() === 50 || $this->getTableRecordsPerPage() === 100
+                ? $query->count()
+                : $this->getTableRecordsPerPage()
+        );
     }
 }

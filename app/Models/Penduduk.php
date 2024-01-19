@@ -2,23 +2,10 @@
 
 namespace App\Models;
 
-use App\Enum\Penduduk\Agama;
-use App\Enum\Penduduk\EtnisSuku;
-use App\Enum\Penduduk\JenisKelamin;
-use App\Enum\Penduduk\Pekerjaan;
-use App\Enum\Penduduk\Pendidikan;
-use App\Enum\Penduduk\Pengajuan;
-use App\Enum\Penduduk\Perkawinan;
-use App\Enum\Penduduk\Status;
-use App\Enum\Penduduk\TempatTinggal;
+use App\Enum\Penduduk\{Agama, EtnisSuku, GolonganDarah, JenisKelamin, Kewarganegaraan, Pekerjaan, Pendidikan, Pengajuan, Perkawinan, Status, StatusHubungan, StatusTempatTinggal};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, MorphToMany};
 use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -38,9 +25,11 @@ class Penduduk extends Model implements Auditable
 
     protected $primaryKey = 'nik';
     protected $keyType = 'string';
+    protected $foreignKey = 'kk_id';
     public $incrementing = false;
     protected $fillable = [
         'nik',
+        'kk_id',
         'nama_lengkap',
         'foto',
         'jenis_kelamin',
@@ -57,6 +46,7 @@ class Penduduk extends Model implements Auditable
         'status',
         'status_pengajuan',
         'status_tempat_tinggal',
+        'status_hubungan',
         'etnis_suku',
         'alamat',
         'alamatKK',
@@ -77,11 +67,15 @@ class Penduduk extends Model implements Auditable
         'status' => Status::class,
         'status_pengajuan' => Pengajuan::class,
         'status_perkawinan' => Perkawinan::class,
-        'status_tempat_tinggal' => TempatTinggal::class,
+        'status_tempat_tinggal' => StatusTempatTinggal::class,
+        'status_hubungan' => StatusHubungan::class,
+        'golongan_darah' => GolonganDarah::class,
+        'kewarganegaraan' => Kewarganegaraan::class,
     ];
 
     protected $auditInclude = [
         'nik',
+        'kk_id',
         'nama_lengkap',
         'jenis_kelamin',
         'tempat_lahir',
@@ -97,6 +91,7 @@ class Penduduk extends Model implements Auditable
         'status',
         'status_pengajuan',
         'status_tempat_tinggal',
+        'status_hubungan',
         'etnis_suku',
         'alamat',
         'alamatKK',
@@ -119,14 +114,10 @@ class Penduduk extends Model implements Auditable
      * @var array<string, string>
      */
 
-    public function anggotaKeluarga(): HasOne
-    {
-        return $this->hasOne(AnggotaKeluarga::class, 'nik', 'nik');
-    }
 
     public function kesehatan(): BelongsToMany
     {
-        return $this->belongsToMany(Kesehatan::class, 'penduduk_kesehatan', 'nik', 'kes_id')->withTimestamps();
+        return $this->belongsToMany(Kesehatan::class, 'penduduk_kesehatan', 'nik', 'kes_id')->withTimestamps()->withPivot('kes_cacat_mental_fisik', 'kes_penyakit_menahun', 'kes_penyakit_lain', 'kes_akseptor_kb');
     }
 
     public function asuransiKesehatan(): BelongsToMany
@@ -134,9 +125,14 @@ class Penduduk extends Model implements Auditable
         return $this->belongsToMany(AsuransiKesehatan::class, 'penduduk_kesehatan', 'nik', 'as_kes_id')->withTimestamps();
     }
 
-    public function kartuKeluarga(): HasOneThrough
+    public function kartuKeluarga(): BelongsTo
     {
-        return $this->hasOneThrough(KartuKeluarga::class, AnggotaKeluarga::class, 'nik', 'kk_id', 'nik', 'kk_id');
+        return $this->belongsTo(KartuKeluarga::class, 'kk_id', 'kk_id');
+    }
+
+    public function bantuans(): MorphToMany
+    {
+        return $this->morphToMany(Bantuan::class, 'bantuanable');
     }
 
     public function scopeAllPekerjaan($query, $wilayahId = null, $jk = null)

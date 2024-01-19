@@ -28,6 +28,7 @@ class EditProfile extends BaseEditProfile
                     ->aside()
                     ->schema([
                         $this->getNameFormComponent(),
+                        $this->getUsernameFormComponent(),
                         $this->getEmailFormComponent(),
                         $this->getPasswordFormComponent(),
                         $this->getPasswordConfirmationFormComponent(),

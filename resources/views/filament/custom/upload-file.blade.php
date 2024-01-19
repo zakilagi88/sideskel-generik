@@ -1,17 +1,20 @@
 <div>
-    <x-filament::breadcrumbs :breadcrumbs="[
-        '/admin/kartukeluarga' => 'Kartu Keluarga',
-        '/admin' => 'List Kartu Keluarga',
-    ]" />
+    <x-filament::breadcrumbs :breadcrumbs="['/admin/kartukeluarga' => 'Kartu Keluarga', '/admin' => 'List Kartu Keluarga']" />
 
     <div class="flex justify-between mt-3">
         <h1 class="font-semibold text-3xl">Kartu Keluarga</h1>
         <div>
+            <div class="flex items-center">
+                <div class="mr-4">
+                    {{ $createAction }}
+                </div>
 
-            {{ $data }}
+                <div>
+                    {{ $importAction }}
+                </div>
+            </div>
 
-            {{ $uploadFile }}
- 
+
             <x-filament-actions::modals />
 
             <div class="flex flex-row items-center ">
@@ -23,13 +26,7 @@
                         </span>
                     </div>
                 @endif
-
             </div>
         </div>
-
     </div>
-
-
-
-
 </div>

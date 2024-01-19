@@ -97,12 +97,12 @@ class WilayahResource extends Resource
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('rts.rt_nama')
+                TextColumn::make('rt.rt_nama')
                     ->label('RT')
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('rws.rw_nama')
+                TextColumn::make('rw.rw_nama')
                     ->label('RW')
                     ->numeric()
                     ->sortable()
@@ -137,21 +137,19 @@ class WilayahResource extends Resource
                     ->label('RW')
                     ->options(
                         function () {
-                            return Wilayah::with('rws')->get()->pluck('rws.rw_nama', 'rws.rw_id');
+                            return Wilayah::with('rw')->pluck('rw_id')->get('rw.rw_nama');
                         }
                     )
                     ->default(null)
-                    ->preload()
                     ->multiple(),
                 SelectFilter::make('rt_id')
                     ->label('RT')
                     ->options(
                         function () {
-                            return Wilayah::with('rts')->get()->pluck('rts.rt_nama', 'rts.rt_id');
+                            return Wilayah::with('rt')->pluck('rt_id')->get('rt.rt_nama');
                         }
                     )
                     ->default(null)
-                    ->preload()
                     ->multiple(),
             ])
             ->filtersTriggerAction(

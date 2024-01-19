@@ -39,7 +39,7 @@ return [
 
     'theme' => [
         'colors' => [
-            'primary' => '#465362',
+            'primary' => '#0077ff',
         ],
     ]
 ];

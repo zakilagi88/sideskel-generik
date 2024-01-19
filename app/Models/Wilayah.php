@@ -39,13 +39,12 @@ class Wilayah extends Model
 
     ];
 
-    public function rws(): BelongsTo
+    public function rw(): BelongsTo
     {
         return $this->belongsTo(RW::class, 'rw_id', 'rw_id');
     }
 
-
-    public function rts(): BelongsTo
+    public function rt(): BelongsTo
     {
         return $this->belongsTo(RT::class, 'rt_id', 'rt_id');
     }
@@ -55,9 +54,9 @@ class Wilayah extends Model
         return $this->hasMany(KartuKeluarga::class, 'wilayah_id', 'wilayah_id');
     }
 
-    public function wilayah_pdd(): HasManyThrough
+    public function penduduk(): HasMany
     {
-        return $this->hasManyThrough(Penduduk::class, KartuKeluarga::class, 'wilayah_id', 'kk_id', 'wilayah_id', 'kk_id');
+        return $this->hasMany(Penduduk::class, 'wilayah_id', 'wilayah_id');
     }
 
     public function dusun(): BelongsTo

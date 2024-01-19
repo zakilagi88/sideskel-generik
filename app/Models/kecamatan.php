@@ -25,6 +25,6 @@ class Kecamatan extends Model
 
     public function kabkota_groups(): BelongsTo
     {
-        return $this->belongsTo(Kab_Kota::class, 'kabkota_id', 'kabkota_id');
+        return $this->belongsTo(KabKota::class, 'kabkota_id', 'kabkota_id');
     }
 }

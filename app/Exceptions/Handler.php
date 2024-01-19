@@ -3,7 +3,6 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use BezhanSalleh\FilamentExceptions\FilamentExceptions;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -24,10 +23,9 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
+        //default
         $this->reportable(function (Throwable $e) {
-            if ($this->shouldReport($e)) {
-                FilamentExceptions::report($e);
-            }
+            //
         });
     }
 }

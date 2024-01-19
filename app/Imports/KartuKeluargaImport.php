@@ -8,152 +8,135 @@ use App\Models\Penduduk;
 use App\Models\Wilayah;
 use Carbon\Carbon;
 use DateTime;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Row;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
-class KartuKeluargaImport implements ToModel, WithHeadingRow
+class KartuKeluargaImport implements ToCollection, WithHeadingRow, WithChunkReading
 {
 
-    public function model(array $row)
+    private $wilayah;
 
+    public function __construct()
     {
-        $nokk = $row['no_kk'];
+        $this->wilayah = Wilayah::all(['wilayah_id', 'wilayah_nama'])->pluck('wilayah_id', 'wilayah_nama');
+    }
 
-        $tglupdate = Date::excelToTimestamp($row['tanggal_update_data']);
+    public function collection(Collection $rows)
+    {
+        $kartuKeluarga = [];
+        $penduduk = [];
+        $kkdiproccess = [];
 
-        $format_tglupdate = $this->formatTanggal($tglupdate);
 
-        $kartuKeluarga = $this->findOrCreateKK($nokk, $row);
+        $rows->each(
+            function ($row) use (&$kartuKeluarga, &$penduduk, &$kkdiproccess) {
 
-        $penduduk = $this->CreatePenduduk($row, $format_tglupdate);
+                $kkKey = array_search($row['nomor_kk'], array_column($kartuKeluarga, 'kk_id'));
 
-        $anggotaKeluarga = $this->CreateAnggotaKeluarga($row, $format_tglupdate);
+                if ($kkKey === false) {
+                    $kk = [
+                        'kk_id' => (string)$row['nomor_kk'],
+                        'kk_alamat' => (string)$row['alamat'],
+                        'kk_kepala' => null,
+                        'wilayah_id' => $this->wilayah[$row['wilayah']] ?? null,
+                        'updated_at' => self::formatTanggal($row['tanggal_update_data']),
+                    ];
 
-        if ($row['hubungan'] === 'KEPALA KELUARGA') {
-            $this->UpdateKepalaKK($row, $format_tglupdate);
+                    if ($row['status_hubungan'] === 'KEPALA KELUARGA') {
+                        $kk['kk_kepala'] = $row['nik'];
+                    }
+
+                    $kartuKeluarga[] = $kk;
+
+                    $kkdiproccess[] = $row['nomor_kk'];
+                } else {
+                    if ($kartuKeluarga[$kkKey]['kk_kepala'] === null && $row['status_hubungan'] === 'KEPALA KELUARGA') {
+                        $kartuKeluarga[$kkKey]['kk_kepala'] = $row['nik'];
+                    }
+                }
+
+
+                $penduduk[] =
+                    [
+                        'nik' => $row['nik'],
+                        'kk_id' => $row['nomor_kk'],
+                        'nama_lengkap' => $row['nama_lengkap'],
+                        'jenis_kelamin' => $row['jenis_kelamin'],
+                        'tempat_lahir' => $row['tempat_lahir'],
+                        'tanggal_lahir' => self::formatTanggal($row['tanggal_lahir']),
+                        'agama' => $row['agama'],
+                        'pendidikan' => $row['pendidikan'],
+                        'pekerjaan' => $row['pekerjaan'],
+                        'status_perkawinan' => $row['status_perkawinan'],
+                        'kewarganegaraan' => $row['kewarganegaraan'] ?? 'WNI',
+                        'ayah' => $row['ayah'] ?? null,
+                        'ibu' => $row['ibu'] ?? null,
+                        'golongan_darah' => $row['golongan_darah'] ?? null,
+                        'status' => $row['status'],
+                        'status_tempat_tinggal' => $row['status_tempat_tinggal'] ?? null,
+                        'status_hubungan' => $row['status_hubungan'],
+                        'etnis_suku' => $row['etnis_suku'] ?? null,
+                        'alamat' => $row['alamat'],
+                        'alamatKK' => $row['alamat_sesuai_kk'] === $row['alamat'],
+                        'telepon' => $row['telepon'] ?? null,
+                        'email' => $row['email'] ?? null,
+                        'wilayah_id' => $this->wilayah[$row['wilayah']] ?? null,
+                        'updated_at' => self::formatTanggal($row['tanggal_update_data']),
+                    ];
+            }
+
+
+
+        );
+
+        try {
+            DB::beginTransaction();
+
+            KartuKeluarga::disableAuditing();
+            Penduduk::disableAuditing();
+
+            $chunksKeluarga = array_chunk($kartuKeluarga, 1000);
+            $chunksPenduduk = array_chunk($penduduk, 2000);
+
+            foreach (array_values($chunksKeluarga) as $chunk) {
+                KartuKeluarga::insert($chunk);
+            }
+
+            foreach ($chunksPenduduk as $chunk) {
+                Penduduk::insert($chunk);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            dd($e);
+        } finally {
+            KartuKeluarga::enableAuditing();
+            Penduduk::enableAuditing();
         }
-
-        return [
-            $penduduk,
-            $kartuKeluarga,
-            $anggotaKeluarga,
-        ];
     }
 
     private function formatTanggal($tgl)
     {
-        $date = new DateTime("@$tgl");
-        return $date->format('Y-m-d H:i:s');
+        $unixTimestamp = Date::excelToTimestamp($tgl);
+        $carbonDate = Carbon::createFromTimestamp($unixTimestamp, 'UTC');
+        $formattedDate = $carbonDate->format('Y-m-d H:i:s');
+
+        return $formattedDate;
     }
 
-    private function findOrCreateKK($nokk, $row)
+    public function chunkSize(): int
     {
-        $kartuKeluarga = KartuKeluarga::where('kk_id', (string) $nokk)->first();
-
-        if (!$kartuKeluarga) {
-            $tglupdate = $this->formatTanggal(Date::excelToTimestamp($row['tanggal_update_data']));
-
-            $dataToInsert = [
-                'kk_id' => (string) $nokk,
-                'kk_alamat' => (string) $row['alamat'],
-                'kk_kepala' => null,
-                'wilayah_id' => self::cekWilayahId($row),
-                'updated_at' => $tglupdate,
-            ];
-
-            $kartuKeluarga = KartuKeluarga::create($dataToInsert);
-        }
-
-        return $kartuKeluarga;
-    }
-
-    private function CreatePenduduk($row, $format_tglupdate)
-    {
-
-        // List of required columns
-        $requiredColumns = ['nik', 'nama_lengkap', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'agama', 'pendidikan', 'pekerjaan', 'status_perkawinan', 'kewarganegaraan', 'ayah', 'ibu', 'golongan_darah', 'status', 'status_tempat_tinggal', 'etnis_suku', 'alamat', 'alamat_sesuai_kk', 'telepon', 'email', 'wilayah'];
-
-        // Set default values for missing columns
-        foreach ($requiredColumns as $column) {
-            $row[$column] = $row[$column] ?? null;
-        }
-
-
-        $tgl = Date::excelToTimestamp($row['tanggal_lahir']);
-        $format_tgl = $this->formatTanggal($tgl);
-
-        $penduduk = Penduduk::create([
-            'nik' => $row['nik'],
-            'nama_lengkap' => $row['nama_lengkap'],
-            'jenis_kelamin' => $row['jenis_kelamin'],
-            'tempat_lahir' => $row['tempat_lahir'],
-            'tanggal_lahir' => $format_tgl,
-            'agama' => $row['agama'],
-            'pendidikan' => $row['pendidikan'],
-            'pekerjaan' => $row['pekerjaan'],
-            'status_perkawinan' => $row['status_perkawinan'],
-            'kewarganegaraan' => $row['kewarganegaraan'] ?: 'WNI',
-            'ayah' => $row['ayah'],
-            'ibu' => $row['ibu'],
-            'golongan_darah' => $row['golongan_darah'],
-            'status' => $row['status'],
-            'status_tempat_tinggal' => $row['status_tempat_tinggal'],
-            'etnis_suku' => $row['etnis_suku'],
-            'alamat' => $row['alamat'],
-            'alamatKK' => $row['alamat_sesuai_kk'] === $row['alamat'] ? true : false,
-            'telepon' => $row['telepon'],
-            'email' => $row['email'],
-            'wilayah_id' => self::cekWilayahId($row),
-            'updated_at' => $format_tglupdate,
-        ]);
-
-        return $penduduk;
-    }
-
-    // private function cekWilayahId($row)
-    // {
-    //     $wilayah = Wilayah::where('wilayah_nama', (string) $row['wilayah'])->first();
-    //     if ($wilayah) {
-    //         return $wilayah->wilayah_id;
-    //     } else {
-    //         return null;
-    //     }
-    // }
-
-    private function cekWilayahId($row)
-    {
-        // Check if $row is an array
-        if (is_array($row) && isset($row['wilayah'])) {
-            $wilayah = Wilayah::where('wilayah_nama', (string) $row['wilayah'])->first();
-
-            if ($wilayah) {
-                return $wilayah->wilayah_id;
-            }
-        }
-
-        return null;
-    }
-
-
-    private function CreateAnggotaKeluarga($row, $format_tglupdate)
-    {
-        $anggotaKeluarga = AnggotaKeluarga::create([
-            'nik' => $row['nik'],
-            'kk_id' => $row['no_kk'],
-            'hubungan' => $row['hubungan'],
-            'updated_at' => $format_tglupdate,
-        ]);
-
-
-        return $anggotaKeluarga;
-    }
-
-    private function UpdateKepalaKK($row, $format_tglupdate)
-    {
-        $kartuKeluarga = KartuKeluarga::where('kk_id', (string) $row['no_kk'])->first();
-        $kartuKeluarga->kk_kepala = $row['nik'];
-        $kartuKeluarga->updated_at = $format_tglupdate;
-        $kartuKeluarga->save();
+        return 1000;
     }
 }

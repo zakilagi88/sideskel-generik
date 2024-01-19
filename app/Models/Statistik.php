@@ -9,7 +9,7 @@ class Statistik extends Model
 {
     use HasFactory;
 
-    protected $table = 'statistik';
+    protected $table = 'statistiks';
 
     protected $fillable = [
         'judul',

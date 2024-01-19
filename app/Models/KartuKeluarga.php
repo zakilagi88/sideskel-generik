@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class KartuKeluarga extends Model implements Auditable
@@ -27,6 +28,7 @@ class KartuKeluarga extends Model implements Auditable
     protected $primaryKey = 'kk_id';
     protected $keyType = 'string';
     public $incrementing = false;
+    protected $auditTimestamps = true;
 
     protected $fillable = [
         'kk_id',
@@ -48,11 +50,9 @@ class KartuKeluarga extends Model implements Auditable
         'updated_at'
     ];
 
-    protected $auditTimestamps = true;
-
-    public function penduduks(): HasManyThrough
+    public function penduduks(): HasMany
     {
-        return $this->hasManyThrough(Penduduk::class, AnggotaKeluarga::class, 'kk_id', 'nik', 'kk_id', 'nik');
+        return $this->hasMany(Penduduk::class, 'kk_id', 'kk_id');
     }
 
     public function wilayah(): BelongsTo
@@ -60,15 +60,13 @@ class KartuKeluarga extends Model implements Auditable
         return $this->belongsTo(wilayah::class, 'wilayah_id', 'wilayah_id');
     }
 
-
     public function kepalaKeluarga(): BelongsTo
     {
         return $this->belongsTo(Penduduk::class, 'kk_kepala', 'nik');
     }
 
-
-    public function anggotaKeluarga(): HasMany
+    public function bantuans(): MorphToMany
     {
-        return $this->hasMany(AnggotaKeluarga::class, 'kk_id', 'kk_id');
+        return $this->morphToMany(Bantuan::class, 'bantuanable');
     }
 }

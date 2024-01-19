@@ -20,7 +20,7 @@ use Database\Seeders\RukunWargaSeeder;
 use Database\Seeders\ShieldSeeder;
 use Database\Seeders\SLSSeeder;
 use Database\Seeders\UserSeeder;
-use Database\Seeders\UserSlsRolesSeeder;
+use Database\Seeders\UserWilayahRolesSeeder;
 use Illuminate\Support\Arr;
 use Spatie\Permission\Models\Role;
 
@@ -33,11 +33,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            RukunWargaSeeder::class,
-            RukunTetanggaSeeder::class,
-            SLSSeeder::class,
             ShieldSeeder::class,
-            UserSlsRolesSeeder::class,
+            // RukunWargaSeeder::clas  s,
+            // RukunTetanggaSeeder::class,
+            // SLSSeeder::class,
+            // UserWilayahRolesSeeder::class,
 
         ]);
     }

@@ -9,7 +9,7 @@
     }
 
     .fi-sidebar button {
-        @apply !text-primary-600 dark:!text-primary-200 !important;
+        @apply !text-primary-700 dark:!text-primary-400 !important;
     }
 
     .fi-sidebar-header {
@@ -17,22 +17,22 @@
     }
 
     .fi-sidebar-header button {
-        @apply  !text-primary-600 dark:!text-primary-200 !important;
+        @apply  !text-primary-700 dark:!text-primary-400 !important;
     }
 
     .fi-sidebar-item-icon {
-        @apply !text-gray-600 dark:text-primary-200 !important;
+        @apply !text-gray-700 dark:text-primary-400 !important;
     }
     .fi-sidebar-item-active .fi-sidebar-item-icon {
-        @apply !text-primary-600 dark:text-primary-300 !important;
+        @apply !text-primary-700 dark:text-primary-400 !important;
     }
 
     .fi-sidebar-item-active .fi-sidebar-item-label {
-        @apply !text-primary-600 dark:text-primary-300  !important;
+        @apply !text-primary-700 dark:text-primary-400  !important;
     }
 
     .fi-sidebar-group-label {
-        @apply !text-gray-600 dark:text-primary-200  !important;
+        @apply !text-gray-700 dark:text-primary-400  !important;
     }
 
     .fi-topbar nav {
@@ -43,7 +43,15 @@
         @apply !text-gray-500 dark:!text-primary-200 !important;
     }
 
+    .fi-section-header {
+        @apply bg-primary-300 rounded-t-lg dark:bg-slate-900 !important;
+    }
 
+    .fi-section-header-heading {
+        @apply !text-gray-700 dark:!text-primary-400 !important;
+    }
+
+    
 
     /* .fi-badge .grid .truncate {
         @apply overflow-visible whitespace-normal !important;

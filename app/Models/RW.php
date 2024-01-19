@@ -32,4 +32,9 @@ class RW extends Model
     {
         return $this->morphOne(KepalaEntitas::class, 'entitas');
     }
+
+    public function rts(): HasMany
+    {
+        return $this->hasMany(RT::class, 'rw_id', 'rw_id');
+    }
 }

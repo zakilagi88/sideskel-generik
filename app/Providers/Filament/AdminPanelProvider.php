@@ -6,10 +6,12 @@ namespace App\Providers\Filament;
 use App\Filament\AvatarProviders\BoringAvatarsProvider;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\{CustomLogin, Generator, PendudukStats};
-use App\Filament\Resources\Shield\RoleResource;
-use App\Filament\Resources\{ArticleResource, CategoryResource, KartuKeluargaResource, PendudukResource, StatistikResource, WilayahResource, UserResource};
+use App\Filament\Resources\{BeritaResource, KartuKeluargaResource, KategoriBeritaResource, PendudukResource, StatistikResource, WilayahResource, UserResource};
 use App\Http\Middleware\FilamentSettings;
 use App\Livewire\SettingsComponent;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use BezhanSalleh\FilamentShield\Resources\RoleResource;
+use Filament\Pages;
 use Filament\Forms\Components\FileUpload;
 use Filament\Http\Middleware\{Authenticate, DisableBladeIconComponents, DispatchServingFilamentEvent};
 use Filament\Navigation\{NavigationBuilder, NavigationItem, NavigationGroup};
@@ -36,19 +38,19 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->sidebarCollapsibleOnDesktop()
-            ->maxContentWidth('8xl')
             ->id('admin')
             ->path('admin')
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth('8xl')
             ->brandLogo(asset('images/cek1.png'))
-            ->brandLogoHeight('5rem')
             ->favicon(asset('images/cek1.png'))
+            ->brandLogoHeight('5rem')
             ->login(CustomLogin::class)
             ->authGuard('web')
             ->globalSearchKeyBindings([
                 'command+f', 'ctrl+f'
             ])
-            ->spa()
+            // ->spa()
             ->emailVerification()
             ->colors([
                 'danger' => Color::Rose,
@@ -58,12 +60,13 @@ class AdminPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
             ])
+            ->unsavedChangesAlerts()
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s')
+            ->databaseNotificationsPolling('60s')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                // Pages\Dashboard::class, 
+                Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -114,8 +117,8 @@ class AdminPanelProvider extends PanelProvider
                     NavigationGroup::make('Website')
                         ->items([
                             ...StatistikResource::getNavigationItems(),
-                            ...CategoryResource::getNavigationItems(),
-                            ...ArticleResource::getNavigationItems()
+                            ...KategoriBeritaResource::getNavigationItems(),
+                            ...BeritaResource::getNavigationItems()
                         ]),
                     NavigationGroup::make('Pengaturan')
                         ->items([
@@ -133,8 +136,8 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('filament.custom.topbar-start'),
             )
             ->plugins([
+                FilamentShieldPlugin::make(),
                 FilamentAuthenticationLogPlugin::make(),
-                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 BreezyCore::make()
                     ->avatarUploadComponent(fn () => FileUpload::make('avatar_url')->directory('profile-photos'))
                     ->passwordUpdateRules(

@@ -2,18 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Enum\Penduduk\{Agama, JenisKelamin, Pekerjaan, Pendidikan, Perkawinan, Status};
+use App\Enum\Penduduk\StatusHubungan;
 use App\Filament\Resources\KartukeluargaResource\Pages;
 use App\Filament\Resources\KartukeluargaResource\RelationManagers\PenduduksRelationManager;
-use App\Models\{AnggotaKeluarga, KabKota, KartuKeluarga, Kecamatan, Kelurahan, Penduduk, Provinsi, Wilayah};
+use App\Models\{KabKota, KartuKeluarga, Kecamatan, Kelurahan, Penduduk, Provinsi, Wilayah};
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\{Form, Get, Set};
-use Filament\Forms\Components\{Component, Group, Section, Select, Textarea, TextInput};
-
+use Filament\Forms\Components\{Component, Group, Repeater, Section, Select, Textarea, TextInput, Wizard};
+use Filament\Forms\Components\Actions\Action as ActionsAction;
+use Filament\Forms\Components\Wizard\Step;
 use Filament\Infolists\{Infolist, Components};
 use Filament\Infolists\Components\Actions\Action as InfoAction;
-use Filament\Infolists\Components\Tabs\Tab;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
@@ -67,7 +67,7 @@ class KartukeluargaResource extends Resource
                                     ->preload()
                                     ->createOptionForm(
                                         [
-                                            PendudukResource::getFormSchema()
+                                            PendudukResource::getPendudukFormSchema()
                                         ]
                                     )
                                     ->createOptionAction(
@@ -216,15 +216,15 @@ class KartukeluargaResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('anggotaKeluarga')
-                    ->label('Anggota Keluarga')
-                    ->copyable()
-                    ->copyMessage('Telah Disalin!')
-                    ->copyMessageDuration(500)
-                    ->formatStateUsing(
-                        fn (KartuKeluarga $record) => ($record->anggotaKeluarga())->count()
-                    )
-                    ->alignCenter(),
+                // TextColumn::make('penduduks')
+                //     ->label('Anggota Keluarga')
+                //     ->copyable()
+                //     ->copyMessage('Telah Disalin!')
+                //     ->copyMessageDuration(500)
+                //     ->formatStateUsing(
+                //         fn (KartuKeluarga $record) => ($record->penduduks())->count()
+                //     )
+                //     ->alignCenter(),
 
                 TextColumn::make('kk_alamat')
                     ->label('Alamat KK')
@@ -245,9 +245,7 @@ class KartukeluargaResource extends Resource
                         $state = wordwrap($state, $column->getCharacterLimit(), ' ', true);
                         return $state;
                     }),
-
             ])
-
             ->filters([
 
                 SelectFilter::make('wilayah_id')
@@ -260,7 +258,6 @@ class KartukeluargaResource extends Resource
                     ->default(null)
                     ->preload()
                     ->multiple(),
-
             ])
             ->actions(
                 [
@@ -278,14 +275,6 @@ class KartukeluargaResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-
-            // ->emptyStateActions([
-            //     Tables\Actions\CreateAction::make()
-            //         ->label('Kartu Keluarga Baru')
-            //         ->icon('heroicon-o-plus')
-            //         ->url(KartukeluargaResource::getUrl('create'))
-            //         ->button(),
-            // ])
             ->groups([
                 Tables\Grouping\Group::make('wilayah.rts.rt_nama')
                     ->label('RT ')
@@ -300,14 +289,13 @@ class KartukeluargaResource extends Resource
                     ->icon('heroicon-o-plus')
                     ->label('Kelompokkan'),
             )
-
             ->emptyStateHeading('Kartu Keluarga belum ada')
             ->emptyStateDescription('Silahkan buat Kartu Keluarga baru dengan menekan tombol berikut:')
             ->striped()
+            ->defaultPaginationPageOption(10)
+            ->paginated([10, 25, 50, 100, 'all'])
+            ->poll('60s')
             ->deferLoading()
-            ->defaultPaginationPageOption(20)
-            ->paginated([10, 25, 50])
-
             ->defaultSort('wilayah_id', 'asc');
     }
 
@@ -318,6 +306,8 @@ class KartukeluargaResource extends Resource
                 Components\Tabs::make('Tabs')
                     ->tabs([
                         Components\Tabs\Tab::make('Informasi Kartu Keluarga')
+                            ->icon('heroicon-o-clipboard-document-list')
+                            ->iconSize('md')
                             ->schema(
                                 [
                                     Components\Fieldset::make('Detail Kartu Keluarga')
@@ -361,28 +351,30 @@ class KartukeluargaResource extends Resource
                                 ]
                             ),
                         Components\Tabs\Tab::make('Anggota Keluarga')
+                            ->icon('heroicon-o-users')
+                            ->iconSize('md')
                             ->schema([
-                                Components\RepeatableEntry::make('anggotaKeluarga')
+                                Components\RepeatableEntry::make('penduduks')
                                     ->hiddenLabel()
                                     ->schema([
-                                        Components\TextEntry::make('penduduk.nama_lengkap')
+                                        Components\TextEntry::make('nama_lengkap')
                                             ->label('Nama Lengkap'),
                                         Components\TextEntry::make('nik')
                                             ->label('NIK'),
-                                        Components\TextEntry::make('penduduk.tanggal_lahir')
+                                        Components\TextEntry::make('tanggal_lahir')
                                             ->label('Tanggal Lahir')
-                                            ->formatStateUsing(function ($state, AnggotaKeluarga $record) {
-                                                $formattedDate = Carbon::parse($record->penduduk->tanggal_lahir)->format('d-m-Y');
-                                                return $record->penduduk->tempat_lahir . ', ' . $formattedDate;
+                                            ->formatStateUsing(function ($state, Penduduk $record) {
+                                                $formattedDate = Carbon::parse($record->tanggal_lahir)->format('d-m-Y');
+                                                return $record->tempat_lahir . ', ' . $formattedDate;
                                             })
                                             ->alignLeft(),
-                                        Components\TextEntry::make('hubungan')
-                                            ->label('Hubungan'),
+                                        Components\TextEntry::make('status_hubungan')
+                                            ->label('Status Hubungan'),
                                         Components\Actions::make([
                                             InfoAction::make('view')
                                                 ->label('Lihat')
                                                 ->icon('heroicon-o-eye')
-                                                ->url(fn (AnggotaKeluarga $record): string => route('filament.admin.resources.penduduk.view', $record->nik))
+                                                ->url(fn (Penduduk $record): string => route('filament.admin.resources.penduduk.view', $record->nik))
                                                 ->openUrlInNewTab()
                                         ])->alignJustify(),
 
@@ -398,6 +390,134 @@ class KartukeluargaResource extends Resource
             ])->columns(2);
     }
 
+    public static function getFormSchema(): Component
+    {
+        return
+            Wizard::make([
+                Step::make('Informasi Kartu Keluarga')
+                    ->schema([
+                        Group::make()
+                            ->schema([
+                                Section::make('Informasi Kartu Keluarga')
+                                    ->description('Detail Kartu Keluarga')
+                                    ->schema([
+                                        TextInput::make('kk_id')
+                                            ->label('Nomor Kartu Keluarga')
+                                            ->unique(ignoreRecord: true)
+                                            ->numeric()
+                                            ->disabled()
+                                            ->default(fn () => (string) rand(1000000000000000, 9999999999999999))
+                                            ->minLength(16)
+                                            ->required(),
+                                        Select::make('kk_kepala')
+                                            ->label('Kepala Keluarga')
+                                            ->relationship('kepalaKeluarga', 'nama_lengkap')
+                                            ->searchable()
+                                            ->preload()
+                                            ->createOptionForm(
+                                                [
+                                                    PendudukResource::getFormSchema()
+                                                ]
+                                            )
+                                            ->createOptionAction(
+                                                function (Forms\Components\Actions\Action $action) {
+                                                    return $action
+                                                        ->label('Tambah Penduduk')
+                                                        ->modalWidth('7xl')
+                                                        ->modalHeading('Tambah Penduduk');
+                                                }
+                                            )
+                                            ->options(
+                                                function (Get $get) {
+                                                    if ($get('kk_kepala')) {
+                                                        return Penduduk::query()
+                                                            ->where('nik', $get('kk_kepala'))
+                                                            ->pluck('nama_lengkap', 'nik');
+                                                    } else {
+                                                        return Penduduk::query()->whereDoesntHave('kartuKeluarga')
+                                                            ->pluck('nama_lengkap', 'nik');
+                                                    }
+                                                }
+                                            )
+                                            ->required(),
+                                        Textarea::make('kk_alamat')
+                                            ->label('Alamat')
+                                            ->rows(5)
+                                            ->placeholder('Masukkan alamat kartu keluarga')
+                                            ->required(),
+                                    ])
+                                    ->columnStart(1),
+                            ])->columns(2)->columnSpanFull(),
+
+                    ])
+            ]);
+    }
+
+    public static function getKartuKeluargaFormSchema(): array
+    {
+        return [
+            Group::make()
+                ->schema([
+                    TextInput::make('kk_id')
+                        ->label('Nomor Kartu Keluarga')
+                        ->minLength(16)
+                        ->unique(ignoreRecord: true)
+                        ->numeric()
+                        ->disabled()
+                        ->default(fn () => (string) rand(1000000000000000, 9999999999999999))
+                        ->placeholder('Masukkan nomor kartu keluarga')
+                        ->dehydrated(
+                            fn (?string $state): bool => filled($state)
+                        )
+                        ->required(fn (string $operation): bool => $operation === 'create'),
+                    Select::make('wilayah_id')
+                        ->relationship('wilayah', 'wilayah_nama')
+                        ->label('Wilayah')
+                        ->searchable()
+                        ->preload()
+                        ->options(
+                            StatusHubungan::class
+                            // fn (Get $get): Collection => Wilayah::query()
+                            //     ->pluck('wilayah_nama', 'wilayah_id')
+                        ),
+                ])->columns(2),
+            Textarea::make('kk_alamat')
+                ->label('Alamat')
+                ->rows(3)
+                ->placeholder('Masukkan alamat kartu keluarga')
+                ->required(),
+
+        ];
+    }
+
+    public static function getAnggotaKeluargaFormSchema(): Repeater
+    {
+        return Repeater::make('anggotaKeluarga')
+            ->reactive()
+            ->hiddenLabel()
+            ->collapsible()
+            ->schema(
+                PendudukResource::getPendudukFormSchema()
+            )
+            ->collapseAllAction(
+                fn (ActionsAction $action) => $action->label('Tutup Semua'),
+            )
+            ->itemLabel(
+                function (array $state): ?string {
+                    $nik = $state['nik'] ?? null;
+                    $hubungan = $state['hubungan'] ?? null;
+                    // dump($state);
+                    $penduduk = Penduduk::where('nik', $nik)->first();
+                    $nama = $penduduk->nama_lengkap ?? null;
+
+                    return $nama . ' - ' . $nik . ' - ' . $hubungan;
+                }
+            )
+            ->deleteAction(
+                fn (ActionsAction $action) => $action->requiresConfirmation(),
+            );
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -407,15 +527,13 @@ class KartukeluargaResource extends Resource
         ];
     }
 
-
-
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListKartukeluargas::route('/'),
-            // 'create' => Pages\CreateKartukeluarga::route('/create'),
-            // 'view' => Pages\ViewKartukeluarga::route('/{record}'),
             'edit' => Pages\EditKartukeluarga::route('/{record}/edit'),
+            'create' => Pages\CreateKartukeluarga::route('/tambah'),
+            // 'view' => Pages\ViewKartukeluarga::route('/{record}'),
         ];
     }
 
@@ -445,19 +563,18 @@ class KartukeluargaResource extends Resource
     {
         $kk_id = Arr::get(request()->route()->parameters, 'record');
 
-        $kepalaKeluarga = Kartukeluarga::with('kepalaKeluarga')->find($kk_id);
+        $kepalaKeluarga = Kartukeluarga::with('penduduks')->find($kk_id);
 
         //jika state berubah tetapi tidak ada perubahan pada kk_id tetap tampilkan data kepala keluarga sebelumnya
         if (!$kepalaKeluarga) {
-            return $record->kepalaKeluarga->nama_lengkap . ' - ' . $record->kk_id;
+            return $record->nama_lengkap . ' - ' . $record->kk_id;
         }
 
         //jika state berubah dan ada perubahan pada kk_id tampilkan data kepala keluarga baru
-        if ($kepalaKeluarga->kepalaKeluarga->nama_lengkap != $record->kepalaKeluarga->nama_lengkap) {
-            return $kepalaKeluarga->kepalaKeluarga->nama_lengkap . ' - ' . $kepalaKeluarga->kk_id;
+        if ($kepalaKeluarga->nama_lengkap != $record->nama_lengkap) {
+            return $kepalaKeluarga->nama_lengkap . ' - ' . $kepalaKeluarga->kk_id;
         }
 
-        return $kepalaKeluarga->kepalaKeluarga->nama_lengkap . ' - ' . $kepalaKeluarga->kk_id;
-        // return parent::getRecordTitle($record);
+        return $kepalaKeluarga->nama_lengkap . ' - ' . $kepalaKeluarga->kk_id;
     }
 }

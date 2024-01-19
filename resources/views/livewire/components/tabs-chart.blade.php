@@ -55,7 +55,7 @@
                         x-transition:leave="transition ease-[cubic-bezier(0.68,-0.3,0.32,1)] duration-300 transform absolute"
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 translate-y-12">
-                        @livewire(\App\Livewire\Widgets\Chart\PendudukApexBarChart::class)
+                        @livewire(\App\Livewire\Widgets\Chart\PekerjaanChart::class)
                     </div>
                     <div id="tabpanel-3" role="tabpanel" tabindex="0" aria-labelledby="tab-3" x-show="activeTab === 3"
                         x-transition:enter="transition ease-[cubic-bezier(0.68,-0.3,0.32,1)] duration-700 transform order-first"

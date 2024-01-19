@@ -2,30 +2,37 @@
 
 namespace App\Filament\Resources;
 
-use App\Enum\Penduduk\{Agama, JenisKelamin, Pekerjaan, Pendidikan, Pengajuan, Perkawinan, Status};
+use App\Enum\Penduduk\{Agama, EtnisSuku, GolonganDarah, JenisKelamin, Kewarganegaraan, Pekerjaan, Pendidikan, Pengajuan, Perkawinan, Status, StatusHubungan, StatusTempatTinggal};
 use App\Filament\Resources\PendudukResource\Pages;
 use App\Filament\Resources\PendudukResource\Widgets\PendudukOverview;
+use App\Models\Bantuan;
+use App\Models\KartuKeluarga;
 use App\Models\Penduduk;
+use Faker\Provider\ar_EG\Text;
 use Filament\Forms\Form;
-use Filament\Forms\Components\{Component, Group, Section, Select, TextInput, DatePicker, Placeholder};
-
+use Filament\Forms\Components\{Component, Group, Section, Select, TextInput, DatePicker, DateTimePicker, Fieldset, Placeholder, Textarea, Wizard};
+use Filament\Forms\Components\Wizard\Step;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Resources\Resource;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\{Actions, Grid, Group as ComponentsGroup, Section as ComponentsSection, Split, TextEntry};
 use Filament\Infolists\Components\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\{Action as ActionsAction, ActionGroup, BulkAction};
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
+use Livewire\Features\SupportNavigate\ParentComponent;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
@@ -704,17 +711,18 @@ class PendudukResource extends Resource
             ->send();
     }
 
-    public static function getFormSchema(): Component
+    public static function getPendudukFormSchema(): array
     {
         return
-            Group::make()
-            ->schema([
-                Section::make()
-                    ->heading('Informasi Penduduk')
-                    ->description('Silahkan isi data penduduk dengan benar')
+            [
+                Fieldset::make('Informasi Pribadi')
                     ->schema([
                         TextInput::make('nik')
                             ->label('NIK')
+                            ->numeric()
+                            ->disabled()
+                            ->default(fn () => (string) rand(1000000000000000, 9999999999999999))
+                            ->minLength(16)
                             ->unique(Penduduk::class, 'nik')
                             ->dehydrated()
                             ->placeholder('Masukkan NIK')
@@ -722,31 +730,30 @@ class PendudukResource extends Resource
                         TextInput::make('nama_lengkap')
                             ->label('Nama Lengkap')
                             ->required(),
-                        Group::make()
-                            ->label('Jenis Kelamin')
-                            ->schema([
-                                Select::make('agama')
-                                    ->options(Agama::class)
-                                    ->required(),
-                                Select::make('jenis_kelamin')
-                                    ->options(JenisKelamin::class)
-                                    ->required(),
-                            ])->columns(2),
-                        Group::make()
-                            ->label('Tempat dan Tanggal Lahir')
-                            ->schema([
-                                TextInput::make('tempat_lahir')
-                                    ->label('Tempat Lahir')
-                                    ->required(),
-                                DatePicker::make('tanggal_lahir')
-                                    ->label('Tanggal Lahir')
-                                    ->required(),
-                            ])->columns(2),
-                    ]),
-                Section::make()
-                    ->heading('Informasi Tambahan')
-                    ->description('Silahkan isi data tambahan penduduk')
-                    ->schema([
+                        Textarea::make('alamat')
+                            ->label('Alamat')
+                            ->rows(2)
+                            ->placeholder('Masukkan alamat kartu keluarga')
+                            ->required(),
+                        Select::make('agama')
+                            ->options(Agama::class)
+                            ->required(),
+                        Select::make('jenis_kelamin')
+                            ->options(JenisKelamin::class)
+                            ->required(),
+                        TextInput::make('tempat_lahir')
+                            ->label('Tempat Lahir')
+                            ->required(),
+                        DatePicker::make('tanggal_lahir')
+                            ->label('Tanggal Lahir')
+                            ->required(),
+                        Select::make('golongan_darah')
+                            ->label('Golongan Darah')
+                            ->options(GolonganDarah::class)
+                            ->required(),
+                        Select::make('etnis_suku')
+                            ->label('Etnis Suku')
+                            ->options(EtnisSuku::class),
                         Select::make('pendidikan')
                             ->label('Pendidikan')
                             ->options(Pendidikan::class),
@@ -756,23 +763,126 @@ class PendudukResource extends Resource
                         Select::make('pekerjaan')
                             ->label('Pekerjaan')
                             ->options(Pekerjaan::class)
-                            ->searchingMessage('Mencari Jenis Pekerjaan')
-                            ->searchable()
+                            // ->searchingMessage('Mencari Jenis Pekerjaan')
+                            // ->searchable()
                             ->required(),
-                    ])->collapsible(),
-                Section::make()
-                    ->heading('Status Tempat Tinggal')
-                    ->description('Keterangan Status Tempat Tinggal')
-                    ->schema(
-                        [
-                            Select::make('status')
-                                ->options(Status::class)
-                                ->required(),
-                            TextInput::make('alamat')
-                                ->label('Alamat')
-                                ->required(),
-                        ]
-                    ),
-            ])->columnSpan(['lg' => 2]);
+                        Select::make('kewarganegaraan')
+                            ->label('Kewarganegaraan')
+                            ->options(Kewarganegaraan::class)
+                            ->required(),
+                        Select::make('status')
+                            ->options(Status::class)
+                            ->label('Status Kependudukan')
+                            ->required(),
+                        TextInput::make('ayah')
+                            ->label('Nama Ayah'),
+                        TextInput::make('ibu')
+                            ->label('Nama Ibu'),
+                        Select::make('status_tempat_tinggal')
+                            ->label('Status Tempat Tinggal')
+                            ->options(StatusTempatTinggal::class),
+                        Select::make('status_hubungan')
+                            ->label('Status Hubungan')
+                            // ->disabled(
+                            //     function (Select $component) {
+                            //         if ($component->getConcealingComponent()->getContainer()->getParentComponent()->getKey('kartukeluarga')) {
+                            //             return true;
+                            //         } else {
+                            //             return false;
+                            //         }
+                            //     }
+                            // )
+                            ->options(
+                                function (Select $component) {
+                                    $parentComponent = $component->getConcealingComponent()->getContainer()->getParentComponent();
+
+                                    $key = $parentComponent->getKey('kartukeluarga');
+
+                                    $cases = ($key) ? StatusHubungan::KEPALA_KELUARGA : StatusHubungan::cases();
+
+                                    return collect($cases)
+                                        ->reject(fn ($case) => (!$key && $case->value === StatusHubungan::KEPALA_KELUARGA->value))
+                                        ->mapWithKeys(fn ($case) => [
+                                            ($case?->value ?? $case->name) => $case->getLabel() ?? $case->name,
+                                        ])
+                                        ->all();
+                                }
+                            )
+
+                    ])->columns(2),
+                Fieldset::make('Informasi Kontak')
+                    ->schema([
+                        TextInput::make('telepon')
+                            ->tel()
+                            ->disabled()
+                            ->label('Telepon'),
+                        TextInput::make('email')
+                            ->email()
+                            ->label('Email'),
+                    ])->columns(2),
+                Fieldset::make('Informasi Tambahan')
+                    ->schema([
+                        Select::make('Sasaran Bantuan')
+                            ->label('Sasaran Bantuan')
+                            ->options(
+                                [
+                                    'Tidak' => 'Tidak',
+                                    'Ya' => 'Ya',
+                                ]
+                            ),
+                        Select::make('bantuans')
+                            // ->relationship('bantuans', 'jenis_bantuan')
+                            ->native(false)
+                            ->preload()
+                            ->options(
+                                fn () => Bantuan::all()->mapWithKeys(fn ($bantuan) => [
+                                    $bantuan->bantuan_id => $bantuan->jenis_bantuan,
+                                ])
+                            )
+                            // ->multiple()
+                            ->createOptionForm(
+                                [
+                                    TextInput::make('jenis_bantuan')
+                                        ->label('Jaminan Kesehatan'),
+                                    TextInput::make('keterangan_bantuan')
+                                        ->label('Keterangan Bantuan'),
+                                    DateTimePicker::make('tanggal_bantuan')
+                                        ->label('tanggal_bantuan')
+                                ]
+                            )
+                            ->createOptionUsing(
+                                function (array $data) {
+                                    $bantuans = Bantuan::find(2)->penduduks()->get();
+                                    dd($bantuans);
+
+
+                                    return Bantuan::create([
+                                        'jenis_bantuan' => $data['jenis_bantuan'],
+                                        'keterangan_bantuan' => $data['keterangan_bantuan'],
+                                        'tanggal_bantuan' => $data['tanggal_bantuan'],
+                                    ]);
+                                }
+                            ),
+
+                        Select::make('kesehatan')
+                            ->label('kesehatan')
+                            ->options(Pengajuan::class),
+                    ])->columns(2),
+
+
+                // Select::make('kes_id')
+                //     ->label('Jaminan Kesehatan')
+                //     ->preload()
+                //     ->relationship('kesehatan', 'kes_id')
+                //     ->multiple()
+                //     ->searchingMessage('Mencari Jaminan Kesehatan')
+                //     ->createOptionForm(
+                //         [
+                //             TextInput::make('kes_id')
+                //                 ->label('Jaminan Kesehatan')
+                //         ]
+                //     ),
+
+            ];
     }
 }

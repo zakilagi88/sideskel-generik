@@ -23,6 +23,6 @@ class Provinsi extends Model
 
     public function kabkota_groups(): HasMany
     {
-        return $this->hasMany(Kab_Kota::class, 'prov_id', 'prov_id');
+        return $this->hasMany(KabKota::class, 'prov_id', 'prov_id');
     }
 }
