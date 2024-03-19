@@ -23,7 +23,7 @@ class Kecamatan extends Model
         'kabkota_id',
     ];
 
-    public function kabkota_groups(): BelongsTo
+    public function kabkota(): BelongsTo
     {
         return $this->belongsTo(KabKota::class, 'kabkota_id', 'kabkota_id');
     }

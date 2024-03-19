@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create('dusun', function (Blueprint $table) {
             $table->id('dusun_id');
             $table->string('dusun_nama');
-            $table->string('kel_id', 10);
-            $table->foreign('kel_id')->references('kel_id')->on('kelurahan')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('deskel_id', 10);
+            $table->foreign('deskel_id')->references('deskel_id')->on('desa_kelurahan')->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }

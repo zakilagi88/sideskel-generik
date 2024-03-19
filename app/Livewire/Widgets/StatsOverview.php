@@ -2,30 +2,22 @@
 
 namespace App\Livewire\Widgets;
 
-use App\Models\KartuKeluarga;
-use App\Models\Penduduk;
-use App\Models\SLS;
-use App\Models\Wilayah;
+use App\Models\{Dinamika, KartuKeluarga, Kelahiran, Kematian, Kepindahan, Pendatang, Penduduk, Wilayah};
+use App\Models\Desa\Aparatur;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Livewire\Component;
 
-class StatsOverview extends Component
+class StatsOverview extends BaseWidget
 {
-    public function render()
-    {
-        $kk = KartuKeluarga::count();
-        $pdd = Penduduk::count();
-        $rt = Wilayah::count();
-        return view('livewire.widgets.stats-overview', compact('kk', 'pdd', 'rt'));
-    }
 
+    protected int | string | array $columnSpan = 8;
 
-    public function getData()
+    protected function getStats(): array
     {
         return [
-            Stat::make('Kartu Keluarga', KartuKeluarga::count())
+            Stat::make('Aparatur Desa', Aparatur::count())
                 ->icon('heroicon-o-user-group')
-                ->description('Kepala Keluarga')
+                ->description('Jumlah Aparatur Desa')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->chartColor('primary')
 
@@ -36,11 +28,10 @@ class StatsOverview extends Component
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
-            Stat::make('Penduduk', Penduduk::count())
+            Stat::make('Kartu Keluarga', KartuKeluarga::count())
                 ->icon('heroicon-o-user-group')
-                ->description('Jumlah Penduduk')
+                ->description('Kepala Keluarga')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->descriptionColor('success')
                 ->chartColor('success')
 
                 ->color('success')
@@ -50,16 +41,89 @@ class StatsOverview extends Component
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
-            Stat::make('RT', Wilayah::count())
+            Stat::make('Penduduk', Penduduk::count())
                 ->icon('heroicon-o-user-group')
-                ->description('Jumlah RT')
-                ->descriptionIcon('heroicon-o-user-group')
+                ->description('Jumlah Penduduk')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
+                ->descriptionColor('info')
+                ->chartColor('info')
+
+                ->color('info')
+                ->chart([
+                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
+                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                ]),
+            Stat::make('Wilayah', Wilayah::count())
+                ->icon('fas-map')
+                ->description('Jumlah Wilayah')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
+                ->descriptionColor('warning')
+                ->chartColor('warning')
+
+                ->color('warning')
+                ->chart([
+                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
+                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                ]),
+            Stat::make('Penduduk Masuk', Dinamika::where('dinamika_type', Pendatang::class)->count())
+                ->icon('fas-person-circle-plus')
+                ->description('Penduduk Masuk')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
+                ->descriptionColor('info')
+                ->chartColor('info')
+
+                ->color('info')
+                ->chart([
+                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
+                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                ]),
+            Stat::make('Penduduk Keluar', Dinamika::where('dinamika_type', Kepindahan::class)->count())
+                ->icon('fas-person-circle-minus')
+                ->description('Penduduk Keluar')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
+                ->descriptionColor('warning')
+                ->chartColor('warning')
+
+                ->color('danger')
+                ->chart([
+                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
+                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                ]),
+            Stat::make('Penduduk Meninggal', Dinamika::where('dinamika_type', Kematian::class)->count())
+                ->icon('fas-person-circle-xmark')
+                ->description('Penduduk Meninggal')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->descriptionColor('danger')
                 ->chartColor('danger')
 
                 ->color('danger')
                 ->chart([
                     20, 10, 3, 12, 1, 14, 10, 1, 4, 20
+                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                ]),
+            Stat::make('Penduduk Lahir', Dinamika::where('dinamika_type', Kelahiran::class)->count())
+                ->icon('fas-person-breastfeeding')
+                ->description('Penduduk Lahir')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
+                ->descriptionColor('info')
+                ->chartColor('info')
+
+                ->color('info')
+                ->chart([
+                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
+                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
                 ]),
         ];
     }

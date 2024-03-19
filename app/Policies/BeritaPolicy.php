@@ -88,7 +88,7 @@ class BeritaPolicy
      */
     public function forceDelete(User $user, Berita $berita): bool
     {
-        return $user->can('force_delete_berita');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -99,7 +99,7 @@ class BeritaPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_berita');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -111,7 +111,7 @@ class BeritaPolicy
      */
     public function restore(User $user, Berita $berita): bool
     {
-        return $user->can('restore_berita');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -122,7 +122,7 @@ class BeritaPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_berita');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**

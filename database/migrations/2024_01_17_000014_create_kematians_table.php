@@ -12,13 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kematian', function (Blueprint $table) {
+        Schema::create('kematians', function (Blueprint $table) {
             $table->id();
-            $table->string('nik', 16)->nullable();
-            $table->foreign('nik')->references('nik')->on('penduduk')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->date('tanggal_kematian')->nullable();
+            $table->string('nik', 16);
+            $table->foreign('nik')->references('nik')->on('penduduk')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->time('waktu_kematian')->nullable();
             $table->string('tempat_kematian')->nullable();
-            $table->string('sebab_kematian')->nullable();
+            $table->string('penyebab_kematian')->nullable();
+            $table->string('menerangkan_kematian')->nullable();
 
             $table->timestamps();
         });
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kematian');
+        Schema::dropIfExists('kematians');
     }
 };

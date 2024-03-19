@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enum\Website\Status_Post;
+use App\Enums\Desa\StatusBeritaType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,7 +39,7 @@ class Berita extends Model
         'featured_image_url' => 'array',
         'scheduled_for' => 'datetime',
         'published_at' => 'datetime',
-        'status' => Status_Post::class
+        'status' => StatusBeritaType::class
     ];
 
 
@@ -55,6 +55,6 @@ class Berita extends Model
 
     public function scopePublished($query)
     {
-        return $query->where('status', Status_Post::PUBLISH);
+        return $query->where('status', StatusBeritaType::PUBLISH);
     }
 }

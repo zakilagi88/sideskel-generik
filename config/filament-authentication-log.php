@@ -3,7 +3,7 @@
 return [
 
     'resources' => [
-        'AutenticationLogResource' => \Tapp\FilamentAuthenticationLog\Resources\AuthenticationLogResource::class,
+        'AutenticationLogResource' => \App\Filament\Resources\Shield\AutentikasiLogResource::class,
     ],
 
     'authenticable-resources' => [

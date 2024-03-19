@@ -12,17 +12,15 @@ class Statistik extends Model
     protected $table = 'statistiks';
 
     protected $fillable = [
-        'judul',
-        'slug',
-        'heading_grafik',
-        'heading_tabel',
-        'deskripsi_grafik',
-        'deskripsi_tabel',
-        'path_grafik',
-        'path_tabel',
-        'tampilkan_grafik',
-        'tampilkan_tabel',
-        'jenis_grafik',
+        'stat_key',
+        'stat_heading',
+        'stat_subheading',
+        'stat_slug',
+        'stat_deskripsi',
+        'stat_grafik_path',
+        'stat_tabel_path',
+        'stat_grafik_jenis',
+        'stat_tampil'
     ];
 
     protected $casts = [

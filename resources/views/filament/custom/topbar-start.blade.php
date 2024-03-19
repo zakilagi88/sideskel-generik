@@ -1,4 +1,4 @@
-@php
+{{-- @php
     $user = filament()
         ->auth()
         ->user();
@@ -32,4 +32,4 @@
         @endif
 
     </span>
-</header>
+</header> --}}

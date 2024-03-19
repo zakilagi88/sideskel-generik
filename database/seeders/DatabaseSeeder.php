@@ -33,11 +33,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            ShieldSeeder::class,
-            // RukunWargaSeeder::clas  s,
-            // RukunTetanggaSeeder::class,
-            // SLSSeeder::class,
-            // UserWilayahRolesSeeder::class,
+            // ShieldSeeder::class,
 
         ]);
     }

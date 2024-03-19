@@ -18,7 +18,7 @@ class KartuKeluargaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_kartukeluarga');
+        return $user->can('view_any_kartu::keluarga');
     }
 
     /**
@@ -30,7 +30,7 @@ class KartuKeluargaPolicy
      */
     public function view(User $user, KartuKeluarga $kartuKeluarga): bool
     {
-        return $user->can('view_kartukeluarga');
+        return $user->can('view_kartu::keluarga');
     }
 
     /**
@@ -41,7 +41,7 @@ class KartuKeluargaPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_kartukeluarga');
+        return $user->can('create_kartu::keluarga');
     }
 
     /**
@@ -53,7 +53,7 @@ class KartuKeluargaPolicy
      */
     public function update(User $user, KartuKeluarga $kartuKeluarga): bool
     {
-        return $user->can('update_kartukeluarga');
+        return $user->can('update_kartu::keluarga');
     }
 
     /**
@@ -65,7 +65,7 @@ class KartuKeluargaPolicy
      */
     public function delete(User $user, KartuKeluarga $kartuKeluarga): bool
     {
-        return $user->can('delete_kartukeluarga');
+        return $user->can('delete_kartu::keluarga');
     }
 
     /**
@@ -76,7 +76,7 @@ class KartuKeluargaPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_kartukeluarga');
+        return $user->can('delete_any_kartu::keluarga');
     }
 
     /**
@@ -88,7 +88,7 @@ class KartuKeluargaPolicy
      */
     public function forceDelete(User $user, KartuKeluarga $kartuKeluarga): bool
     {
-        return $user->can('force_delete_kartukeluarga');
+        return $user->can('force_delete_kartu::keluarga');
     }
 
     /**
@@ -99,7 +99,7 @@ class KartuKeluargaPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_kartukeluarga');
+        return $user->can('force_delete_any_kartu::keluarga');
     }
 
     /**
@@ -111,7 +111,7 @@ class KartuKeluargaPolicy
      */
     public function restore(User $user, KartuKeluarga $kartuKeluarga): bool
     {
-        return $user->can('restore_kartukeluarga');
+        return $user->can('restore_kartu::keluarga');
     }
 
     /**
@@ -122,7 +122,7 @@ class KartuKeluargaPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_kartukeluarga');
+        return $user->can('restore_any_kartu::keluarga');
     }
 
     /**
@@ -134,7 +134,7 @@ class KartuKeluargaPolicy
      */
     public function replicate(User $user, KartuKeluarga $kartuKeluarga): bool
     {
-        return $user->can('replicate_kartukeluarga');
+        return $user->can('replicate_kartu::keluarga');
     }
 
     /**
@@ -145,7 +145,7 @@ class KartuKeluargaPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_kartukeluarga');
+        return $user->can('reorder_kartu::keluarga');
     }
 
 }

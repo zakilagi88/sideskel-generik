@@ -28,6 +28,6 @@ class Kesehatan extends Model
 
     public function penduduks(): BelongsToMany
     {
-        return $this->belongsToMany(Penduduk::class, 'penduduk_kesehatan', 'kesehatan_id', 'nik');
+        return $this->belongsToMany(Penduduk::class, 'penduduk_kesehatan', 'kes_id', 'nik');
     }
 }

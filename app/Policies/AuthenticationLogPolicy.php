@@ -18,7 +18,7 @@ class AuthenticationLogPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_authentication::log');
+        return $user->can('view_any_shield::autentikasi::log');
     }
 
     /**
@@ -30,7 +30,7 @@ class AuthenticationLogPolicy
      */
     public function view(User $user, AuthenticationLog $authenticationLog): bool
     {
-        return $user->can('view_authentication::log');
+        return $user->can('view_shield::autentikasi::log');
     }
 
     /**
@@ -41,7 +41,7 @@ class AuthenticationLogPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_authentication::log');
+        return $user->can('create_shield::autentikasi::log');
     }
 
     /**
@@ -53,7 +53,7 @@ class AuthenticationLogPolicy
      */
     public function update(User $user, AuthenticationLog $authenticationLog): bool
     {
-        return $user->can('update_authentication::log');
+        return $user->can('update_shield::autentikasi::log');
     }
 
     /**
@@ -65,7 +65,7 @@ class AuthenticationLogPolicy
      */
     public function delete(User $user, AuthenticationLog $authenticationLog): bool
     {
-        return $user->can('delete_authentication::log');
+        return $user->can('delete_shield::autentikasi::log');
     }
 
     /**
@@ -76,7 +76,7 @@ class AuthenticationLogPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_authentication::log');
+        return $user->can('delete_any_shield::autentikasi::log');
     }
 
     /**
@@ -88,7 +88,7 @@ class AuthenticationLogPolicy
      */
     public function forceDelete(User $user, AuthenticationLog $authenticationLog): bool
     {
-        return $user->can('force_delete_authentication::log');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -99,7 +99,7 @@ class AuthenticationLogPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_authentication::log');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -111,7 +111,7 @@ class AuthenticationLogPolicy
      */
     public function restore(User $user, AuthenticationLog $authenticationLog): bool
     {
-        return $user->can('restore_authentication::log');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -122,7 +122,7 @@ class AuthenticationLogPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_authentication::log');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -134,7 +134,7 @@ class AuthenticationLogPolicy
      */
     public function replicate(User $user, AuthenticationLog $authenticationLog): bool
     {
-        return $user->can('replicate_authentication::log');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -145,7 +145,7 @@ class AuthenticationLogPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_authentication::log');
+        return $user->can('{{ Reorder }}');
     }
 
 }

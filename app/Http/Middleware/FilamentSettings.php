@@ -6,6 +6,10 @@ use Closure;
 use Filament\Support\Facades\FilamentColor;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Blade;
 
 class FilamentSettings
 {
@@ -24,6 +28,8 @@ class FilamentSettings
                 'primary' => $color,
             ]
         );
+
+        Blade::component('custom::layout.auth', 'custom-layout');
 
         return $next($request);
     }

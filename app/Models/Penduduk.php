@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
-use App\Enum\Penduduk\{Agama, EtnisSuku, GolonganDarah, JenisKelamin, Kewarganegaraan, Pekerjaan, Pendidikan, Pengajuan, Perkawinan, Status, StatusHubungan, StatusTempatTinggal};
+use App\Enums\Kependudukan\{AgamaType, EtnisSukuType, GolonganDarahType, JenisKelaminType, KewarganegaraanType, PekerjaanType, StatusPengajuanType, PerkawinanType, PendidikanType, StatusDasarType, StatusHubunganType, StatusTempatTinggalType};
+use App\Facades\Deskel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, MorphToMany};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasOne, MorphMany, MorphTo, MorphToMany};
 use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -39,43 +41,51 @@ class Penduduk extends Model implements Auditable
         'pendidikan',
         'pekerjaan',
         'status_perkawinan',
+        'tgl_perkawinan',
+        'tgl_perceraian',
         'kewarganegaraan',
-        'ayah',
-        'ibu',
+        'nama_ayah',
+        'nama_ibu',
+        'nik_ayah',
+        'nik_ibu',
         'golongan_darah',
-        'status',
+        'status_penduduk',
+        'status_dasar',
         'status_pengajuan',
         'status_tempat_tinggal',
         'status_hubungan',
         'etnis_suku',
-        'alamat',
+        'alamat_sekarang',
+        'alamat_sebelumnya',
         'alamatKK',
         'telepon',
         'email',
-        'wilayah_id',
-        'updated_at',
-
     ];
 
     protected $casts =
     [
-        'agama' => Agama::class,
-        'jenis_kelamin' => JenisKelamin::class,
-        'pendidikan' => Pendidikan::class,
-        'pekerjaan' => Pekerjaan::class,
-        'etnis_suku' => EtnisSuku::class,
-        'status' => Status::class,
-        'status_pengajuan' => Pengajuan::class,
-        'status_perkawinan' => Perkawinan::class,
-        'status_tempat_tinggal' => StatusTempatTinggal::class,
-        'status_hubungan' => StatusHubungan::class,
-        'golongan_darah' => GolonganDarah::class,
-        'kewarganegaraan' => Kewarganegaraan::class,
+        'agama' => AgamaType::class,
+        'jenis_kelamin' => JenisKelaminType::class,
+        'pendidikan' => PendidikanType::class,
+        'pekerjaan' => PekerjaanType::class,
+        'etnis_suku' => EtnisSukuType::class,
+        'status_dasar' => StatusDasarType::class,
+        'status_pengajuan' => StatusPengajuanType::class,
+        'status_perkawinan' => PerkawinanType::class,
+        'status_tempat_tinggal' => StatusTempatTinggalType::class,
+        'status_hubungan' => StatusHubunganType::class,
+        'golongan_darah' => GolonganDarahType::class,
+        'kewarganegaraan' => KewarganegaraanType::class,
+        'tgl_perkawinan' => 'datetime',
+        'tgl_perceraian' => 'datetime',
     ];
 
     protected $auditInclude = [
         'nik',
         'kk_id',
+        'status_identitas',
+        'jenis_identitas',
+        'status_rekam_identitas',
         'nama_lengkap',
         'jenis_kelamin',
         'tempat_lahir',
@@ -85,19 +95,23 @@ class Penduduk extends Model implements Auditable
         'pekerjaan',
         'status_perkawinan',
         'kewarganegaraan',
-        'ayah',
-        'ibu',
+        'nama_ayah',
+        'nama_ibu',
+        'nik_ayah',
+        'nik_ibu',
         'golongan_darah',
-        'status',
+        'status_penduduk',
+        'status_dasar',
         'status_pengajuan',
         'status_tempat_tinggal',
         'status_hubungan',
         'etnis_suku',
-        'alamat',
+        'alamat_sekarang',
+        'alamat_sebelumnya',
         'alamatKK',
         'telepon',
         'email',
-        'wilayah_id',
+        'is_nik_sementara',
     ];
 
     protected $auditTimestamps = true;
@@ -114,6 +128,83 @@ class Penduduk extends Model implements Auditable
      * @var array<string, string>
      */
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope('wilayahs', function (Builder $query) {
+            if (auth()->check()) {
+                if (auth()->user()->hasRole('Admin')) {
+                    return $query;
+                } else {
+                    return $query->byWilayah(auth()->user()->wilayah_id);
+                }
+            }
+        });
+    }
+
+    public function kepalaWilayah(): HasMany
+    {
+        return $this->hasMany(KepalaWilayah::class, 'kepala_nik', 'nik');
+    }
+
+    public function scopeByWilayah($query, $wilayah_id): Builder
+    {
+        $struktur = Deskel::getFacadeRoot();
+
+        switch ($struktur->deskel_tipe) {
+            case 'Khusus':
+                return $query->whereHas('kartuKeluarga', function ($query) use ($wilayah_id) {
+                    $query->where('wilayah_id', $wilayah_id);
+                });
+                break;
+
+            case 'Dasar':
+                $level = Wilayah::tree()->find($wilayah_id);
+
+                if ($level->depth == 0) {
+                    $descendants = $level->descendants->pluck('wilayah_id');
+                    return $query->whereHas('kartuKeluarga', function ($query) use ($descendants) {
+                        $query->whereIn('wilayah_id', $descendants);
+                    });
+                } else {
+                    return $query->whereHas('kartuKeluarga', function ($query) use ($wilayah_id) {
+                        $query->where('wilayah_id', $wilayah_id);
+                    });
+                }
+                break;
+
+            case 'Lengkap':
+                $level = Wilayah::tree()->find($wilayah_id);
+                if ($level->depth == 0) {
+                    $descendants = $level->descendants()->whereDepth(2)->pluck('wilayah_id');
+                } elseif ($level->depth == 1) {
+                    $descendants = $level->descendants->pluck('wilayah_id');
+                } else {
+                    return $query->whereHas('kartuKeluarga', function ($query) use ($wilayah_id) {
+                        $query->where('wilayah_id', $wilayah_id);
+                    });
+                }
+                return $query->whereHas('kartuKeluarga', function ($query) use ($descendants) {
+                    $query->whereIn('wilayah_id', $descendants);
+                });
+                break;
+
+            default:
+                return $query;
+                break;
+        }
+    }
+
+
+    public function anak(): HasMany
+    {
+        return $this->hasMany(KesehatanAnak::class, 'nik', 'nik')
+            ->whereDate('tanggal_lahir', '>', now()->subYears(5));
+    }
+
+    public function kelahiran(): HasMany
+    {
+        return $this->hasMany(Kelahiran::class, 'nik', 'nik');
+    }
 
     public function kesehatan(): BelongsToMany
     {
@@ -130,158 +221,45 @@ class Penduduk extends Model implements Auditable
         return $this->belongsTo(KartuKeluarga::class, 'kk_id', 'kk_id');
     }
 
+    public function dokumens(): MorphMany
+    {
+        return $this->morphMany(Dokumen::class, 'dokumenable');
+    }
+    public function dinamikas(): HasMany
+    {
+        return $this->hasMany(Dinamika::class, 'nik', 'nik');
+    }
+
+    public function kematian(): HasOne
+    {
+        return $this->hasOne(Kematian::class, 'nik', 'nik');
+    }
+
+    public function kepindahan(): HasOne
+    {
+        return $this->hasOne(Kepindahan::class, 'nik', 'nik');
+    }
+
+    public function pendatang(): HasOne
+    {
+        return $this->hasOne(Pendatang::class, 'nik', 'nik');
+    }
+
+    public function tambahans(): MorphToMany
+    {
+        return $this->morphToMany(Tambahan::class, 'tambahanable', 'tambahanables', 'tambahanable_id', 'tambahan_id')->withTimestamps()->withPivot('tambahanable_type', 'tambahanable_id');
+    }
+
     public function bantuans(): MorphToMany
     {
-        return $this->morphToMany(Bantuan::class, 'bantuanable');
+        return $this->morphToMany(Bantuan::class, 'bantuanable', 'bantuanables', 'bantuanable_id', 'bantuan_id')->withTimestamps()->withPivot('bantuanable_type', 'bantuanable_id');
     }
 
-    public function scopeAllPekerjaan($query, $wilayahId = null, $jk = null)
+    public function kesehatanAnak(): HasMany
     {
-        return $query
-            ->select('pekerjaan', 'jenis_kelamin', DB::raw('count(*) as total'))
-            ->when($wilayahId, function ($query, $wilayahId) {
-                return $query->where('wilayah_id', $wilayahId);
-            })
-            ->when($jk, function ($query, $jk) {
-                return $query->where('jenis_kelamin', $jk);
-            })
-            ->groupBy('pekerjaan', 'jenis_kelamin')
-            ->orderBy('total', 'desc');
+        return $this->hasMany(KesehatanAnak::class, 'anak_id', 'nik')->whereDate('tanggal_lahir', '>', now()->subYears(5));
     }
 
-    public function scopeSearchPekerjaan($query, $search)
-    {
-        return $query->where('pekerjaan', 'like', '%' . $search . '%');
-    }
-
-    public function scopeAllAgama($query, $wilayahId = null, $jk = null)
-    {
-        return $query
-            ->select('agama', 'jenis_kelamin', DB::raw('count(*) as total'))
-            ->when($wilayahId, function ($query, $wilayahId) {
-                return $query->where('wilayah_id', $wilayahId);
-            })
-            ->when($jk, function ($query, $jk) {
-                return $query->where('jenis_kelamin', $jk);
-            })
-            ->groupBy('agama', 'jenis_kelamin')
-            ->orderBy('total', 'desc');
-    }
-
-
-    public function scopeSearchAgama($query, $search)
-    {
-        return $query->where('agama', 'like', '%' . $search . '%');
-    }
-
-    public function scopeAllPendidikan($query, $wilayahId = null, $jk = null)
-    {
-        return $query
-            ->select('pendidikan', 'jenis_kelamin', DB::raw('count(*) as total'))
-            ->when($wilayahId, function ($query, $wilayahId) {
-                return $query->where('wilayah_id', $wilayahId);
-            })
-            ->when($jk, function ($query, $jk) {
-                return $query->where('jenis_kelamin', $jk);
-            })
-            ->groupBy('pendidikan', 'jenis_kelamin')
-            ->orderBy('total', 'desc');
-    }
-
-    public function scopeSearchPendidikan($query, $search)
-    {
-        return $query->where('pendidikan', 'like', '%' . $search . '%');
-    }
-
-    public function scopeAllPerkawinan($query, $wilayahId = null, $jk = null)
-    {
-        return $query
-            ->select('status_perkawinan', 'jenis_kelamin', DB::raw('count(*) as total'))
-            ->when($wilayahId, function ($query, $wilayahId) {
-                return $query->where('wilayah_id', $wilayahId);
-            })
-            ->when($jk, function ($query, $jk) {
-                return $query->where('jenis_kelamin', $jk);
-            })
-            ->groupBy('status_perkawinan', 'jenis_kelamin')
-            ->orderBy('total', 'desc');
-    }
-
-    public function scopeSearchPerkawinan($query, $search)
-    {
-        return $query->where('status_perkawinan', 'like', '%' . $search . '%');
-    }
-
-    public function scopeAllEtnisSuku($query, $wilayahId = null, $jk = null)
-    {
-        return $query
-            ->select('etnis_suku', 'jenis_kelamin', DB::raw('count(*) as total'))
-            ->when($wilayahId, function ($query, $wilayahId) {
-                return $query->where('wilayah_id', $wilayahId);
-            })
-            ->when($jk, function ($query, $jk) {
-                return $query->where('jenis_kelamin', $jk);
-            })
-            ->groupBy('etnis_suku', 'jenis_kelamin')
-            ->orderBy('total', 'desc');
-    }
-
-    public function scopeSearchEtnisSuku($query, $search)
-    {
-        return $query->where('etnis_suku', 'like', '%' . $search . '%');
-    }
-
-    public function scopeAllRentangUmur($query, $wilayahId = null)
-    {
-        return $query
-            ->select('jenis_kelamin')
-            ->selectRaw('CASE
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) >= 75 THEN "75+"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 0 AND 4 THEN "0-4"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 5 AND 9 THEN "5-9"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 10 AND 14 THEN "10-14"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 15 AND 19 THEN "15-19"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 20 AND 24 THEN "20-24"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 25 AND 29 THEN "25-29"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 30 AND 34 THEN "30-34"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 35 AND 39 THEN "35-39"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 40 AND 44 THEN "40-44"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 45 AND 49 THEN "45-49"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 50 AND 54 THEN "50-54"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 55 AND 59 THEN "55-59"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 60 AND 64 THEN "60-64"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 65 AND 69 THEN "65-69"
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) BETWEEN 70 AND 74 THEN "70-74"
-            ELSE "75+"
-            END as rentang_umur')
-            ->selectRaw('COUNT(*) as total')
-            ->when($wilayahId, function ($query, $wilayahId) {
-                return $query->where('wilayah_id', $wilayahId);
-            })
-            ->groupBy('rentang_umur', 'jenis_kelamin')
-            ->orderBy('rentang_umur', 'asc');
-    }
-
-    // public function scopeSearchRentangUmur($query, $search)
-    // {
-    //     return $query->where('rentang_umur', 'like', '%' . $search . '%');
-    // }
-
-    public function scopeAllSatuanUmur($query, $wilayahId = null)
-    {
-        return $query
-            ->select('jenis_kelamin')
-            ->selectRaw('CASE
-            WHEN YEAR(NOW()) - YEAR(tanggal_lahir) >= 75 THEN "75+"
-            ELSE CAST(YEAR(NOW()) - YEAR(tanggal_lahir) AS CHAR) 
-            END as satuan_umur')
-            ->selectRaw('COUNT(*) as total')
-            ->when($wilayahId, function ($query, $wilayahId) {
-                return $query->where('wilayah_id', $wilayahId);
-            })
-            ->groupBy('satuan_umur', 'jenis_kelamin')
-            ->orderBy('satuan_umur', 'asc');
-    }
 
 
     public function getWilayahPDD()

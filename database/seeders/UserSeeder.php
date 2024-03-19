@@ -14,70 +14,22 @@ class UserSeeder extends Seeder
     {
         // Membuat pengguna admin
         $admin = User::factory()->create([
-            'name' => 'super admin',
-            'username' => 'super_admin',
-            'email' => 'admin@kuripan.id',
-            'password' => Hash::make('kuripan'),
+            'name' => 'Admin',
+            'username' => 'admin',
+            'email' => null,
+            'password' => Hash::make('admin'),
         ]);
 
-        $adminRole = Role::create(['name' => 'super_admin']);
-        $admin->assignRole($adminRole);
+        $admin_desa = User::factory()->create([
+            'name' => 'Admin Desa',
+            'username' => 'admin_desa',
+            'email' => null,
+            'password' => Hash::make('admin_desa'),
+        ]);
 
-        // Perulangan untuk membuat RW 001 dan RW 002
-        // for ($rwIndex = 1; $rwIndex <= 2; $rwIndex++) {
-        //     $rwEmail = "RW" . str_pad($rwIndex, 3, '0', STR_PAD_LEFT) . "@kuripan.id";
+        $this->call(ShieldSeeder::class);
 
-        //     $rwUser = User::factory()->create([
-        //         'name' => "RW " . str_pad($rwIndex, 3, '0', STR_PAD_LEFT),
-        //         'email' => $rwEmail,
-        //         'password' => Hash::make('kuripan'),
-        //     ]);
-
-        //     $rwRole = Role::where('name', 'RW')->where('guard_name', 'web')->first();
-
-        //     if (!$rwRole) {
-        //         $rwRole = Role::create(['name' => 'RW']);
-        //     }
-
-        //     $rwUser->assignRole($rwRole);
-        // }
-
-        // // Membuat RT 001-RT 016 untuk RW 001
-        // for ($rtIndex = 1; $rtIndex <= 16; $rtIndex++) {
-        //     $rtEmail = "RT" . str_pad($rtIndex, 3, '0', STR_PAD_LEFT) . "_RW001@kuripan.id";
-
-        //     $rtUser = User::factory()->create([
-        //         'name' => "RT " . str_pad($rtIndex, 3, '0', STR_PAD_LEFT) . "/RW 001",
-        //         'email' => $rtEmail,
-        //         'password' => Hash::make('kuripan'),
-        //     ]);
-
-        //     $rtRole = Role::where('name', 'RT')->where('guard_name', 'web')->first();
-
-        //     if (!$rtRole) {
-        //         $rtRole = Role::create(['name' => 'RT']);
-        //     }
-
-        //     $rtUser->assignRole($rtRole);
-        // }
-
-        // // Membuat RT 017-RT 036 untuk RW 002
-        // for ($rtIndex = 17; $rtIndex <= 36; $rtIndex++) {
-        //     $rtEmail = "RT" . str_pad($rtIndex, 3, '0', STR_PAD_LEFT) . "_RW002@kuripan.id";
-
-        //     $rtUser = User::factory()->create([
-        //         'name' => "RT " . str_pad($rtIndex, 3, '0', STR_PAD_LEFT) . "/RW 002",
-        //         'email' => $rtEmail,
-        //         'password' => Hash::make('kuripan'),
-        //     ]);
-
-        //     $rtRole = Role::where('name', 'RT')->where('guard_name', 'web')->first();
-
-        //     if (!$rtRole) {
-        //         $rtRole = Role::create(['name' => 'RT']);
-        //     }
-
-        //     $rtUser->assignRole($rtRole);
-        // }
+        $admin->assignRole('Admin');
+        $admin_desa->assignRole('Admin Desa');
     }
 }

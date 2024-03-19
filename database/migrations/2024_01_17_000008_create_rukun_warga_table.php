@@ -14,10 +14,10 @@ return new class extends Migration
     {
         Schema::create('rukun_warga', function (Blueprint $table) {
             $table->id('rw_id');
-            $table->string('kel_id', 10)->nullable();
             $table->string('rw_nama');
+            $table->string('deskel_id', 10)->nullable();
             $table->foreignId('dusun_id')->nullable()->constrained('dusun', 'dusun_id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreign('kel_id')->references('kel_id')->on('kelurahan')->nullable()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('deskel_id')->references('deskel_id')->on('desa_kelurahan')->nullable()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -22,7 +22,7 @@ class KabKota extends Model
         'prov_id',
     ];
 
-    public function prov_groups(): BelongsTo
+    public function prov(): BelongsTo
     {
         return $this->belongsTo(Provinsi::class, 'prov_id', 'prov_id');
     }

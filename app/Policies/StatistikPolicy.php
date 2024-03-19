@@ -18,7 +18,7 @@ class StatistikPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_statistik');
+        return $user->can('view_any_web::statistik');
     }
 
     /**
@@ -30,7 +30,7 @@ class StatistikPolicy
      */
     public function view(User $user, Statistik $statistik): bool
     {
-        return $user->can('view_statistik');
+        return $user->can('view_web::statistik');
     }
 
     /**
@@ -41,7 +41,7 @@ class StatistikPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_statistik');
+        return $user->can('create_web::statistik');
     }
 
     /**
@@ -53,7 +53,7 @@ class StatistikPolicy
      */
     public function update(User $user, Statistik $statistik): bool
     {
-        return $user->can('update_statistik');
+        return $user->can('update_web::statistik');
     }
 
     /**
@@ -65,7 +65,7 @@ class StatistikPolicy
      */
     public function delete(User $user, Statistik $statistik): bool
     {
-        return $user->can('delete_statistik');
+        return $user->can('delete_web::statistik');
     }
 
     /**
@@ -76,7 +76,7 @@ class StatistikPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_statistik');
+        return $user->can('delete_any_web::statistik');
     }
 
     /**
@@ -88,7 +88,7 @@ class StatistikPolicy
      */
     public function forceDelete(User $user, Statistik $statistik): bool
     {
-        return $user->can('force_delete_statistik');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -99,7 +99,7 @@ class StatistikPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_statistik');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -111,7 +111,7 @@ class StatistikPolicy
      */
     public function restore(User $user, Statistik $statistik): bool
     {
-        return $user->can('restore_statistik');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -122,7 +122,7 @@ class StatistikPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_statistik');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -134,7 +134,7 @@ class StatistikPolicy
      */
     public function replicate(User $user, Statistik $statistik): bool
     {
-        return $user->can('replicate_statistik');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -145,7 +145,7 @@ class StatistikPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_statistik');
+        return $user->can('{{ Reorder }}');
     }
 
 }

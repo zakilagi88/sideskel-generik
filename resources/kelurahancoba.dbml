@@ -1,0 +1,908 @@
+Table "apbdes" {
+  "id" bigint [pk, not null, increment]
+  "tahun" year [not null]
+  "komponen" varchar(255) [not null]
+  "kategori_id" bigint [not null]
+  "subkategori_id" bigint [not null]
+  "nilai" decimal(15,2) [not null]
+  "realisasi" decimal(15,2) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  kategori_id [name: "apbdes_kategori_id_foreign"]
+  subkategori_id [name: "apbdes_subkategori_id_foreign"]
+}
+}
+
+Table "apbdes_kategoris" {
+  "id" bigint [pk, not null, increment]
+  "nama_kategori" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "apbdes_subkategoris" {
+  "id" bigint [pk, not null, increment]
+  "nama_subkategori" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "asuransi_kesehatans" {
+  "as_kes_id" bigint [pk, not null, increment]
+  "as_kes_nama" varchar(255) [not null]
+  "as_kes_nomor" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "audits" {
+  "id" bigint [pk, not null, increment]
+  "user_type" varchar(255) [default: NULL]
+  "user_id" bigint [default: NULL]
+  "event" varchar(255) [not null]
+  "auditable_type" varchar(255) [not null]
+  "auditable_id" bigint [not null]
+  "old_values" text
+  "new_values" text
+  "url" text
+  "ip_address" varchar(45) [default: NULL]
+  "user_agent" varchar(1023) [default: NULL]
+  "tags" varchar(255) [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  (auditable_type, auditable_id) [name: "audits_auditable_type_auditable_id_index"]
+  (user_id, user_type) [name: "audits_user_id_user_type_index"]
+}
+}
+
+Table "authentication_log" {
+  "id" bigint [pk, not null, increment]
+  "authenticatable_type" varchar(255) [not null]
+  "authenticatable_id" bigint [not null]
+  "ip_address" varchar(45) [default: NULL]
+  "user_agent" text
+  "login_at" timestamp [default: NULL]
+  "login_successful" tinyint(1) [not null, default: "0"]
+  "logout_at" timestamp [default: NULL]
+  "cleared_by_user" tinyint(1) [not null, default: "0"]
+  "location" json [default: NULL]
+
+Indexes {
+  (authenticatable_type, authenticatable_id) [name: "authentication_log_authenticatable_type_authenticatable_id_index"]
+}
+}
+
+Table "authors" {
+  "id" bigint [pk, not null, increment]
+  "user_id" bigint [not null]
+  "bio" longtext
+  "links" json [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  user_id [name: "authors_user_id_foreign"]
+}
+}
+
+Table "bantuanables" {
+  "bantuan_id" bigint [not null]
+  "bantuanable_id" varchar(255) [not null]
+  "bantuanable_type" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  (bantuan_id, bantuanable_id, bantuanable_type) [unique, name: "bantuanables_bantuan_id_bantuanable_id_bantuanable_type_unique"]
+}
+}
+
+Table "bantuans" {
+  "bantuan_id" bigint [pk, not null, increment]
+  "bantuan_program" varchar(255) [not null]
+  "bantuan_sasaran" varchar(255) [not null]
+  "bantuan_keterangan" longtext [not null]
+  "bantuan_tgl_mulai" date [not null]
+  "bantuan_tgl_selesai" date [not null]
+  "bantuan_status" tinyint(1) [not null, default: "0"]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "berita" {
+  "berita_id" bigint [pk, not null, increment]
+  "user_id" bigint [not null]
+  "kategori_berita_id" bigint [not null]
+  "title" varchar(255) [not null]
+  "slug" varchar(255) [default: NULL]
+  "featured_image_url" varchar(255) [default: NULL]
+  "body" longtext
+  "meta_description" varchar(255) [default: NULL]
+  "meta_tags" varchar(255) [default: NULL]
+  "scheduled_for" datetime [default: NULL]
+  "published_at" datetime [default: NULL]
+  "status" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  user_id [name: "berita_user_id_foreign"]
+  kategori_berita_id [name: "berita_kategori_berita_id_foreign"]
+}
+}
+
+Table "breezy_sessions" {
+  "id" bigint [pk, not null, increment]
+  "authenticatable_type" varchar(255) [not null]
+  "authenticatable_id" bigint [not null]
+  "panel_id" varchar(255) [default: NULL]
+  "guard" varchar(255) [default: NULL]
+  "ip_address" varchar(45) [default: NULL]
+  "user_agent" text
+  "expires_at" timestamp [default: NULL]
+  "two_factor_secret" text
+  "two_factor_recovery_codes" text
+  "two_factor_confirmed_at" timestamp [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "desa_kelurahan" {
+  "deskel_id" varchar(10) [pk, not null]
+  "deskel_nama" varchar(255) [not null]
+  "kec_id" varchar(6) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  kec_id [name: "desa_kelurahan_kec_id_foreign"]
+}
+}
+
+Table "deskel_profils" {
+  "id" bigint [pk, not null, increment]
+  "deskel_id" varchar(10) [not null]
+  "deskel_tipe" varchar(255) [default: NULL]
+  "deskel_alamat" varchar(255) [default: NULL]
+  "deskel_kodepos" varchar(255) [default: NULL]
+  "deskel_luaswilayah" double [default: NULL]
+  "deskel_jumlahpenduduk" int [default: NULL]
+  "deskel_batas_utara" varchar(255) [default: NULL]
+  "deskel_batas_timur" varchar(255) [default: NULL]
+  "deskel_batas_selatan" varchar(255) [default: NULL]
+  "deskel_batas_barat" varchar(255) [default: NULL]
+  "deskel_visi" longtext
+  "deskel_misi" longtext
+  "deskel_sejarah" longtext
+  "deskel_gambar" varchar(255) [default: NULL]
+  "deskel_logo" varchar(255) [default: NULL]
+  "deskel_telepon" varchar(255) [default: NULL]
+  "deskel_email" varchar(255) [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  deskel_id [name: "deskel_profils_deskel_id_foreign"]
+}
+}
+
+Table "dusun" {
+  "dusun_id" bigint [pk, not null, increment]
+  "dusun_nama" varchar(255) [not null]
+  "deskel_id" varchar(10) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  deskel_id [name: "dusun_deskel_id_foreign"]
+}
+}
+
+Table "failed_jobs" {
+  "id" bigint [pk, not null, increment]
+  "uuid" varchar(255) [not null]
+  "connection" text [not null]
+  "queue" text [not null]
+  "payload" longtext [not null]
+  "exception" longtext [not null]
+  "failed_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+Indexes {
+  uuid [unique, name: "failed_jobs_uuid_unique"]
+}
+}
+
+Table "job_batches" {
+  "id" varchar(255) [pk, not null]
+  "name" varchar(255) [not null]
+  "total_jobs" int [not null]
+  "pending_jobs" int [not null]
+  "failed_jobs" int [not null]
+  "failed_job_ids" text [not null]
+  "options" mediumtext
+  "cancelled_at" int [default: NULL]
+  "created_at" int [not null]
+  "finished_at" int [default: NULL]
+}
+
+Table "kab_kota" {
+  "kabkota_id" varchar(4) [pk, not null]
+  "prov_id" varchar(2) [not null]
+  "kabkota_nama" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  prov_id [name: "kab_kota_prov_id_foreign"]
+}
+}
+
+Table "kartu_keluarga" {
+  "kk_id" varchar(16) [pk, not null]
+  "kk_alamat" varchar(255) [not null]
+  "deskel_id" varchar(10) [default: NULL]
+  "dusun_id" bigint [default: NULL]
+  "rw_id" bigint [default: NULL]
+  "rt_id" bigint [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  deskel_id [name: "kartu_keluarga_deskel_id_foreign"]
+  dusun_id [name: "kartu_keluarga_dusun_id_foreign"]
+  rw_id [name: "kartu_keluarga_rw_id_foreign"]
+  rt_id [name: "kartu_keluarga_rt_id_foreign"]
+}
+}
+
+Table "kategori_berita" {
+  "kategori_berita_id" bigint [pk, not null, increment]
+  "name" varchar(255) [not null]
+  "slug" varchar(255) [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "kategori_stuntings" {
+  "id" bigint [pk, not null, increment]
+  "indeks" varchar(255) [not null]
+  "keterangan" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "kecamatan" {
+  "kec_id" varchar(6) [pk, not null]
+  "kec_nama" varchar(255) [not null]
+  "kabkota_id" varchar(4) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  kabkota_id [name: "kecamatan_kabkota_id_foreign"]
+}
+}
+
+Table "kelahirans" {
+  "id" bigint [pk, not null, increment]
+  "nik" varchar(16) [not null]
+  "anak_ke" varchar(255) [not null]
+  "tempat_lahir" varchar(255) [not null]
+  "jenis_lahir" varchar(255) [not null]
+  "penolong_lahir" varchar(255) [not null]
+  "berat_lahir" varchar(255) [not null]
+  "panjang_lahir" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  nik [name: "kelahirans_nik_foreign"]
+}
+}
+
+Table "kematians" {
+  "id" bigint [pk, not null, increment]
+  "nik" varchar(16) [not null]
+  "waktu_kematian" time [default: NULL]
+  "tempat_kematian" varchar(255) [default: NULL]
+  "penyebab_kematian" varchar(255) [default: NULL]
+  "menerangkan_kematian" varchar(255) [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  nik [name: "kematians_nik_foreign"]
+}
+}
+
+Table "kepala_wilayah" {
+  "id" bigint [pk, not null, increment]
+  "kepala_nik" varchar(16) [default: NULL]
+  "kepala_type" varchar(255) [not null]
+  "kepala_id" bigint [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  (kepala_nik, kepala_id, kepala_type) [unique, name: "kepala_wilayah_kepala_nik_kepala_id_kepala_type_unique"]
+  (kepala_type, kepala_id) [name: "kepala_wilayah_kepala_type_kepala_id_index"]
+}
+}
+
+Table "kepindahans" {
+  "id" bigint [pk, not null, increment]
+  "nik" varchar(16) [not null]
+  "tujuan_pindah" varchar(255) [default: NULL]
+  "alamat_pindah" varchar(255) [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  nik [name: "kepindahans_nik_foreign"]
+}
+}
+
+Table "kesehatans" {
+  "kes_id" bigint [pk, not null, increment]
+  "kes_cacat_mental_fisik" varchar(255) [not null]
+  "kes_penyakit_menahun" varchar(255) [not null]
+  "kes_penyakit_lain" varchar(255) [not null]
+  "kes_akseptor_kb" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "kesehatan_anaks" {
+  "id" bigint [pk, not null, increment]
+  "kategori_id" bigint [default: NULL]
+  "subkategori_id" bigint [default: NULL]
+  "anak_id" varchar(16) [default: NULL]
+  "ibu_id" varchar(16) [default: NULL]
+  "berat_badan" double(8,2) [not null]
+  "tinggi_badan" double(8,2) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  kategori_id [name: "kesehatan_anaks_kategori_id_foreign"]
+  subkategori_id [name: "kesehatan_anaks_subkategori_id_foreign"]
+  anak_id [name: "kesehatan_anaks_anak_id_foreign"]
+}
+}
+
+Table "laporans" {
+  "id" bigint [pk, not null, increment]
+  "Perincian" varchar(255) [not null]
+  "Jumlah_Penduduk" varchar(255) [not null]
+  "Jumlah_Keluarga" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "media" {
+  "id" bigint [pk, not null, increment]
+  "model_type" varchar(255) [not null]
+  "model_id" bigint [not null]
+  "uuid" char(36) [default: NULL]
+  "collection_name" varchar(255) [not null]
+  "name" varchar(255) [not null]
+  "file_name" varchar(255) [not null]
+  "mime_type" varchar(255) [default: NULL]
+  "disk" varchar(255) [not null]
+  "conversions_disk" varchar(255) [default: NULL]
+  "size" bigint [not null]
+  "manipulations" json [not null]
+  "custom_properties" json [not null]
+  "generated_conversions" json [not null]
+  "responsive_images" json [not null]
+  "order_column" int [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  uuid [unique, name: "media_uuid_unique"]
+  (model_type, model_id) [name: "media_model_type_model_id_index"]
+  order_column [name: "media_order_column_index"]
+}
+}
+
+Table "migrations" {
+  "id" int [pk, not null, increment]
+  "migration" varchar(255) [not null]
+  "batch" int [not null]
+}
+
+Table "model_has_permissions" {
+  "permission_id" bigint [not null]
+  "model_type" varchar(255) [not null]
+  "model_id" bigint [not null]
+
+Indexes {
+  (permission_id, model_id, model_type) [pk]
+  (model_id, model_type) [name: "model_has_permissions_model_id_model_type_index"]
+}
+}
+
+Table "model_has_roles" {
+  "role_id" bigint [not null]
+  "model_type" varchar(255) [not null]
+  "model_id" bigint [not null]
+
+Indexes {
+  (role_id, model_id, model_type) [pk]
+  (model_id, model_type) [name: "model_has_roles_model_id_model_type_index"]
+}
+}
+
+Table "notifications" {
+  "id" char(36) [pk, not null]
+  "type" varchar(255) [not null]
+  "notifiable_type" varchar(255) [not null]
+  "notifiable_id" bigint [not null]
+  "data" text [not null]
+  "read_at" timestamp [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  (notifiable_type, notifiable_id) [name: "notifications_notifiable_type_notifiable_id_index"]
+}
+}
+
+Table "password_reset_tokens" {
+  "email" varchar(255) [pk, not null]
+  "token" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+}
+
+Table "pendatangs" {
+  "id" bigint [pk, not null, increment]
+  "nik" varchar(16) [not null]
+  "alamat_sebelumnya" text
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  nik [name: "pendatangs_nik_foreign"]
+}
+}
+
+Table "penduduk" {
+  "nik" varchar(16) [pk, not null]
+  "kk_id" varchar(16) [default: NULL]
+  "foto" varchar(255) [default: NULL]
+  "nama_lengkap" varchar(255) [not null]
+  "jenis_kelamin" varchar(255) [not null]
+  "tempat_lahir" varchar(255) [not null]
+  "tanggal_lahir" date [not null]
+  "agama" varchar(255) [not null]
+  "pendidikan" varchar(255) [not null]
+  "pekerjaan" varchar(255) [not null]
+  "status_perkawinan" varchar(255) [not null]
+  "tgl_perkawinan" date [default: NULL]
+  "tgl_perceraian" date [default: NULL]
+  "kewarganegaraan" varchar(255) [not null, default: "WNI"]
+  "nama_ayah" varchar(255) [default: NULL]
+  "nama_ibu" varchar(255) [default: NULL]
+  "nik_ayah" varchar(16) [default: NULL]
+  "nik_ibu" varchar(16) [default: NULL]
+  "golongan_darah" varchar(255) [default: NULL]
+  "etnis_suku" varchar(255) [default: NULL]
+  "cacat" varchar(255) [default: NULL]
+  "penyakit" varchar(255) [default: NULL]
+  "akseptor_kb" varchar(255) [default: NULL]
+  "status_penduduk" varchar(255) [not null, default: "Tetap"]
+  "status_dasar" varchar(255) [not null, default: "HIDUP"]
+  "status_pengajuan" varchar(255) [not null, default: "BELUM DIVERIFIKASI"]
+  "status_tempat_tinggal" varchar(255) [default: NULL]
+  "alamat_sekarang" varchar(255) [not null]
+  "alamat_sebelumnya" varchar(255) [default: NULL]
+  "alamatKK" tinyint(1) [default: "1"]
+  "telepon" varchar(255) [default: NULL]
+  "email" varchar(255) [default: NULL]
+  "status_hubungan" varchar(255) [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  kk_id [name: "penduduk_kk_id_index"]
+}
+}
+
+Table "penduduk_agama_view" {
+  "id" BIGINT(20) [not null]
+  "agama" VARCHAR(8) [not null]
+  "laki_laki" DECIMAL(23,0) [not null]
+  "perempuan" DECIMAL(23,0) [not null]
+  "rt_id" DECIMAL(20,0) [not null]
+  "rw_id" DECIMAL(20,0) [not null]
+  "total" BIGINT(19) [not null]
+}
+
+Table "penduduk_aggregat" {
+  "id" BIGINT(20) [not null]
+  "Perincian" VARCHAR(24) [not null]
+  "Laki_Laki" DECIMAL(25,0) [not null]
+  "Perempuan" DECIMAL(25,0) [not null]
+  "Total" DECIMAL(25,0) [not null]
+  "tahun" BIGINT(19)
+  "bulan" BIGINT(19) [not null]
+}
+
+Table "penduduk_kategori_umur_view" {
+  "id" BIGINT(20) [not null]
+  "kategori_umur" VARCHAR(9) [not null]
+  "laki_laki" DECIMAL(23,0)
+  "perempuan" DECIMAL(23,0)
+  "rt_id" BIGINT(20)
+  "rw_id" BIGINT(20)
+  "total" BIGINT(19) [not null]
+}
+
+Table "penduduk_kesehatan" {
+  "pddkes_id" bigint [pk, not null, increment]
+  "nik" varchar(16) [default: NULL]
+  "as_kes_id" bigint [default: NULL]
+  "kes_id" bigint [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  nik [name: "penduduk_kesehatan_nik_foreign"]
+  as_kes_id [name: "penduduk_kesehatan_as_kes_id_foreign"]
+  kes_id [name: "penduduk_kesehatan_kes_id_foreign"]
+}
+}
+
+Table "penduduk_pekerjaan_view" {
+  "id" BIGINT(20) [not null]
+  "pekerjaan" VARCHAR(27) [not null]
+  "laki_laki" DECIMAL(23,0) [not null]
+  "perempuan" DECIMAL(23,0) [not null]
+  "rt_id" DECIMAL(20,0) [not null]
+  "rw_id" DECIMAL(20,0) [not null]
+  "total" BIGINT(19) [not null]
+}
+
+Table "penduduk_pendidikan_view" {
+  "id" BIGINT(20) [not null]
+  "pendidikan" VARCHAR(32) [not null]
+  "laki_laki" DECIMAL(23,0) [not null]
+  "perempuan" DECIMAL(23,0) [not null]
+  "rt_id" DECIMAL(20,0) [not null]
+  "rw_id" DECIMAL(20,0) [not null]
+  "total" BIGINT(19) [not null]
+}
+
+Table "penduduk_rentang_umur_view" {
+  "id" BIGINT(20) [not null]
+  "rentang_umur" VARCHAR(46)
+  "laki_laki" DECIMAL(23,0)
+  "perempuan" DECIMAL(23,0)
+  "rt_id" BIGINT(20)
+  "rw_id" BIGINT(20)
+  "total" BIGINT(19) [not null]
+}
+
+Table "penduduk_status_perkawinan_view" {
+  "id" BIGINT(20) [not null]
+  "status_perkawinan" VARCHAR(26) [not null]
+  "laki_laki" DECIMAL(23,0) [not null]
+  "perempuan" DECIMAL(23,0) [not null]
+  "rt_id" DECIMAL(20,0) [not null]
+  "rw_id" DECIMAL(20,0) [not null]
+  "total" BIGINT(19) [not null]
+}
+
+Table "penduduk_umur_view" {
+  "id" BIGINT(20) [not null]
+  "umur" VARCHAR(6)
+  "laki_laki" DECIMAL(23,0)
+  "perempuan" DECIMAL(23,0)
+  "rt_id" BIGINT(20)
+  "rw_id" BIGINT(20)
+  "total" BIGINT(19) [not null]
+}
+
+Table "peristiwas" {
+  "id" bigint [pk, not null, increment]
+  "nik" varchar(16) [default: NULL]
+  "peristiwa_type" varchar(255) [not null]
+  "peristiwa_id" bigint [not null]
+  "jenis_peristiwa" varchar(255) [default: NULL]
+  "catatan_peristiwa" varchar(255) [default: NULL]
+  "tanggal_peristiwa" date [default: NULL]
+  "tanggal_lapor" date [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  nik [name: "peristiwas_nik_foreign"]
+  (peristiwa_type, peristiwa_id) [name: "peristiwas_peristiwa_type_peristiwa_id_index"]
+}
+}
+
+Table "permissions" {
+  "id" bigint [pk, not null, increment]
+  "name" varchar(255) [not null]
+  "guard_name" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  (name, guard_name) [unique, name: "permissions_name_guard_name_unique"]
+}
+}
+
+Table "personal_access_tokens" {
+  "id" bigint [pk, not null, increment]
+  "tokenable_type" varchar(255) [not null]
+  "tokenable_id" bigint [not null]
+  "name" varchar(255) [not null]
+  "token" varchar(64) [not null]
+  "abilities" text
+  "last_used_at" timestamp [default: NULL]
+  "expires_at" timestamp [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  token [unique, name: "personal_access_tokens_token_unique"]
+  (tokenable_type, tokenable_id) [name: "personal_access_tokens_tokenable_type_tokenable_id_index"]
+}
+}
+
+Table "provinsi" {
+  "prov_id" varchar(2) [pk, not null]
+  "prov_nama" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "roles" {
+  "id" bigint [pk, not null, increment]
+  "name" varchar(255) [not null]
+  "guard_name" varchar(255) [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  (name, guard_name) [unique, name: "roles_name_guard_name_unique"]
+}
+}
+
+Table "role_has_permissions" {
+  "permission_id" bigint [not null]
+  "role_id" bigint [not null]
+
+Indexes {
+  (permission_id, role_id) [pk]
+  role_id [name: "role_has_permissions_role_id_foreign"]
+}
+}
+
+Table "rukun_tetangga" {
+  "rt_id" bigint [pk, not null, increment]
+  "rt_nama" varchar(255) [not null]
+  "rw_id" bigint [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  rw_id [name: "rukun_tetangga_rw_id_foreign"]
+}
+}
+
+Table "rukun_warga" {
+  "rw_id" bigint [pk, not null, increment]
+  "rw_nama" varchar(255) [not null]
+  "deskel_id" varchar(10) [default: NULL]
+  "dusun_id" bigint [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  dusun_id [name: "rukun_warga_dusun_id_foreign"]
+  deskel_id [name: "rukun_warga_deskel_id_foreign"]
+}
+}
+
+Table "statistiks" {
+  "id" bigint [pk, not null, increment]
+  "stat_key" varchar(255) [default: NULL]
+  "stat_heading" varchar(255) [default: NULL]
+  "stat_subheading" varchar(255) [default: NULL]
+  "stat_slug" varchar(255) [default: NULL]
+  "stat_deskripsi" varchar(255) [default: NULL]
+  "stat_grafik_jenis" varchar(255) [default: NULL]
+  "stat_tampil" tinyint(1) [not null, default: "1"]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  stat_slug [unique, name: "statistiks_stat_slug_unique"]
+  id [name: "statistiks_id_index"]
+  stat_key [name: "statistiks_stat_key_index"]
+  stat_heading [name: "statistiks_stat_heading_index"]
+}
+}
+
+Table "subkategori_stuntings" {
+  "id" bigint [pk, not null, increment]
+  "subkategori_nama" varchar(255) [not null]
+  "subkategori_batas_bawah" double(8,2) [not null]
+  "subkategori_batas_atas" double(8,2) [not null]
+  "kategori_id" bigint [not null]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  kategori_id [name: "subkategori_stuntings_kategori_id_foreign"]
+}
+}
+
+Table "taggables" {
+  "tag_id" bigint [not null]
+  "taggable_type" varchar(255) [not null]
+  "taggable_id" bigint [not null]
+
+Indexes {
+  (tag_id, taggable_id, taggable_type) [unique, name: "taggables_tag_id_taggable_id_taggable_type_unique"]
+  (taggable_type, taggable_id) [name: "taggables_taggable_type_taggable_id_index"]
+}
+}
+
+Table "tags" {
+  "id" bigint [pk, not null, increment]
+  "name" json [not null]
+  "slug" json [not null]
+  "type" varchar(255) [default: NULL]
+  "order_column" int [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+}
+
+Table "users" {
+  "id" bigint [pk, not null, increment]
+  "nik" varchar(16) [default: NULL]
+  "name" varchar(255) [not null]
+  "username" varchar(255) [default: NULL]
+  "email" varchar(255) [default: NULL]
+  "password" varchar(255) [not null]
+  "avatar_url" varchar(255) [default: NULL]
+  "settings" json [default: NULL]
+  "wilayah_type" varchar(255) [not null]
+  "wilayah_id" bigint [not null]
+  "email_verified_at" timestamp [default: NULL]
+  "remember_token" varchar(100) [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  username [unique, name: "users_username_unique"]
+  email [unique, name: "users_email_unique"]
+  (wilayah_type, wilayah_id) [name: "users_wilayah_type_wilayah_id_index"]
+  nik [name: "users_nik_foreign"]
+}
+}
+
+Table "user_wilayah" {
+  "user_id" bigint [not null]
+  "wilayah_id" bigint [not null]
+
+Indexes {
+  user_id [name: "user_wilayah_user_id_foreign"]
+  wilayah_id [name: "user_wilayah_wilayah_id_foreign"]
+}
+}
+
+Table "wilayah" {
+  "wilayah_id" bigint [pk, not null, increment]
+  "wilayah_nama" varchar(100) [default: NULL]
+  "wilayah_kodepos" varchar(5) [default: NULL]
+  "deskel_id" varchar(10) [default: NULL]
+  "dusun_id" bigint [default: NULL]
+  "rw_id" bigint [default: NULL]
+  "rt_id" bigint [default: NULL]
+  "created_at" timestamp [default: NULL]
+  "updated_at" timestamp [default: NULL]
+
+Indexes {
+  deskel_id [name: "wilayah_deskel_id_foreign"]
+  dusun_id [name: "wilayah_dusun_id_foreign"]
+  rw_id [name: "wilayah_rw_id_foreign"]
+  rt_id [name: "wilayah_rt_id_foreign"]
+}
+}
+
+Ref "apbdes_kategori_id_foreign":"apbdes_kategoris"."id" < "apbdes"."kategori_id" [delete: cascade]
+
+Ref "apbdes_subkategori_id_foreign":"apbdes_subkategoris"."id" < "apbdes"."subkategori_id" [delete: cascade]
+
+Ref "authors_user_id_foreign":"users"."id" < "authors"."user_id" [update: cascade, delete: cascade]
+
+Ref "bantuanables_bantuan_id_foreign":"bantuans"."bantuan_id" < "bantuanables"."bantuan_id" [update: cascade, delete: cascade]
+
+Ref "berita_kategori_berita_id_foreign":"kategori_berita"."kategori_berita_id" < "berita"."kategori_berita_id" [update: cascade, delete: cascade]
+
+Ref "berita_user_id_foreign":"users"."id" < "berita"."user_id" [update: cascade, delete: cascade]
+
+Ref "desa_kelurahan_kec_id_foreign":"kecamatan"."kec_id" < "desa_kelurahan"."kec_id" [update: cascade, delete: cascade]
+
+Ref "deskel_profils_deskel_id_foreign":"desa_kelurahan"."deskel_id" < "deskel_profils"."deskel_id" [update: cascade, delete: cascade]
+
+Ref "dusun_deskel_id_foreign":"desa_kelurahan"."deskel_id" < "dusun"."deskel_id" [update: cascade, delete: cascade]
+
+Ref "kab_kota_prov_id_foreign":"provinsi"."prov_id" < "kab_kota"."prov_id" [update: cascade, delete: cascade]
+
+Ref "kartu_keluarga_deskel_id_foreign":"desa_kelurahan"."deskel_id" < "kartu_keluarga"."deskel_id" [update: cascade, delete: cascade]
+
+Ref "kartu_keluarga_dusun_id_foreign":"dusun"."dusun_id" < "kartu_keluarga"."dusun_id" [update: cascade, delete: cascade]
+
+Ref "kartu_keluarga_rt_id_foreign":"rukun_tetangga"."rt_id" < "kartu_keluarga"."rt_id" [update: cascade, delete: cascade]
+
+Ref "kartu_keluarga_rw_id_foreign":"rukun_warga"."rw_id" < "kartu_keluarga"."rw_id" [update: cascade, delete: cascade]
+
+Ref "kecamatan_kabkota_id_foreign":"kab_kota"."kabkota_id" < "kecamatan"."kabkota_id" [update: cascade, delete: cascade]
+
+Ref "kelahirans_nik_foreign":"penduduk"."nik" < "kelahirans"."nik" [update: cascade, delete: cascade]
+
+Ref "kematians_nik_foreign":"penduduk"."nik" < "kematians"."nik" [update: cascade, delete: cascade]
+
+Ref "kepala_wilayah_kepala_nik_foreign":"penduduk"."nik" < "kepala_wilayah"."kepala_nik" [update: cascade, delete: cascade]
+
+Ref "kepindahans_nik_foreign":"penduduk"."nik" < "kepindahans"."nik" [update: cascade, delete: cascade]
+
+Ref "kesehatan_anaks_anak_id_foreign":"penduduk"."nik" < "kesehatan_anaks"."anak_id" [update: cascade, delete: cascade]
+
+Ref "kesehatan_anaks_kategori_id_foreign":"kategori_stuntings"."id" < "kesehatan_anaks"."kategori_id" [update: cascade, delete: cascade]
+
+Ref "kesehatan_anaks_subkategori_id_foreign":"subkategori_stuntings"."id" < "kesehatan_anaks"."subkategori_id" [update: cascade, delete: cascade]
+
+Ref "model_has_permissions_permission_id_foreign":"permissions"."id" < "model_has_permissions"."permission_id" [delete: cascade]
+
+Ref "model_has_roles_role_id_foreign":"roles"."id" < "model_has_roles"."role_id" [delete: cascade]
+
+Ref "pendatangs_nik_foreign":"penduduk"."nik" < "pendatangs"."nik" [update: cascade, delete: cascade]
+
+Ref "penduduk_kk_id_foreign":"kartu_keluarga"."kk_id" < "penduduk"."kk_id" [update: cascade, delete: cascade]
+
+Ref "penduduk_kesehatan_as_kes_id_foreign":"asuransi_kesehatans"."as_kes_id" < "penduduk_kesehatan"."as_kes_id" [update: cascade, delete: cascade]
+
+Ref "penduduk_kesehatan_kes_id_foreign":"kesehatans"."kes_id" < "penduduk_kesehatan"."kes_id" [update: cascade, delete: cascade]
+
+Ref "penduduk_kesehatan_nik_foreign":"penduduk"."nik" < "penduduk_kesehatan"."nik" [update: cascade, delete: cascade]
+
+Ref "peristiwas_nik_foreign":"penduduk"."nik" < "peristiwas"."nik" [update: cascade, delete: cascade]
+
+Ref "role_has_permissions_permission_id_foreign":"permissions"."id" < "role_has_permissions"."permission_id" [delete: cascade]
+
+Ref "role_has_permissions_role_id_foreign":"roles"."id" < "role_has_permissions"."role_id" [delete: cascade]
+
+Ref "rukun_tetangga_rw_id_foreign":"rukun_warga"."rw_id" < "rukun_tetangga"."rw_id" [update: cascade, delete: cascade]
+
+Ref "rukun_warga_deskel_id_foreign":"desa_kelurahan"."deskel_id" < "rukun_warga"."deskel_id" [update: cascade, delete: cascade]
+
+Ref "rukun_warga_dusun_id_foreign":"dusun"."dusun_id" < "rukun_warga"."dusun_id" [update: cascade, delete: cascade]
+
+Ref "subkategori_stuntings_kategori_id_foreign":"kategori_stuntings"."id" < "subkategori_stuntings"."kategori_id" [update: cascade, delete: cascade]
+
+Ref "taggables_tag_id_foreign":"tags"."id" < "taggables"."tag_id" [delete: cascade]
+
+Ref "users_nik_foreign":"penduduk"."nik" < "users"."nik" [update: cascade, delete: cascade]
+
+Ref "user_wilayah_user_id_foreign":"users"."id" < "user_wilayah"."user_id" [update: cascade, delete: cascade]
+
+Ref "user_wilayah_wilayah_id_foreign":"wilayah"."wilayah_id" < "user_wilayah"."wilayah_id" [update: cascade, delete: cascade]
+
+Ref "wilayah_deskel_id_foreign":"desa_kelurahan"."deskel_id" < "wilayah"."deskel_id" [update: cascade, delete: cascade]
+
+Ref "wilayah_dusun_id_foreign":"dusun"."dusun_id" < "wilayah"."dusun_id" [update: cascade, delete: cascade]
+
+Ref "wilayah_rt_id_foreign":"rukun_tetangga"."rt_id" < "wilayah"."rt_id" [update: cascade, delete: cascade]
+
+Ref "wilayah_rw_id_foreign":"rukun_warga"."rw_id" < "wilayah"."rw_id" [update: cascade, delete: cascade]

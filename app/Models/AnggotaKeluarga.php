@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enum\Penduduk\Hubungan;
+use App\Enums\Kependudukan\Hubungan;
 use App\Rules\UniqueKepalaKeluarga;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -51,6 +51,4 @@ class AnggotaKeluarga extends Model
     {
         return $this->belongsTo(Penduduk::class, 'nik', 'nik');
     }
-
-    
 }

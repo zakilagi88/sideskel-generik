@@ -2,19 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 class Wilayah extends Model
 {
     use HasFactory;
-
+    use HasRecursiveRelationships;
     /**
      * The attributes that are mass assignable.
      *
@@ -25,67 +22,22 @@ class Wilayah extends Model
     protected $table = 'wilayah';
     protected $primaryKey = 'wilayah_id';
     protected $fillable = [
+        'deskel_id',
         'wilayah_id',
         'wilayah_nama',
-        'wilayah_kodepos',
-        'rw_id',
-        'rt_id',
-        'kel_id',
-        'kec_id',
-        'kabkota_id',
-        'prov_id',
-        'dusun_id',
-
+        'wilayah_kepala',
+        'tingkatan',
+        'parent_id',
 
     ];
 
-    public function rw(): BelongsTo
+    public function deskel(): BelongsTo
     {
-        return $this->belongsTo(RW::class, 'rw_id', 'rw_id');
+        return $this->belongsTo(DesaKelurahan::class, 'deskel_id', 'deskel_id');
     }
 
-    public function rt(): BelongsTo
+    public function kepalaWilayah(): BelongsTo
     {
-        return $this->belongsTo(RT::class, 'rt_id', 'rt_id');
-    }
-
-    public function kk(): HasMany
-    {
-        return $this->hasMany(KartuKeluarga::class, 'wilayah_id', 'wilayah_id');
-    }
-
-    public function penduduk(): HasMany
-    {
-        return $this->hasMany(Penduduk::class, 'wilayah_id', 'wilayah_id');
-    }
-
-    public function dusun(): BelongsTo
-    {
-        return $this->belongsTo(Dusun::class, 'dusun_id', 'dusun_id');
-    }
-
-    public function kelurahan(): BelongsTo
-    {
-        return $this->belongsTo(Kelurahan::class, 'kel_id', 'kel_id');
-    }
-
-    public function kecamatan(): BelongsTo
-    {
-        return $this->belongsTo(Kecamatan::class, 'kec_id', 'kec_id');
-    }
-
-    public function kabkota(): BelongsTo
-    {
-        return $this->belongsTo(KabKota::class, 'kabkota_id', 'kabkota_id');
-    }
-
-    public function provinsi(): BelongsTo
-    {
-        return $this->belongsTo(Provinsi::class, 'prov_id', 'prov_id');
-    }
-
-    public function users(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'user_wilayah_roles', 'wilayah_id', 'user_id')->as('wilayah')->withPivot('role_id')->withTimestamps();
+        return $this->belongsTo(Penduduk::class, 'wilayah_kepala', 'nik');
     }
 }

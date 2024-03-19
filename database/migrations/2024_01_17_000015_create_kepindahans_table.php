@@ -12,13 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kepindahan', function (Blueprint $table) {
+        Schema::create('kepindahans', function (Blueprint $table) {
             $table->id();
             $table->string('nik', 16);
-            $table->foreign('nik')->references('nik')->on('penduduk')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->date('tanggal_pindah');
-            $table->string('alamat_tujuan');
-            $table->string('keterangan');
+            $table->foreign('nik')->references('nik')->on('penduduk')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->string('tujuan_pindah')->nullable();
+            $table->string('alamat_pindah')->nullable();
 
             $table->timestamps();
         });
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kepindahan');
+        Schema::dropIfExists('kepindahans');
     }
 };

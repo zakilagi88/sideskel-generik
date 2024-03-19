@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Rt;
+use App\Models\RT;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class RtPolicy
+class RTPolicy
 {
     use HandlesAuthorization;
 
@@ -25,10 +25,10 @@ class RtPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Rt  $rt
+     * @param  \App\Models\RT  $rT
      * @return bool
      */
-    public function view(User $user, Rt $rt): bool
+    public function view(User $user, RT $rT): bool
     {
         return $user->can('view_r::t');
     }
@@ -48,10 +48,10 @@ class RtPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Rt  $rt
+     * @param  \App\Models\RT  $rT
      * @return bool
      */
-    public function update(User $user, Rt $rt): bool
+    public function update(User $user, RT $rT): bool
     {
         return $user->can('update_r::t');
     }
@@ -60,10 +60,10 @@ class RtPolicy
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Rt  $rt
+     * @param  \App\Models\RT  $rT
      * @return bool
      */
-    public function delete(User $user, Rt $rt): bool
+    public function delete(User $user, RT $rT): bool
     {
         return $user->can('delete_r::t');
     }
@@ -83,10 +83,10 @@ class RtPolicy
      * Determine whether the user can permanently delete.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Rt  $rt
+     * @param  \App\Models\RT  $rT
      * @return bool
      */
-    public function forceDelete(User $user, Rt $rt): bool
+    public function forceDelete(User $user, RT $rT): bool
     {
         return $user->can('force_delete_r::t');
     }
@@ -106,10 +106,10 @@ class RtPolicy
      * Determine whether the user can restore.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Rt  $rt
+     * @param  \App\Models\RT  $rT
      * @return bool
      */
-    public function restore(User $user, Rt $rt): bool
+    public function restore(User $user, RT $rT): bool
     {
         return $user->can('restore_r::t');
     }
@@ -129,10 +129,10 @@ class RtPolicy
      * Determine whether the user can replicate.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Rt  $rt
+     * @param  \App\Models\RT  $rT
      * @return bool
      */
-    public function replicate(User $user, Rt $rt): bool
+    public function replicate(User $user, RT $rT): bool
     {
         return $user->can('replicate_r::t');
     }

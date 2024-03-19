@@ -165,13 +165,15 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\Filament\AdminPanelProvider::class,
         App\Providers\RouteServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
         \Maatwebsite\Excel\ExcelServiceProvider::class,
         OwenIt\Auditing\AuditingServiceProvider::class,
+        App\Providers\DeskelServiceProvider::class,
+
 
 
     ])->toArray(),
@@ -191,6 +193,7 @@ return [
         // 'Example' => App\Facades\Example::class,
         'Excel' => \Maatwebsite\Excel\Facades\Excel::class,
         'Debugbar' => Barryvdh\Debugbar\Facades\Debugbar::class,
+        'Deskel' => App\Facades\Deskel::class,
     ])->toArray(),
 
 ];

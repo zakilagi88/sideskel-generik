@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Dusun extends Model
 {
@@ -16,11 +18,21 @@ class Dusun extends Model
     protected $fillable = [
         'dusun_id',
         'dusun_nama',
-        'kel_id',
+        'deskel_id',
     ];
 
     public function kelurahan()
     {
-        return $this->belongsTo(Kelurahan::class, 'kel_id', 'kel_id');
+        return $this->belongsTo(DesaKelurahan::class, 'deskel_id', 'deskel_id');
+    }
+
+    public function user(): MorphOne
+    {
+        return $this->morphOne(User::class, 'wilayah');
+    }
+
+    public function rws(): HasMany
+    {
+        return $this->hasMany(RW::class, 'dusun_id', 'dusun_id');
     }
 }

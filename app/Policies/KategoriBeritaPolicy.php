@@ -88,7 +88,7 @@ class KategoriBeritaPolicy
      */
     public function forceDelete(User $user, KategoriBerita $kategoriBerita): bool
     {
-        return $user->can('force_delete_kategori::berita');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -99,7 +99,7 @@ class KategoriBeritaPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_kategori::berita');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -111,7 +111,7 @@ class KategoriBeritaPolicy
      */
     public function restore(User $user, KategoriBerita $kategoriBerita): bool
     {
-        return $user->can('restore_kategori::berita');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -122,7 +122,7 @@ class KategoriBeritaPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_kategori::berita');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
