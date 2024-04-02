@@ -32,6 +32,9 @@ Route::get('/indeks-desa', function () {
     return view('indeks-desa', compact('htmlContent'));
 });
 
+Route::get('/preview-pdf', function () {
+    return view('preview_pdf');
+});
 
 
 

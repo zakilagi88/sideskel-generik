@@ -13,13 +13,21 @@ return new class extends Migration
     {
         Schema::create('kesehatan_anaks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kategori_id')->nullable()->constrained('kategori_stuntings', 'id')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('subkategori_id')->nullable()->constrained('subkategori_stuntings', 'id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('anak_id', 16)->nullable();
             $table->string('ibu_id', 16)->nullable();
             $table->foreign('anak_id')->references('nik')->on('penduduk')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->float('berat_badan');
-            $table->float('tinggi_badan');
+            $table->float('berat_badan')->nullable();
+            $table->float('tinggi_badan')->nullable();
+            $table->float('imt')->nullable();
+            $table->string('kategori_tbu')->nullable();
+            $table->float('z_score_tbu')->nullable();
+            $table->string('kategori_bbu')->nullable();
+            $table->float('z_score_bbu')->nullable();
+            $table->string('kategori_imtu')->nullable();
+            $table->float('z_score_imtu')->nullable();
+            $table->string('kategori_tb_bb')->nullable();
+            $table->float('z_score_tb_bb')->nullable();
+
             $table->timestamps();
         });
     }

@@ -6,6 +6,7 @@ use App\Models\Dokumen;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Keputusan extends Model
 {
@@ -14,19 +15,22 @@ class Keputusan extends Model
     protected $table = 'keputusans';
 
     protected $fillable = [
-        'kep_nomor',
-        'kep_tanggal',
-        'kep_tentang',
-        'kep_uraian_singkat',
-        'kep_keterangan',
+        'no',
+        'tgl',
+        'tentang',
+        'uraian_singkat',
+        'no_dilaporkan',
+        'tgl_dilaporkan',
+        'keterangan',
     ];
 
     protected $casts = [
-        'kep_tanggal' => 'date',
+        'tgl' => 'datetime:Y-m-d',
+        'tgl_dilaporkan' => 'datetime:Y-m-d',
     ];
 
-    public function dokumens(): MorphMany
+    public function dokumens(): MorphOne
     {
-        return $this->morphMany(Dokumen::class, 'dokumenable');
+        return $this->morphOne(Dokumen::class, 'dokumenable');
     }
 }

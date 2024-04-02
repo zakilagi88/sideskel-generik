@@ -8,15 +8,15 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     */
+     */ 
     public function up(): void
     {
         Schema::create('apbdes', function (Blueprint $table) {
-            $table->id();
+            $table->id('apbdes_id');
             $table->year('tahun');
             $table->string('komponen');
-            $table->foreignId('kategori_id')->constrained('apbdes_kategoris')->cascadeOnDelete();
-            $table->foreignId('subkategori_id')->constrained('apbdes_subkategoris')->cascadeOnDelete();
+            $table->unsignedBigInteger('komponen_id')->nullable();
+            $table->foreign('komponen_id')->references('apbdes_id')->on('apbdes')->cascadeOnUpdate()->cascadeOnDelete();
             $table->decimal('nilai', 15, 2);
             $table->decimal('realisasi', 15, 2);
             $table->timestamps();

@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('dokumens', function (Blueprint $table) {
             $table->id();
             $table->morphs('dokumenable');
-            $table->string('dokumen_nama');
-            $table->string('dokumen_jenis')->nullable();
-            $table->string('dokumen_file');
-            $table->string('dokumen_path')->nullable();
+            $table->string('dok_nama');
+            $table->string('dok_jenis')->nullable();
+            $table->string('dok_file');
+            $table->string('dok_path')->nullable();
             $table->timestamps();
         });
     }

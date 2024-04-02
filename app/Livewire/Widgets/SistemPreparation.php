@@ -133,7 +133,7 @@ class SistemPreparation extends Widget
                     'id' => 2,
                     'label' => 'Wilayah Administratif',
                     'description' => 'Konfigurasi wilayah administratif sesuai kebutuhan desa Anda.',
-                    'href' => route('filament.admin.wilayah.pages.index'),
+                    'href' => route('filament.admin.wilayah.resources.wilayahs.index'),
                     'completed' => $this->completedSteps[2],
                     'icon' => 'fas-map',
                 ],

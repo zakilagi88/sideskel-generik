@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('keputusans', function (Blueprint $table) {
             $table->id();
-            $table->string('kep_nomor');
-            $table->date('kep_tanggal');
-            $table->string('kep_tentang');
-            $table->text('kep_uraian_singkat')->nullable();
-            $table->string('kep_no_dilaporkan')->nullable();
-            $table->date('kep_tgl_dilaporkan')->nullable();
-            $table->string('kep_keterangan')->nullable();
+            $table->string('no');
+            $table->date('tgl');
+            $table->text('tentang');
+            $table->text('uraian_singkat')->nullable();
+            $table->string('no_dilaporkan')->nullable();
+            $table->date('tgl_dilaporkan')->nullable();
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }

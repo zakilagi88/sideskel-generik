@@ -15,23 +15,20 @@ class KesehatanAnak extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'kategori_id',
-        'subkategori_id',
         'anak_id',
         'ibu_id',
-        'berat_lahir',
-        'tinggi_lahir',
+        'berat_badan',
+        'tinggi_badan',
+        'imt',
+        'kategori_tbu',
+        'z_score_tbu',
+        'kategori_bbu',
+        'z_score_bbu',
+        'kategori_imtu',
+        'z_score_imtu',
+        'kategori_tb_bb',
+        'z_score_tb_bb',
     ];
-
-    public function kategori(): BelongsTo
-    {
-        return $this->belongsTo(KategoriStunting::class, 'kategori_id', 'id');
-    }
-
-    public function subkategori(): BelongsTo
-    {
-        return $this->belongsTo(SubkategoriStunting::class, 'subkategori_id', 'id');
-    }
 
     public function anak(): BelongsTo
     {

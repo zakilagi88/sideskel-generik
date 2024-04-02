@@ -13,20 +13,19 @@ return new class extends Migration
     {
         Schema::create('peraturans', function (Blueprint $table) {
             $table->id();
-            $table->string('per_file');
-            $table->string('per_jenis');
-            $table->text('per_tentang')->nullable();
-            $table->text('per_uraian_singkat')->nullable();
-            $table->string('per_no_ditetapkan');
-            $table->date('per_tgl_ditetapkan');
-            $table->date('per_tgl_kesepakatan')->nullable();
-            $table->string('per_no_dilaporkan')->nullable();
-            $table->date('per_tgl_dilaporkan')->nullable();
-            $table->string('per_no_diundangkan_l')->nullable();
-            $table->date('per_tgl_diundangkan_l')->nullable();
-            $table->string('per_no_diundangkan_b')->nullable();
-            $table->date('per_tgl_diundangkan_b')->nullable();
-            $table->text('per_keterangan')->nullable();
+            $table->string('jenis');
+            $table->string('no_ditetapkan')->nullable();
+            $table->date('tgl_ditetapkan')->nullable();
+            $table->text('tentang')->nullable();
+            $table->text('uraian_singkat')->nullable();
+            $table->date('tgl_kesepakatan')->nullable();
+            $table->string('no_dilaporkan')->nullable();
+            $table->date('tgl_dilaporkan')->nullable();
+            $table->string('no_diundangkan_l')->nullable();
+            $table->date('tgl_diundangkan_l')->nullable();
+            $table->string('no_diundangkan_b')->nullable();
+            $table->date('tgl_diundangkan_b')->nullable();
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }

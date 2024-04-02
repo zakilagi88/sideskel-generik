@@ -16,10 +16,10 @@ class Dokumen extends Model
     protected $fillable = [
         'dokumentable_id',
         'dokumentable_type',
-        'dokumen_jenis',
-        'dokumen_nama',
-        'dokumen_path',
-        'dokumen_file',
+        'dok_nama',
+        'dok_jenis',
+        'dok_file',
+        'dok_path'
     ];
 
 

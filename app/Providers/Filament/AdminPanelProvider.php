@@ -3,12 +3,12 @@
 namespace App\Providers\Filament;
 
 use App\Facades\Deskel;
-use App\Filament\Clusters\{Berita\HalamanBerita, Kesehatan\HalamanKesehatan, Statistik\HalamanStatistik, Wilayah\HalamanWilayah};
-use App\Filament\Clusters\Desa\HalamanDesa;
-use App\Filament\Clusters\Desa\Resources\AparaturResource;
-use App\Filament\Clusters\Wilayah\Pages\GenerateWilayah;
+use App\Filament\Clusters\{HalamanBerita, HalamanKesehatan, HalamanStatistik, HalamanWilayah};
+use App\Filament\Clusters\HalamanDesa;
+use App\Filament\Clusters\HalamanDesa\Resources\AparaturResource;
 use App\Filament\Pages\{DeskelProfile, Dashboard, Auth\AuthLogin, Auth\AuthProfile};
-use App\Filament\Clusters\Kependudukan\Resources\{KartuKeluargaResource, PendudukResource, DinamikaResource, BantuanResource, TambahanResource};
+use App\Filament\Clusters\HalamanKependudukan\Resources\{KartuKeluargaResource, PendudukResource, DinamikaResource, BantuanResource, TambahanResource};
+use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource;
 use App\Filament\Resources\Web\{StatistikResource};
 use App\Filament\Resources\Shield\{AutentikasiLogResource, AutentikasiPengguna, RoleResource, UserResource};
 use App\Http\Middleware\FilamentSettings;
@@ -38,12 +38,12 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('')
+            ->path('panel')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             ->sidebarCollapsibleOnDesktop()
-            ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
+            ->maxContentWidth(MaxWidth::Full)
             ->brandLogo(asset('images/logo.png'))
             ->darkModeBrandLogo(asset('images/logo-dark.png'))
             ->favicon(asset('images/logo.png'))
@@ -102,8 +102,8 @@ class AdminPanelProvider extends PanelProvider
                         NavigationItem::make(fn (): string => 'Wilayah ' . $deskel->deskel_sebutan)
                             ->icon('fas-map-marked-alt')
                             ->visible(fn (): bool => auth()->user()->can('page_HalamanWilayah') && $cek == false)
-                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.wilayah.pages.index'))
-                            ->url(fn (): string => GenerateWilayah::getUrl()),
+                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.wilayah.resources.wilayahs.index'))
+                            ->url(fn (): string => WilayahResource::getUrl()),
                         NavigationItem::make('Kependudukan')
                             ->icon('fas-people-roof')
                             ->visible(fn (): bool => auth()->user()->can('page_HalamanKependudukan') && $cek == false)
