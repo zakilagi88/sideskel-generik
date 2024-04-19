@@ -13,17 +13,17 @@
                         </h2>
                         <p class="text-base text-body-color">
                             Berita ini akan selalu
-                            di update setiap ada berita terbaru. Jangan lupa untuk selalu cek berita terbaru dari
+                            di update setiap ada b terbaru. Jangan lupa untuk selalu cek b terbaru dari
                             kelurahan. Terima kasih.
                         </p>
                     </div>
                 </div>
-                @foreach ($beritas as $berita)
+                @foreach ($beritas as $b)
                     @if ($loop->first)
                         <div class="bg-transparent dark:bg-gray-800 dark:text-gray-50">
                             <div class="container grid grid-cols-12 mx-auto dark:bg-gray-900">
                                 <div class="bg-no-repeat bg-cover dark:bg-gray-700 col-span-full lg:col-span-4"
-                                    style="background-image: url('{{ asset('storage/' . $berita->featured_image_url) }}');
+                                    style="background-image: url('{{ asset('storage/' . $b->gambar) }}');
                                     background-position: center center; background-blend-mode: multiply;
                                     background-size: cover;">
                                 </div>
@@ -32,7 +32,7 @@
                                         <span
                                             class="px-2 py-1 text-xs rounded-full dark:bg-violet-400 dark:text-gray-900">Label</span>
                                     </div>
-                                    <h1 class="text-3xl font-semibold">{{ $berita->title }}</h1>
+                                    <h1 class="text-3xl font-semibold">{{ $b->title }}</h1>
                                     <p class="flex-1 pt-2">Lorem ipsum dolor sit amet consectetur adipisicing elit.
                                         Iste,
                                         reprehenderit adipisci tempore voluptas laborum quod.</p>
@@ -65,36 +65,36 @@
                 @endforeach
                 <div
                     class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-gray-200 pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-                    @foreach ($beritas as $berita)
+                    @foreach ($beritas as $b)
                         @if ($loop->first)
                             @continue
                         @endif
-                        <berita class="flex flex-col ">
+                        <b class="flex flex-col ">
                             <div>
-                                <img src="{{ asset('storage/' . $berita->featured_image_url) }}"
-                                    alt="{{ $berita->slug }}" class="w-full h-64 object-cover rounded-lg mb-3">
+                                <img src="{{ asset('storage/' . $b->gambar) }}" alt="{{ $b->slug }}"
+                                    class="w-full h-64 object-cover rounded-lg mb-3">
                             </div>
                             <div>
                                 <div class="flex items-center gap-x-4 text-xs">
                                     <time datetime="2020-03-16"
-                                        class="text-gray-500">{{ $berita->published_at->format('F j, Y') }}</time>
-                                    <a href="{{ route('kategori_berita', $berita->kategori_berita) }}"
-                                        class="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100">{{ str($berita->category->name)->ucFirst() }}</a>
+                                        class="text-gray-500">{{ $b->published_at->format('F j, Y') }}</time>
+                                    <a href="{{ route('kategori_berita', $b->kategori->slug) }}"
+                                        class="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100">{{ str($b->kategori->name)->ucFirst() }}</a>
                                 </div>
                             </div>
                             <div>
                                 <div class="group relative" style="min-height: 18rem">
                                     <h3
                                         class="mt-3 mb-2 text-2xl font-semibold leading-8 text-gray-900 group-hover:text-gray-600">
-                                        <a href="{{ route('berita', $berita->slug) }}">
+                                        <a href="{{ route('berita', $b->slug) }}">
                                             <span class="absolute inset-0"></span>
-                                            {{ $berita->title }}
+                                            {{ $b->title }}
                                         </a>
                                     </h3>
 
                                     <div class="prose prose-img:hidden">
                                         <x-markdown class="text-justify break-words line-clamp-4 ">
-                                            {{ $berita->body }}
+                                            {{ $b->body }}
                                         </x-markdown>
                                     </div>
 
@@ -103,22 +103,31 @@
                             <div class="flex flex-col">
                                 <div class="text-gray-600 space-y-3">
                                     <div class="relative mt-3 flex items-center gap-x-4">
-                                        <img src="{{ asset($berita->user->getFilamentAvatarUrl()) }}" alt=""
+                                        <img src="{{ asset($b->user->getFilamentAvatarUrl()) }}" alt=""
                                             class="h-10 w-10 rounded-full object-contain bg-gray-50">
                                         <div class="text-sm leading-6">
                                             <p class="font-semibold text-gray-900">
                                                 <a href="#">
                                                     <span class="absolute inset-0"></span>
-                                                    {{ $berita->user->name }}
+                                                    {{ $b->user->name }}
                                                 </a>
                                             </p>
 
                                         </div>
                                     </div>
 
-                                    @foreach ($berita->tags as $tag)
+                                    @foreach ($b->tags as $tag)
                                         @php
-                                            $colors = ['bg-blue-100', 'bg-red-100', 'bg-green-100', 'bg-yellow-100', 'bg-indigo-100', 'bg-purple-100', 'bg-pink-100', 'bg-gray-100'];
+                                            $colors = [
+                                                'bg-blue-100',
+                                                'bg-red-100',
+                                                'bg-green-100',
+                                                'bg-yellow-100',
+                                                'bg-indigo-100',
+                                                'bg-purple-100',
+                                                'bg-pink-100',
+                                                'bg-gray-100',
+                                            ];
                                             $colorClass = $colors[array_rand($colors)];
                                         @endphp
                                         <span
@@ -129,12 +138,11 @@
                                 </div>
 
                             </div>
-                        </berita>
+                        </b>
                     @endforeach
                 </div>
 
         </section>
-
 
     </div>
 </div>

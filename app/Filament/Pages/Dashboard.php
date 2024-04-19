@@ -29,7 +29,7 @@ class Dashboard extends BasePage
 
     protected function getHeaderWidgets(): array
     {
-        $cek = (Deskel::getFacadeRoot()->deskel_status);
+        $cek = (Deskel::getFacadeRoot()->status);
         if ($cek == true) {
             return [
                 AccountWidget::class,

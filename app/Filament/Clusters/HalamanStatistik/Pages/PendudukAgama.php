@@ -5,7 +5,7 @@ namespace App\Filament\Clusters\HalamanStatistik\Pages;
 use App\Enums\Kependudukan\AgamaType;
 use App\Filament\Clusters\HalamanStatistik;
 use App\Livewire\Widgets\{Tables\Penduduk\AgamaTable, Charts\Penduduk\AgamaChart};
-use App\Models\{RW, Statistik, Wilayah};
+use App\Models\{RW, Stat, Statistik, Wilayah};
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms\Components\{Actions\Action, Group, Section, Select};
 use Filament\Forms\{Form, Get, Set};
@@ -16,15 +16,23 @@ class PendudukAgama extends Page
 {
     protected static ?string $navigationGroup = 'Statistik Penduduk';
 
-    protected static ?string $cluster = HalamanStatistik::class;
+    // protected static ?string $cluster = HalamanStatistik::class;
 
     protected static string $view = 'filament.clusters.penduduk-stats.index';
 
     protected static ?string $slug = 'penduduk-agama';
 
-    public $statistik;
+    public $stat;
 
     use HasFiltersForm, HasPageShield;
+
+    protected function getViewData(): array
+    {
+        return [
+            'stat' => $this->stat,
+        ];
+    }
+
 
     public function filtersForm(Form $form): Form
     {
@@ -48,7 +56,7 @@ class PendudukAgama extends Page
                             ),
                     ])
                     ->schema([
-                        Select::make('agama')
+                        Select::make(name: 'agama')
                             ->label('Agama')
                             ->placeholder('Pilih Agama')
                             ->searchable()
@@ -110,7 +118,7 @@ class PendudukAgama extends Page
 
     public function mount()
     {
-        $this->statistik = Statistik::all();
+        $this->stat = Stat::all();
     }
 
     public function getColumns(): int | string | array
@@ -126,7 +134,7 @@ class PendudukAgama extends Page
     protected function getWidgets(): array
     {
         return [
-            AgamaTable::class,
+            // AgamaTable::class,
             AgamaChart::class,
         ];
     }

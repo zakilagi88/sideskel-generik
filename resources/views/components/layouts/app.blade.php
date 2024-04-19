@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link rel="stylesheet" href="https://cdn.tailgrids.com/tailgrids-fallback.css" />
     <link rel="stylesheet" href="assets('css/all.css')">
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
     <!-- Font Awesome Link -->
@@ -35,22 +36,18 @@
 
     @filamentStyles
     @vite('resources/css/app.css')
+    @vite('resources/css/filament/admin/theme.css')
 
 </head>
 
 <body class="antialiased">
 
-
     @include('components.layouts.partials.header')
-
 
     {{ $slot }}
 
-
     @filamentScripts
     @vite('resources/js/app.js')
-
-
 
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>

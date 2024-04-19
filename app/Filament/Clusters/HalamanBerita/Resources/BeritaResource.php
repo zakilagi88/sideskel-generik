@@ -66,10 +66,8 @@ class BeritaResource extends Resource implements HasShieldPermissions
                                     ->schema([
                                         Forms\Components\TextInput::make('title')
                                             ->required()
-
                                             ->label('Judul')
                                             ->live(onBlur: true)
-
                                             ->afterStateUpdated(
                                                 function (string $operation, $state, Set $set) {
                                                     if ($operation === 'create') {
@@ -97,7 +95,7 @@ class BeritaResource extends Resource implements HasShieldPermissions
                                             ->searchable()
                                             ->required(),
 
-                                        Forms\Components\Select::make('kategori_beritas_id')
+                                        Forms\Components\Select::make('kategori_berita_id')
                                             ->relationship('kategori', 'name')
                                             ->label('Kategori')
                                             ->searchable()
@@ -117,11 +115,11 @@ class BeritaResource extends Resource implements HasShieldPermissions
 
                                 Forms\Components\Section::make('Image')
                                     ->schema([
-                                        Forms\Components\FileUpload::make('featured_image_url')
+                                        Forms\Components\FileUpload::make('gambar')
                                             ->label('Image')
                                             ->hiddenLabel()
                                             ->disk('public')
-                                            ->directory('beritas')
+                                            ->directory('berita')
                                             ->image()
                                             ->imageEditor()
                                             ->imageEditorAspectRatios([
@@ -189,7 +187,7 @@ class BeritaResource extends Resource implements HasShieldPermissions
             ->columns([
                 TextColumn::make('No')
                     ->rowIndex(),
-                Tables\Columns\ImageColumn::make('featured_image_url')
+                Tables\Columns\ImageColumn::make('gambar')
                     ->label('Gambar')
                     ->alignCenter(),
 

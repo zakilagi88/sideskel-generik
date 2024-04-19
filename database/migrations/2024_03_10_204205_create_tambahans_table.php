@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('tambahan_nama');
             $table->string('tambahan_sasaran');
             $table->longText('tambahan_keterangan');
+            $table->json('kategori')->nullable();
             $table->date('tambahan_tgl_mulai');
             $table->date('tambahan_tgl_selesai');
             $table->boolean('tambahan_status')->default(true);

@@ -95,9 +95,9 @@ class ListWilayahs extends ListRecords
                                 $kabkota_nama = $dk->dk->kec->kabkota->kabkota_nama ?? '';
                                 $kec_nama = $dk->dk->kec->kec_nama ?? '';
                                 $deskel_nama = $dk->dk->deskel_nama ?? '';
-                                $deskel_tipe = $dk->deskel_tipe ?? '';
+                                $struktur = $dk->struktur ?? '';
 
-                                return view('filament.pages.components.info-wilayah', compact('prov_nama', 'kabkota_nama', 'kec_nama', 'deskel_nama', 'deskel_tipe'));
+                                return view('filament.pages.components.info-wilayah', compact('prov_nama', 'kabkota_nama', 'kec_nama', 'deskel_nama', 'struktur'));
                             }
                         ),
                     Hidden::make('deskel_id')
@@ -459,7 +459,7 @@ class ListWilayahs extends ListRecords
 
     private function updateDeskeltipe($tipe)
     {
-        $this->deskel->update(['deskel_tipe' => $tipe]);
+        $this->deskel->update(['struktur' => $tipe]);
     }
 
     private function getUserIds($userRecords)

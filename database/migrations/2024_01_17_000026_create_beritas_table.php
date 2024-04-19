@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('kategori_berita_id')->constrained('kategori_berita', 'kategori_berita_id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('title');
             $table->string('slug')->nullable();
-            $table->string('featured_image_url')->nullable();
+            $table->string('gambar')->nullable();
             $table->longText('body')->nullable();
             $table->string('meta_description')->nullable();
             $table->string('meta_tags')->nullable();

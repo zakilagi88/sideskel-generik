@@ -34,7 +34,7 @@ class BeritasRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('No')
                     ->rowIndex(),
-                Tables\Columns\ImageColumn::make('featured_image_url')
+                Tables\Columns\ImageColumn::make('gambar')
                     ->label('Gambar')
                     ->alignCenter(),
 

@@ -67,7 +67,7 @@ class KartuKeluarga extends Model implements Auditable
     {
         $struktur = Deskel::getFacadeRoot();
 
-        switch ($struktur->deskel_tipe) {
+        switch ($struktur->struktur) {
             case 'Khusus':
                 return $query->where('wilayah_id', $wilayah_id);
                 break;
@@ -111,7 +111,6 @@ class KartuKeluarga extends Model implements Auditable
         return $this->belongsTo(Wilayah::class, 'wilayah_id', 'wilayah_id');
     }
 
-
     public function kepalaKeluarga(): HasOne
     {
         return $this->hasOne(Penduduk::class, 'kk_id', 'kk_id')->where('status_hubungan', 'KEPALA KELUARGA');
@@ -124,7 +123,9 @@ class KartuKeluarga extends Model implements Auditable
 
     public function tambahans(): MorphToMany
     {
-        return $this->morphToMany(Tambahan::class, 'tambahanable', 'tambahanables', 'tambahanable_id', 'tambahan_id');
+        return $this->morphToMany(Tambahan::class, 'tambahanable', 'tambahanables', 'tambahanable_id', 'tambahan_id')
+            ->withPivot('tambahanable_type', 'tambahanable_id', 'tambahanable_ket')
+            ->withTimestamps();
     }
 
     public function deskelProfil(): BelongsToThrough

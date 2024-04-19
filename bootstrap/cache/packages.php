@@ -234,6 +234,13 @@
       'BladeCaptureDirective' => 'RyanChandler\\BladeCaptureDirective\\Facades\\BladeCaptureDirective',
     ),
   ),
+  'saade/filament-adjacency-list' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Saade\\FilamentAdjacencyList\\FilamentAdjacencyListServiceProvider',
+    ),
+  ),
   'saade/filament-fullcalendar' => 
   array (
     'providers' => 

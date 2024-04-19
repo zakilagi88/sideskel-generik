@@ -1,12 +1,19 @@
 <?php
 
+use App\Enums\Kependudukan\AgamaType;
+use App\Enums\Kependudukan\PekerjaanType;
+use App\Enums\Kependudukan\PendidikanType;
 use App\Exports\TemplateImport;
-use App\Filament\Pages\DeskelProfile;
-use App\Livewire\Berita\Display;
+use App\Livewire\Berita\Display as BeritaDisplay;
 
 use App\Livewire\Home;
 use App\Livewire\KategoriBerita;
+use App\Livewire\Stat\Index;
+use App\Livewire\Stat\StatDisplay;
+use App\Livewire\Widgets\Tables\Penduduk\AgamaTable;
 use App\Models\Wilayah;
+use App\Services\GenerateEnumUnionQuery;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
@@ -45,27 +52,31 @@ Route::get('/downloadtemplate', function () {
 
 Route::get('/greeting', function () {
     // Ambil semua wilayah dengan struktur pohon
-    $wilayahTree = Wilayah::tree()->get();
+    $enum_type = GenerateEnumUnionQuery::getSubQuery(PekerjaanType::class, 'pekerjaan');
 
-    $wilayahFlat = $wilayahTree->where('depth', 1)->pluck('wilayah_nama', 'wilayah_id')->toArray();
-    // // Filter data untuk mendapatkan semua wilayah pada kedalaman 2
-    // $wilayahKedalaman2 = $wilayahFlat->filter(function ($node) {
-    //     return $node->depth === 2;
-    // });
+    $results = DB::statement('CALL sp_create_penduduk_view(?,?,?)', [$enum_type, 'pekerjaan', 20]);
 
+    return $results;
     // // Kembalikan hasil filter
-    return $wilayahFlat;
 });
 
+Route::get(
+    'stat',
+    Index::class
+)->name('stat');
+Route::get(
+    'stat/{stat:slug}',
+    StatDisplay::class
+)->name('stat.display');
 
 Route::get(
-    '/{berita:slug}',
-    Display::class
+    'berita/{berita:slug}',
+    BeritaDisplay::class
 )->name('berita');
 
 
 Route::get(
-    '/{kategori_berita:slug}',
+    'kat_berita/{kategori_berita:slug}',
     KategoriBerita::class
 )->name('kategori_berita');
 

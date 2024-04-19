@@ -18,7 +18,7 @@ class StatsOverview extends BaseWidget
             Stat::make('Aparatur Desa', Aparatur::count())
                 ->icon('heroicon-o-user-group')
                 ->description('Jumlah Aparatur Desa')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
+                // ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->chartColor('primary')
 
                 ->color('primary')

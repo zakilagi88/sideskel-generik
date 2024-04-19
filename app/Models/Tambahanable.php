@@ -16,6 +16,7 @@ class Tambahanable extends Model
         'tambahan_id',
         'tambahanable_id',
         'tambahanable_type',
+        'tambahanable_ket',
     ];
 
     public function tambahanable(): MorphTo

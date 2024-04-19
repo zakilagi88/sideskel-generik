@@ -37,7 +37,7 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
         $this->deskel = Deskel::getFacadeRoot();
         $this->wilayah = Wilayah::tree()->get();
 
-        switch ($this->deskel->deskel_tipe) {
+        switch ($this->deskel->struktur) {
             case 'Khusus':
                 $this->wilayah = $this->wilayah->where('depth', 0)->pluck('wilayah_nama', 'wilayah_id')->toArray();
                 break;
@@ -55,7 +55,7 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
 
     public function concatWilayah($parent, $sub_parent = null, $child = null): string
     {
-        switch ($this->deskel->deskel_tipe) {
+        switch ($this->deskel->struktur) {
             case 'Khusus':
                 return $parent;
                 break;
@@ -86,7 +86,7 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
 
         foreach ($rows as $row) {
 
-            switch ($this->deskel->deskel_tipe) {
+            switch ($this->deskel->struktur) {
                 case 'Khusus':
                     $concatenated = $this->concatWilayah(parent: $row['dusun']);
                     break;

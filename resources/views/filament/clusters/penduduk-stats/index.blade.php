@@ -5,7 +5,7 @@
 
             <div class="w-full sm:w-3/4 flex flex-col space-y-4 grow">
 
-
+                @dd($this->stat)
                 {{ $this->getFiltersForm() }}
 
 
@@ -14,6 +14,7 @@
                     ...$this->getWidgetData(),
                 ]" :widgets="$this->getVisibleWidgets()" />
 
+                <livewire:widgets.tables.penduduk.agama-table :$filters />
             </div>
         </div>
     </section>

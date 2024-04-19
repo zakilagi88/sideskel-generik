@@ -12,7 +12,6 @@ class DesaKelurahanProfile extends Model
 {
     use HasFactory;
     use TraitsBelongsToThrough;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -23,34 +22,60 @@ class DesaKelurahanProfile extends Model
 
     protected $fillable = [
         'deskel_id',
-        'deskel_sebutan',
-        'deskel_tipe',
-        'deskel_alamat',
-        'deskel_kodepos',
-        'deskel_thn_pembentukan',
-        'deskel_dasar_hukum_pembentukan',
-        'deskel_kepala',
-        'deskel_luaswilayah',
-        'deskel_jumlahpenduduk',
-        'deskel_batas_utara',
-        'deskel_batas_timur',
-        'deskel_batas_selatan',
-        'deskel_batas_barat',
-        'deskel_visi',
-        'deskel_misi',
-        'deskel_sejarah',
-        'deskel_gambar',
-        'deskel_logo',
-        'deskel_telepon',
-        'deskel_email',
-        'deskel_status',
+        'sebutan',
+        'struktur',
+        'alamat',
+        'kodepos',
+        'thn_bentuk',
+        'dasar_hukum_bentuk',
+        'kepala',
+        'tipologi',
+        'klasifikasi',
+        'kategori',
+        'orbitrasi', // 'orbitasi' => 'array',
+        'luaswilayah', // 'luaswilayah' => 'array',
+        'jmlh_sert_tanah',
+        'jmlh_pdd',
+        'tanah_kas',
+        'koordinat_lat',
+        'koordinat_long',
+        'bts_utara',
+        'bts_timur',
+        'bts_selatan',
+        'bts_barat',
+        'kantor',
+        'prasarana_pendidikan',
+        'prasarana_kesehatan',
+        'prasarana_ibadah',
+        'prasarana_umum',
+        'prasarana_transportasi',
+        'prasarana_air_bersih',
+        'prasarana_sanitasi_irigasi',
+        'visi',
+        'misi',
+        'sejarah',
+        'gambar',
+        'logo',
+        'telepon',
+        'email',
+        'status',
 
     ];
 
     protected $casts = [
-        'deskel_luaswilayah' => 'double',
-        'deskel_jumlahpenduduk' => 'integer',
-        'deskel_status' => 'boolean',
+        'luaswilayah' => 'array',
+        'orbitrasi' => 'array',
+        'jmlh_pdd' => 'integer',
+        'status' => 'boolean',
+        'tanah_kas' => 'double',
+        'prasarana_pendidikan' => 'array',
+        'prasarana_kesehatan' => 'array',
+        'prasarana_ibadah' => 'array',
+        'prasarana_umum' => 'array',
+        'prasarana_transportasi' => 'array',
+        'prasarana_air_bersih' => 'array',
+        'prasarana_sanitasi_irigasi' => 'array',
+
     ];
 
 

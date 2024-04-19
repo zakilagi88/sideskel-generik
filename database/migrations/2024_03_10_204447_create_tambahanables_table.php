@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('tambahan_id')->constrained('tambahans', 'tambahan_id')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('tambahanable_id');
             $table->string('tambahanable_type');
+            $table->string('tambahanable_ket')->nullable();
             $table->unique(['tambahan_id', 'tambahanable_id', 'tambahanable_type'], 'tambahanables_unique_constraint');
             $table->timestamps();
         });

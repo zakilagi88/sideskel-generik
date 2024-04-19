@@ -182,8 +182,8 @@ class PendidikanChart extends ApexChartWidget
     public function getTableEloquentQuery(array $filters): Builder
     {
         return PendudukPendidikan::query()
-            ->when($filters['pendidikan'] !== [], function (Builder $query) use ($filters) {
-                $query->whereIn('pendidikan', $filters['pendidikan']);
+            ->when($filters['key'] !== [], function (Builder $query) use ($filters) {
+                $query->whereIn('pendidikan', $filters['key']);
             })
             ->when($filters['parent_id'] !== '' && $filters['parent_id'] !== null, function (Builder $query) use ($filters) {
                 $query->where('parent_id', $filters['parent_id']);

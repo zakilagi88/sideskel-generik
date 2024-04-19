@@ -69,21 +69,21 @@
     }
 
     .fi-section-header {
-        @apply bg-primary-400 rounded-t-lg dark:bg-info-950 !important;
+        @apply py-3 bg-transparent rounded-t-lg dark:bg-info-950 !important;
     }
 
-    .fi-section-header-heading {
+    /* .fi-section-header-heading {
         @apply !text-white dark:!text-primary-400 !important;
-    }
+    } */
     
 
-    .fi-ta-table th {
+    /* .fi-ta-table th {
         @apply !border !border-gray-200 dark:!border-white/5 !important;
     }
 
-          .fi-ta-table tbody tr .fi-ta-cell{
-              @apply border border-gray-200 dark:border-white/5 !important;
-          }
+    .fi-ta-table tbody tr .fi-ta-cell{
+        @apply border border-gray-200 dark:border-white/5 !important;
+    } */
 
       
     .fi-ta-ctn .py-4 {

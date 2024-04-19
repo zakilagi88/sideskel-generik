@@ -1,18 +1,17 @@
-    <div class="">
         <nav id="navbar"
-            class="z-[100] fixed px-2 py-2 w-full transition duration-300 ease-in-out bg-transparent bg-scroll">
+            class="container-fluid z-[100] fixed w-full transition duration-300 ease-in-out bg-primary bg-scroll">
 
-            <div class="container flex justify-between items-center">
+            <div class="flex justify-around items-center gap-4">
                 <div class="flex flex-row items-center">
-                    <img src="{{ asset('storage/images/cek1.png') }}" alt="SIDCantik"
-                        class="h-24 w-24 bg-transparent object-contain">
+                    <img src="{{ asset('storage/images/logo.png') }}" alt="SIDeskel"
+                        class="h-28 w-28 bg-transparent object-contain">
                     <div class="ml-4">
                         <h1>
-                            <a id=nama href="#" class="text-sm lg:text-lg font-bold text-white">Kelurahan
+                            <a id=nama href="#" class="text-sm lg:text-xl font-bold text-white">Kelurahan
                                 Kuripan</a>
                         </h1>
                         <h1>
-                            <a id=nama2 href="#" class="text-sm lg:text-lg font-bold text-white">Kecamatan
+                            <a id=nama2 href="#" class="text-sm lg:text-lg font-normal text-white">Kecamatan
                                 Banjarmasin
                                 Timur</a>
                         </h1>

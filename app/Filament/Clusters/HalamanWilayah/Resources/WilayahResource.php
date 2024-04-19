@@ -37,8 +37,8 @@ class WilayahResource extends Resource
                 Hidden::make('deskel_id')->default(
                     fn () => $deskelProfile->deskel_id ?? null
                 ),
-                Hidden::make('deskel_alamat')->default(
-                    fn () => $deskelProfile->deskel_alamat ?? null
+                Hidden::make('alamat')->default(
+                    fn () => $deskelProfile->alamat ?? null
                 ),
                 Select::make('parent_id')
                     ->searchable()
@@ -140,7 +140,7 @@ class WilayahResource extends Resource
                     )
                     ->hidden(
                         fn () =>
-                        Deskel::getFacadeRoot()->where('deskel_tipe', 'Dasar')
+                        Deskel::getFacadeRoot()->where('struktur', 'Dasar')
 
                     )
                     ->label('RT')

@@ -21,7 +21,7 @@ class KartuKeluargaExporter extends Exporter
     public static function exampleData(): array
     {
         $wilayah = Wilayah::tree()->get();
-        $type = Deskel::getFacadeRoot()->deskel_tipe;
+        $type = Deskel::getFacadeRoot()->struktur;
         $data = [
             'kk_id' => '1111111111000001',
             'kk_alamat' => 'Jl. Raya Kedungwuni',

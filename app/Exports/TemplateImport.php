@@ -42,7 +42,7 @@ class TemplateImport implements FromCollection, WithHeadings, ShouldAutoSize, Wi
 
     public function getExampleData(): array
     {
-        $type = $this->deskel->deskel_tipe;
+        $type = $this->deskel->struktur;
 
         $dataKK = [];
 
@@ -146,7 +146,7 @@ class TemplateImport implements FromCollection, WithHeadings, ShouldAutoSize, Wi
         ];
 
         // Ambil kolom berdasarkan tipe deskel
-        $currentColumns = $columns[$this->deskel->deskel_tipe];
+        $currentColumns = $columns[$this->deskel->struktur];
 
         // Atur format tanggal untuk kolom yang sesuai
         foreach ($currentColumns as $column => $dateFormat) {
@@ -255,7 +255,7 @@ class TemplateImport implements FromCollection, WithHeadings, ShouldAutoSize, Wi
     {
 
         $columns = [];
-        switch ($this->deskel->deskel_tipe) {
+        switch ($this->deskel->struktur) {
             case 'Khusus':
                 $columns[] = $this->getFirstWordFromWilayah(0);
                 break;

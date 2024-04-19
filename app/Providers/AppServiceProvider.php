@@ -23,6 +23,5 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Blade::component('components.custom.layout.auth', 'x-custom::layout.auth');
     }
 }

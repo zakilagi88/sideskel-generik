@@ -12,7 +12,7 @@ use Carbon\Carbon;
 use Coolsam\FilamentFlatpickr\Enums\FlatpickrTheme;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Filament\Forms;
-use Filament\Forms\Components\{DatePicker, Select, Textarea, TextInput, ToggleButtons};
+use Filament\Forms\Components\{DatePicker, Repeater, Select, Textarea, TextInput, ToggleButtons};
 use Filament\Forms\Form;
 use Filament\Forms\FormsComponent;
 use Filament\Resources\Resource;
@@ -52,16 +52,17 @@ class TambahanResource extends Resource implements HasShieldPermissions
 
     public static function form(Form $form): Form
     {
+        $authWilayah = auth()->user()->hasRole('Operator Wilayah') || auth()->user()->hasRole('Monitor Wilayah') ? true : false;
         return $form
             ->schema([
                 TextInput::make('tambahan_nama')
                     ->required()
                     ->label('Nama Data Tambahan')
-                    ->disabled((auth()->user()->hasRole('Operator Wilayah') || auth()->user()->hasRole('Monitor Wilayah')) ? true : false)
+                    ->disabled($authWilayah)
                     ->maxLength(255),
                 Select::make('tambahan_sasaran')
                     ->required()
-                    ->disabled((auth()->user()->hasRole('Operator Wilayah') || auth()->user()->hasRole('Monitor Wilayah')) ? true : false)
+                    ->disabled($authWilayah)
 
                     ->label('Sasaran Data Tambahan')
                     ->options([
@@ -70,14 +71,14 @@ class TambahanResource extends Resource implements HasShieldPermissions
                     ]),
                 Textarea::make('tambahan_keterangan')
                     ->label('Keterangan Data Tambahan')
-                    ->disabled((auth()->user()->hasRole('Operator Wilayah') || auth()->user()->hasRole('Monitor Wilayah')) ? true : false)
+                    ->disabled($authWilayah)
 
                     ->autosize()
                     ->required(),
                 Cluster::make([
                     Flatpickr::make('tambahan_tgl_mulai')
                         ->label('Tanggal Mulai')
-                        ->disabled((auth()->user()->hasRole('Operator Wilayah') || auth()->user()->hasRole('Monitor Wilayah')) ? true : false)
+                        ->disabled($authWilayah)
 
                         ->placeholder('Pilih Tanggal Mulai')
                         ->animate()
@@ -90,7 +91,7 @@ class TambahanResource extends Resource implements HasShieldPermissions
                         ->required(),
                     Flatpickr::make('tambahan_tgl_selesai')
                         ->label('Tanggal Selesai')
-                        ->disabled((auth()->user()->hasRole('Operator Wilayah') || auth()->user()->hasRole('Monitor Wilayah')) ? true : false)
+                        ->disabled($authWilayah)
 
                         ->placeholder('Pilih Tanggal Selesai')
                         ->animate()
@@ -100,6 +101,15 @@ class TambahanResource extends Resource implements HasShieldPermissions
                         ->theme(FlatpickrTheme::MATERIAL_BLUE)
                         ->required(),
                 ])->label('Tanggal Berlaku'),
+                Repeater::make('kategori')
+                    ->label('Kategori Data Tambahan')
+                    ->disabled($authWilayah)
+                    ->simple(
+                        TextInput::make('kategori_nama')
+                            ->label('Nama Kategori')
+                            ->required()
+                            ->maxLength(255),
+                    ),
                 ToggleButtons::make('tambahan_status')
                     ->label('Status Data Tambahan')
                     ->options([
@@ -107,7 +117,7 @@ class TambahanResource extends Resource implements HasShieldPermissions
                         '1' => 'Aktif',
                     ])
                     ->inline()
-                    ->disabled((auth()->user()->hasRole('Operator Wilayah') || auth()->user()->hasRole('Monitor Wilayah')) ? true : false)
+                    ->disabled($authWilayah)
 
                     ->default('1')
                     ->required(),

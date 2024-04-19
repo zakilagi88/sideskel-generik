@@ -2,11 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Kependudukan\Agama;
-use App\Enums\Kependudukan\JenisKelamin;
-use App\Enums\Kependudukan\Pekerjaan;
-use App\Enums\Kependudukan\Pendidikan;
-use App\Enums\Kependudukan\Pernikahan;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

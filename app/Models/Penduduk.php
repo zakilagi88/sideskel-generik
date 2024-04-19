@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\Kependudukan\{AgamaType, EtnisSukuType, GolonganDarahType, JenisKelaminType, KewarganegaraanType, PekerjaanType, StatusPengajuanType, PerkawinanType, PendidikanType, StatusDasarType, StatusHubunganType, StatusTempatTinggalType};
 use App\Facades\Deskel;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasOne, MorphMany, MorphTo, MorphToMany};
@@ -76,6 +78,7 @@ class Penduduk extends Model implements Auditable
         'status_hubungan' => StatusHubunganType::class,
         'golongan_darah' => GolonganDarahType::class,
         'kewarganegaraan' => KewarganegaraanType::class,
+        'tanggal_lahir' => 'date',
         'tgl_perkawinan' => 'datetime',
         'tgl_perceraian' => 'datetime',
     ];
@@ -141,6 +144,13 @@ class Penduduk extends Model implements Auditable
         });
     }
 
+    protected function tanggalLahir(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => Carbon::parse($value)->age,
+        );
+    }
+
     public function kepalaWilayah(): HasMany
     {
         return $this->hasMany(KepalaWilayah::class, 'kepala_nik', 'nik');
@@ -150,7 +160,7 @@ class Penduduk extends Model implements Auditable
     {
         $struktur = Deskel::getFacadeRoot();
 
-        switch ($struktur->deskel_tipe) {
+        switch ($struktur->struktur) {
             case 'Khusus':
                 return $query->whereHas('kartuKeluarga', function ($query) use ($wilayah_id) {
                     $query->where('wilayah_id', $wilayah_id);
@@ -194,6 +204,11 @@ class Penduduk extends Model implements Auditable
         }
     }
 
+    public function lembagas(): BelongsToMany
+    {
+        return $this->belongsToMany(Lembaga::class, 'lembaga_anggotas', 'anggota_id', 'lembaga_id')->withPivot('jabatan', 'keterangan')->withTimestamps();
+    }
+
 
     public function anak(): HasMany
     {
@@ -219,6 +234,11 @@ class Penduduk extends Model implements Auditable
     public function kartuKeluarga(): BelongsTo
     {
         return $this->belongsTo(KartuKeluarga::class, 'kk_id', 'kk_id');
+    }
+
+    public function scopeKepalaKeluarga($query)
+    {
+        return $query->where('status_hubungan', StatusHubunganType::KEPALA_KELUARGA->value);
     }
 
     public function dokumens(): MorphMany
@@ -247,7 +267,9 @@ class Penduduk extends Model implements Auditable
 
     public function tambahans(): MorphToMany
     {
-        return $this->morphToMany(Tambahan::class, 'tambahanable', 'tambahanables', 'tambahanable_id', 'tambahan_id')->withTimestamps()->withPivot('tambahanable_type', 'tambahanable_id');
+        return $this->morphToMany(Tambahan::class, 'tambahanable', 'tambahanables', 'tambahanable_id', 'tambahan_id')
+            ->withPivot('tambahanable_type', 'tambahanable_id', 'tambahanable_ket')
+            ->withTimestamps();
     }
 
     public function bantuans(): MorphToMany
@@ -259,8 +281,6 @@ class Penduduk extends Model implements Auditable
     {
         return $this->hasMany(KesehatanAnak::class, 'anak_id', 'nik')->whereDate('tanggal_lahir', '>', now()->subYears(5));
     }
-
-
 
     public function getWilayahPDD()
     {

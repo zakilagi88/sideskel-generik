@@ -4,6 +4,7 @@ namespace App\Livewire\Widgets\Tables\Penduduk;
 
 use App\Enums\Kependudukan\PendidikanType;
 use App\Models\{Penduduk\PendudukPendidikan, RT, RW};
+use App\Models\Penduduk\PendudukView;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -21,7 +22,7 @@ class PendidikanTable extends TableWidget
     {
         return $table
             ->query(
-                static::getTableEloquentQuery($this->filters)
+                PendudukView::getView(PendidikanType::class, 'pendidikan', null)
             )
             ->queryStringIdentifier('pendidikan')
             ->columns([
@@ -59,28 +60,28 @@ class PendidikanTable extends TableWidget
             ->striped();
     }
 
-    public function getTableEloquentQuery(array $filters): Builder
-    {
-        return PendudukPendidikan::query()
-            ->when($filters['pendidikan'] !== [], function (Builder $query) use ($filters) {
-                $query->whereIn('pendidikan', $filters['pendidikan']);
-            })
-            ->when($filters['parent_id'] !== '' && $filters['parent_id'] !== null, function (Builder $query) use ($filters) {
-                $query->where('parent_id', $filters['parent_id']);
-            })
-            ->when($filters['children_id'] !== '' && $filters['children_id'] !== null, function (Builder $query) use ($filters) {
-                $query->where('wilayah_id', $filters['children_id']);
-            })
-            ->select(
-                'id',
-                'pendidikan',
-                'parent_id',
-                'wilayah_id',
-                DB::raw('SUM(laki_laki) AS laki_laki'),
-                DB::raw('SUM(perempuan) AS perempuan'),
-                DB::raw('SUM(total) AS total')
-            )
-            ->orderBy('total', 'desc')
-            ->groupBy('pendidikan');
-    }
+    // public function getTableEloquentQuery(array $filters): Builder
+    // {
+    //     return PendudukPendidikan::query()
+    //         ->when($filters['pendidikan'] !== [], function (Builder $query) use ($filters) {
+    //             $query->whereIn('pendidikan', $filters['pendidikan']);
+    //         })
+    //         ->when($filters['parent_id'] !== '' && $filters['parent_id'] !== null, function (Builder $query) use ($filters) {
+    //             $query->where('parent_id', $filters['parent_id']);
+    //         })
+    //         ->when($filters['children_id'] !== '' && $filters['children_id'] !== null, function (Builder $query) use ($filters) {
+    //             $query->where('wilayah_id', $filters['children_id']);
+    //         })
+    //         ->select(
+    //             'id',
+    //             'pendidikan',
+    //             'parent_id',
+    //             'wilayah_id',
+    //             DB::raw('SUM(laki_laki) AS laki_laki'),
+    //             DB::raw('SUM(perempuan) AS perempuan'),
+    //             DB::raw('SUM(total) AS total')
+    //         )
+    //         ->orderBy('total', 'desc')
+    //         ->groupBy('pendidikan');
+    // }
 }

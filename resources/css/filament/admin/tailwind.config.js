@@ -13,6 +13,7 @@ export default {
         "./resources/**/*.vue",
         "./resources/views/filament/**/*.blade.php",
         "./resources/views/livewire/**/*.blade.php",
+        "./resources/views/components/**/*.blade.php",
         "./vendor/bezhansalleh/filament-exceptions/resources/views/**/*.blade.php", // Language Switch Views
         "./vendor/filament/**/*.blade.php",
         "./vendor/filament/**/*.js",

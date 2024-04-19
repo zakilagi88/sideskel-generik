@@ -22,25 +22,29 @@ class Tambahan extends Model
         'tambahan_id',
         'tambahan_nama',
         'tambahan_sasaran',
+        'kategori',
         'tambahan_keterangan',
         'tambahan_tgl_mulai',
         'tambahan_tgl_selesai',
         'tambahan_status',
     ];
 
-    // protected $casts = [
-    //     'tambahan_tgl_mulai' => 'date',
-    //     'tambahan_tgl_selesai' => 'date',
-    // ];
+    protected $casts = [
+        'kategori' => 'array',
+    ];
 
     public function penduduks(): MorphToMany
     {
-        return $this->morphedByMany(Penduduk::class, 'tambahanable', 'tambahanables', 'tambahan_id', 'tambahanable_id')->withPivot('tambahanable_type', 'tambahanable_id');
+        return $this->morphedByMany(Penduduk::class, 'tambahanable', 'tambahanables', 'tambahan_id', 'tambahanable_id')
+            ->withPivot('tambahanable_type', 'tambahanable_id', 'tambahanable_ket')
+            ->withTimestamps();
     }
 
     public function keluargas(): MorphToMany
     {
-        return $this->morphedByMany(KartuKeluarga::class, 'tambahanable', 'tambahanables', 'tambahan_id', 'tambahanable_id')->withPivot('tambahanable_type', 'tambahanable_id');
+        return $this->morphedByMany(KartuKeluarga::class, 'tambahanable', 'tambahanables', 'tambahan_id', 'tambahanable_id')
+            ->withPivot('tambahanable_type', 'tambahanable_id', 'tambahanable_ket')
+            ->withTimestamps();
     }
 
     public function related(): MorphOne

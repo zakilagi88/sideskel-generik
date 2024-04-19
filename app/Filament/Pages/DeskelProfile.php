@@ -2,10 +2,11 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\Desa\TipologiType;
 use App\Models\{DesaKelurahan, DesaKelurahanProfile, KabKota, Kecamatan, Penduduk, Provinsi};
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action as ActionsAction;
-use Filament\Forms\Components\{FileUpload, RichEditor, Select, Split as SplitForm, Tabs as ComponentsTabs, Tabs\Tab as TabsTab, Textarea, TextInput, ToggleButtons};
+use Filament\Forms\Components\{FileUpload, Grid as ComponentsGrid, Group as ComponentsGroup, Repeater, RichEditor, Select, Split as SplitForm, Tabs as ComponentsTabs, Tabs\Tab as TabsTab, Textarea, TextInput, ToggleButtons};
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -19,6 +20,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithHeaderActions;
 use Filament\Pages\Page;
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -42,6 +44,7 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
     protected static ?string $title = '';
 
     public ?array $data = [];
+    public ?array $prasaranaKesehatan = [];
     public int $pdd = 0;
 
     use HasPageShield;
@@ -50,6 +53,38 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
     {
         $this->deskel = $deskel->first() ?? new DesaKelurahanProfile();
         $this->pdd = Penduduk::count();
+    }
+
+    public function sumWilayah(array $data): string
+    {
+        $sum = 0;
+
+        foreach ($data as $item) {
+            foreach ($item as $value) {
+                // Periksa apakah nilai tidak null dan merupakan string numerik
+                if ($value !== null && is_numeric($value) && trim($value) !== '') {
+                    $sum += floatval($value);
+                }
+            }
+        }
+        return number_format($sum, 2, ',', '.');
+    }
+
+    public static function generateArrayTextInput($data): array
+    {
+        $textInputs = [];
+        foreach ($data as $key => $value) {
+            $textInputs[] = TextInput::make(name: $key)
+                ->numeric()
+                ->label($value)
+                ->placeholder('Masukkan ' . $value)
+                ->suffix('Buah')
+                ->dehydrateStateUsing(fn (string $state): string => (int) ($state))
+                ->validationAttribute($value)
+                ->minValue(0);
+        }
+
+        return $textInputs;
     }
 
     public function deskelData(): array
@@ -62,30 +97,234 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
             'kabkota_id' => $this->deskel->dk?->kec?->kabkota_id ?? null,
             'kec_nama' => $this->deskel->dk?->kec?->kec_nama ?? null,
             'kec_id' => $this->deskel->dk?->kec_id ?? null,
-            'deskel_sebutan' => $this->deskel->deskel_sebutan ?? null,
+            'sebutan' => $this->deskel->sebutan ?? null,
             'deskel_nama' => $this->deskel->deskel_nama ?? null,
-            'deskel_gambar' => $this->deskel->deskel_gambar ?? null,
+            'gambar' => $this->deskel->gambar ?? null,
             'deskel_id' => $this->deskel->deskel_id ?? null,
             'deskel_nama' => $this->deskel->dk->deskel_nama ?? null,
-            'deskel_kepala' => $this->deskel->dk->deskel_kepala ?? null,
-            'deskel_tipe' => $this->deskel->deskel_tipe ?? null,
-            'deskel_alamat' => $this->deskel->deskel_alamat ?? null,
-            'deskel_kodepos' => $this->deskel->deskel_kodepos ?? null,
-            'deskel_luaswilayah' => $this->deskel->deskel_luaswilayah ?? null,
-            'deskel_thn_pembentukan' => $this->deskel->deskel_thn_pembentukan ?? null,
-            'deskel_dasar_hukum_pembentukan' => $this->deskel->deskel_dasar_hukum_pembentukan ?? null,
-            'deskel_jumlahpenduduk' => $this->pdd ?? null,
-            'deskel_batas_utara' => $this->deskel->deskel_batas_utara ?? null,
-            'deskel_batas_timur' => $this->deskel->deskel_batas_timur ?? null,
-            'deskel_batas_selatan' => $this->deskel->deskel_batas_selatan ?? null,
-            'deskel_batas_barat' => $this->deskel->deskel_batas_barat ?? null,
-            'deskel_visi' => $this->deskel->deskel_visi ?? null,
-            'deskel_misi' => $this->deskel->deskel_misi ?? null,
-            'deskel_sejarah' => $this->deskel->deskel_sejarah ?? null,
-            'deskel_logo' => $this->deskel->deskel_logo ?? asset('images/logo-deskel.png'),
-            'deskel_telepon' => $this->deskel->deskel_telepon ?? null,
-            'deskel_email' => $this->deskel->deskel_email ?? null,
+            'kepala' => $this->deskel->dk->kepala ?? null,
+            'struktur' => $this->deskel->struktur ?? null,
+            'alamat' => $this->deskel->alamat ?? null,
+            'kodepos' => $this->deskel->kodepos ?? null,
+            'koordinat_lat' => $this->deskel->koordinat_lat ?? null,
+            'koordinat_long' => $this->deskel->koordinat_long ?? null,
+            'luas_total' => $this->sumWilayah($this->deskel->luaswilayah) ?? null,
+            'luaswilayah' =>
+            [
+                0 => [
+                    'lahan_sawah' =>  $this->deskel->luaswilayah[0]['lahan_sawah'] ?? 0,
+                    'lahan_ladang' => $this->deskel->luaswilayah[0]['lahan_ladang'] ?? 0,
+                    'lahan_perkebunan' => $this->deskel->luaswilayah[0]['lahan_perkebunan'] ?? 0,
+                    'lahan_peternakan' => $this->deskel->luaswilayah[0]['lahan_peternakan'] ?? 0,
+                    'lahan_hutan' => $this->deskel->luaswilayah[0]['lahan_hutan'] ?? 0,
+                    'waduk_danau_situ' => $this->deskel->luaswilayah[0]['waduk_danau_situ'] ?? 0,
+                    'lainnya' => $this->deskel->luaswilayah[0]['lainnya'] ?? 0
+                ]
+            ],
+            'thn_bentuk' => $this->deskel->thn_bentuk ?? null,
+            'dasar_hukum_bentuk' => $this->deskel->dasar_hukum_bentuk ?? null,
+            'tipologi' => $this->deskel->tipologi ?? null,
+            'klasifikasi' => $this->deskel->klasifikasi ?? null,
+            'kategori' => $this->deskel->kategori ?? null,
+            'orbitrasi' =>
+            [
+                0 => [
+                    'pusat_kec' => $this->deskel->orbitrasi[0]['pusat_kec'] ?? 0,
+                    'pusat_kota' => $this->deskel->orbitrasi[0]['pusat_kota'] ?? 0,
+                    'pusat_kab' => $this->deskel->orbitrasi[0]['pusat_kab'] ?? 0,
+                    'pusat_prov' => $this->deskel->orbitrasi[0]['pusat_prov'] ?? 0,
+                ]
+            ],
+            'jmlh_sert_tanah' => $this->deskel->jmlh_sert_tanah ?? null,
+            'jmlh_pdd' => $this->pdd ?? null,
+            'tanah_kas' => $this->deskel->tanah_kas ?? null,
+            'bts_utara' => $this->deskel->bts_utara ?? null,
+            'bts_timur' => $this->deskel->bts_timur ?? null,
+            'bts_selatan' => $this->deskel->bts_selatan ?? null,
+            'bts_barat' => $this->deskel->bts_barat ?? null,
+            'kantor' => $this->deskel->kantor ?? null,
+            'prasarana_kesehatan' =>
+            [
+                0 => [
+                    'puskesmas' => $this->deskel->prasarana_kesehatan[0]['puskesmas'] ?? 0,
+                    'puskesmas_pembantu' => $this->deskel->prasarana_kesehatan[0]['puskesmas_pembantu'] ?? 0,
+                    'poskesdes' => $this->deskel->prasarana_kesehatan[0]['poskesdes'] ?? 0,
+                    'posyandu_polindes' => $this->deskel->prasarana_kesehatan[0]['posyandu_polindes'] ?? 0,
+                    'rumah_sakit' => $this->deskel->prasarana_kesehatan[0]['rumah_sakit'] ?? 0,
+                ]
+            ],
+            'prasarana_pendidikan' =>
+            [
+                0 => [
+                    'perpustakaan' => $this->deskel->prasarana_pendidikan[0]['perpustakaan'] ?? 0,
+                    'gedung_sekolah_paud' => $this->deskel->prasarana_pendidikan[0]['gedung_sekolah_paud'] ?? 0,
+                    'gedung_sekolah_tk' => $this->deskel->prasarana_pendidikan[0]['gedung_sekolah_tk'] ?? 0,
+                    'gedung_sekolah_sd' => $this->deskel->prasarana_pendidikan[0]['gedung_sekolah_sd'] ?? 0,
+                    'gedung_sekolah_smp' => $this->deskel->prasarana_pendidikan[0]['gedung_sekolah_smp'] ?? 0,
+                    'gedung_sekolah_sma' => $this->deskel->prasarana_pendidikan[0]['gedung_sekolah_sma'] ?? 0,
+                    'gedung_perguruan_tinggi' => $this->deskel->prasarana_pendidikan[0]['gedung_perguruan_tinggi'] ?? 0,
+                ]
+            ],
+            'prasarana_ibadah' =>
+            [
+                0 => [
+                    'masjid' => $this->deskel->prasarana_ibadah[0]['masjid'] ?? 0,
+                    'mushola' => $this->deskel->prasarana_ibadah[0]['mushola'] ?? 0,
+                    'gereja' => $this->deskel->prasarana_ibadah[0]['gereja'] ?? 0,
+                    'pura' => $this->deskel->prasarana_ibadah[0]['pura'] ?? 0,
+                    'vihara' => $this->deskel->prasarana_ibadah[0]['vihara'] ?? 0,
+                    'klenteng' => $this->deskel->prasarana_ibadah[0]['klenteng'] ?? 0,
+                ]
+            ],
+            'prasarana_umum' =>
+            [
+                0 => [
+                    'olahraga' => $this->deskel->prasarana_umum[0]['olahraga'] ?? 0,
+                    'kesenian_budaya' => $this->deskel->prasarana_umum[0]['kesenian_budaya'] ?? 0,
+                    'balai_pertemuan' => $this->deskel->prasarana_umum[0]['balai_pertemuan'] ?? 0,
+                    'sumur' => $this->deskel->prasarana_umum[0]['sumur'] ?? 0,
+                    'pasar' => $this->deskel->prasarana_umum[0]['pasar'] ?? 0,
+                    'lainnya' => $this->deskel->prasarana_umum[0]['lainnya'] ?? 0,
+                ]
+            ],
+            'prasarana_transportasi' =>
+            [
+                0 => [
+                    'jalan_desa_kelurahan' => $this->deskel->prasarana_transportasi[0]['jalan_desa_kelurahan'] ?? 0,
+                    'jalan_kabupaten' => $this->deskel->prasarana_transportasi[0]['jalan_kabupaten'] ?? 0,
+                    'jalan_provinsi' => $this->deskel->prasarana_transportasi[0]['jalan_provinsi'] ?? 0,
+                    'jalan_nasional' => $this->deskel->prasarana_transportasi[0]['jalan_nasional'] ?? 0,
+                    'tambatan_perahu' => $this->deskel->prasarana_transportasi[0]['tambatan_perahu'] ?? 0,
+                    'perahu_motor' => $this->deskel->prasarana_transportasi[0]['perahu_motor'] ?? 0,
+                    'lapangan_terbang' => $this->deskel->prasarana_transportasi[0]['lapangan_terbang'] ?? 0,
+                    'jembatan_besi' => $this->deskel->prasarana_transportasi[0]['jembatan_besi'] ?? 0,
+                ]
+            ],
+            'prasarana_air_bersih' =>
+            [
+                0 => [
+                    'hidran_air' => $this->deskel->prasarana_air_bersih[0]['hidran_air'] ?? 0,
+                    'penampung_air_hujan' => $this->deskel->prasarana_air_bersih[0]['penampung_air_hujan'] ?? 0,
+                    'pamsimas' => $this->deskel->prasarana_air_bersih[0]['pamsimas'] ?? 0,
+                    'pengolahan_air_bersih' => $this->deskel->prasarana_air_bersih[0]['pengolahan_air_bersih'] ?? 0,
+                    'sumur_gali' => $this->deskel->prasarana_air_bersih[0]['sumur_gali'] ?? 0,
+                    'sumur_pompa' => $this->deskel->prasarana_air_bersih[0]['sumur_pompa'] ?? 0,
+                    'tangki_air_bersih' => $this->deskel->prasarana_air_bersih[0]['tangki_air_bersih'] ?? 0,
+                ]
+            ],
+            'prasarana_sanitasi_irigasi' =>
+            [
+                0 => [
+                    'mck_umum' => $this->deskel->prasarana_sanitasi_irigasi[0]['mck_umum'] ?? 0,
+                    'jamban_keluarga' => $this->deskel->prasarana_sanitasi_irigasi[0]['jamban_keluarga'] ?? 0,
+                    'saluran_drainase' => $this->deskel->prasarana_sanitasi_irigasi[0]['saluran_drainase'] ?? 0,
+                    'pintu_air' => $this->deskel->prasarana_sanitasi_irigasi[0]['pintu_air'] ?? 0,
+                    'saluran_irigasi' => $this->deskel->prasarana_sanitasi_irigasi[0]['saluran_irigasi'] ?? 0,
+                ]
+            ],
+
+            'visi' => $this->deskel->visi ?? null,
+            'misi' => $this->deskel->misi ?? null,
+            'sejarah' => $this->deskel->sejarah ?? null,
+            'logo' => $this->deskel->logo ?? asset('images/logo-deskel.png'),
+            'telepon' => $this->deskel->telepon ?? null,
+            'email' => $this->deskel->email ?? null,
         ];
+    }
+
+    public function additionalData(): array
+    {
+        return [
+            'prasarana_kesehatan' =>
+            [
+                'puskesmas' => 'Puskesmas',
+                'puskesmas_pembantu' => 'Puskesmas Pembantu',
+                'poskesdes' => 'Poskesdes',
+                'posyandu_polindes' => 'Posyandu Dan Polindes',
+                'rumah_sakit' => 'Rumah Sakit',
+            ],
+            'prasarana_pendidikan' =>
+            [
+                'perpustakaan' => 'Perpustakaan',
+                'gedung_sekolah_paud' => 'Gedung Sekolah PAUD',
+                'gedung_sekolah_tk' => 'Gedung Sekolah TK',
+                'gedung_sekolah_sd' => 'Gedung Sekolah SD',
+                'gedung_sekolah_smp' => 'Gedung Sekolah SMP',
+                'gedung_sekolah_sma' => 'Gedung Sekolah SMA',
+                'gedung_perguruan_tinggi' => 'GedunG Perguruan Tinggi',
+            ],
+            'prasarana_ibadah' =>
+            [
+                'masjid' => 'Masjid',
+                'mushola' => 'Mushola',
+                'gereja' => 'Gereja',
+                'pura' => 'Pura',
+                'vihara' => 'Vihara',
+                'klenteng' => 'Klenteng',
+            ],
+            'prasarana_umum' =>
+            [
+                'olahraga' => 'Olahraga',
+                'kesenian_budaya' => 'Kesenian/Budaya',
+                'balai_pertemuan' => 'Balai Pertemuan',
+                'sumur' => 'Sumur',
+                'pasar' => 'Pasar',
+                'lainnya' => 'Lainnya',
+            ],
+            'prasarana_transportasi' =>
+            [
+                'jalan_desa_kelurahan' => 'Jalan Desa/Kelurahan',
+                'jalan_kabupaten' => 'Jalan Kabupaten',
+                'jalan_provinsi' => 'Jalan Provinsi',
+                'jalan_nasional' => 'Jalan Nasional',
+                'tambatan_perahu' => 'Tambatan Perahu',
+                'perahu_motor' => 'Perahu Motor',
+                'lapangan_terbang' => 'Lapangan Terbang',
+                'jembatan_besi' => 'Jembatan Besi',
+            ],
+            'prasarana_air_bersih' =>
+            [
+                'hidran_air' => 'Hidran Air',
+                'penampung_air_hujan' => 'Penampung Air Hujan',
+                'pamsimas' => 'Pamsimas',
+                'pengolahan_air_bersih' => 'Pengolahan Air Bersih',
+                'sumur_gali' => 'Sumur Gali',
+                'sumur_pompa' => 'Sumur Pompa',
+                'tangki_air_bersih' => 'Tangki Air Bersih',
+            ],
+            'prasarana_sanitasi_irigasi' =>
+            [
+                'mck_umum' => 'MCK Umum',
+                'jamban_keluarga' => 'Jamban Keluarga',
+                'saluran_drainase' => 'Saluran Drainase',
+                'pintu_air' => 'Pintu Air',
+                'saluran_irigasi' => 'Saluran Irigasi',
+            ]
+
+        ];
+    }
+
+    public function repeaterAdditionalData($key, $label, $sebutan): Repeater
+    {
+        return Repeater::make(name: $key)
+            ->label(fn () => 'Prasarana ' . $label . ' ' . $sebutan)
+            ->defaultItems(1)
+            ->addable(false)
+            ->reorderable(false)
+            ->deletable(false)
+            ->schema(
+                [
+                    ComponentsGrid::make([
+                        'default' => 2,
+                        'sm' => 2,
+                        'md' => 2,
+                    ])->schema(
+                        $this->generateArrayTextInput(
+                            $this->additionalData()[$key]
+                        )
+                    )
+                ]
+            );
     }
     protected function getHeaderActions(): array
     {
@@ -93,6 +332,7 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
             'edit' =>
             ActionsAction::make('edit')
                 ->icon('heroicon-o-pencil')
+                ->modalWidth(MaxWidth::SixExtraLarge)
                 ->fillForm(self::deskelData())
                 ->form(fn (Form $form) => DeskelProfile::deskelForm($form))
                 ->action(
@@ -105,10 +345,11 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
 
     public function deskelForm(Form $form): Form
     {
+        $sebutan = $this->deskel->sebutan ?? 'Desa/Kelurahan';
         return $form
             ->schema([
                 SplitForm::make([
-                    FileUpload::make('deskel_gambar')
+                    FileUpload::make('gambar')
                         ->label('Gambar Kantor Desa/Kelurahan')
                         ->getUploadedFileNameForStorageUsing(
                             fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
@@ -130,7 +371,7 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                         ->removeUploadedFileButtonPosition('right')
                         ->uploadButtonPosition('left')
                         ->uploadProgressIndicatorPosition('left'),
-                    FileUpload::make('deskel_logo')
+                    FileUpload::make('logo')
                         ->label('Gambar Logo Desa/Kelurahan')
                         ->getUploadedFileNameForStorageUsing(
                             fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
@@ -155,10 +396,13 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                 ]),
                 ComponentsTabs::make('tabs')
                     ->tabs([
-                        TabsTab::make('Informasi Umum Desa/Kelurahan')
+                        TabsTab::make('Data Pokok Desa/Kelurahan')
                             ->schema([
-                                TextInput::make('deskel_sebutan')
-                                    ->label('Sebutan Desa/Kelurahan')->placeholder('Masukkan Sebutan untuk Desa/Kelurahan')->hint('Desa / Kelurahan / Nagari / Lainnya')->live(onBlur: true),
+                                TextInput::make('sebutan')
+                                    ->label('Sebutan Desa/Kelurahan')
+                                    ->placeholder('Masukkan Sebutan untuk Desa/Kelurahan')
+                                    ->hint('Desa / Kelurahan / Nagari / Lainnya')
+                                    ->live(onBlur: true),
                                 Select::make('prov_id')
                                     ->label('Provinsi')
                                     ->placeholder('Pilih Provinsi')
@@ -213,66 +457,229 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                     )
                                     ->live()
                                     ->dehydrated(),
-
-                                TextInput::make('deskel_kodepos')
-                                    ->label(fn (Get $get) => 'Kode Pos ' . $get('deskel_sebutan'))
-                                    ->placeholder(fn (Get $get) => 'Kode Pos ' . $get('deskel_sebutan'))->autofocus()->required(),
-                                TextInput::make('deskel_thn_pembentukan')
-                                    ->label(fn (Get $get) => 'Tahun Pembentukan ' . $get('deskel_sebutan'))->numeric()->minValue(0)
-                                    ->placeholder(fn (Get $get) => 'Tahun Pembentukan ' . $get('deskel_sebutan'))->autofocus()->required(),
-                                TextInput::make('deskel_dasar_hukum_pembentukan')
-                                    ->label(fn (Get $get) => 'Dasar Hukum ' . $get('deskel_sebutan'))->nullable()
-                                    ->placeholder(fn (Get $get) => 'Dasar Hukum ' . $get('deskel_sebutan'))->autofocus()->required(),
-                                Select::make('deskel_kepala')
-                                    ->label(fn (Get $get) => 'Kepala ' . $get('deskel_sebutan'))
-                                    ->placeholder(fn (Get $get) => 'Kepala ' . $get('deskel_sebutan')),
-                                Textarea::make('deskel_alamat')
-                                    ->label(fn (Get $get) => 'Alamat Kantor ' . $get('deskel_sebutan'))->autofocus()->required()
-                                    ->placeholder(fn (Get $get) => 'Alamat Kantor ' . $get('deskel_sebutan')),
-                                TextInput::make('deskel_luaswilayah')
-                                    ->label(fn (Get $get) => 'Luas Wilayah ' . $get('deskel_sebutan'))->nullable()
-                                    ->placeholder(fn (Get $get) => 'Luas Wilayah ' . $get('deskel_sebutan'))->suffix('m2'),
-                                TextInput::make('deskel_jumlahpenduduk')
-                                    ->label(fn (Get $get) => 'Jumlah Penduduk ' . $get('deskel_sebutan'))->nullable()->disabled()
-                                    ->placeholder(fn (Get $get) => 'Jumlah Penduduk ' . $get('deskel_sebutan')),
-                            ]),
-                        TabsTab::make('Batas Desa/Kelurahan')
-                            ->schema([
-                                TextInput::make('deskel_batas_utara')
-                                    ->label(fn (Get $get) => 'Batas Utara ' . $get('deskel_sebutan'))->nullable()
-                                    ->placeholder(fn (Get $get) => 'Batas Utara ' . $get('deskel_sebutan')),
-                                TextInput::make('deskel_batas_timur')
+                                TextInput::make('kodepos')
+                                    ->label(fn () => 'Kode Pos ' . $sebutan)
+                                    ->placeholder(fn () => 'Kode Pos ' . $sebutan)
+                                    ->autofocus()
+                                    ->required(),
+                                TextInput::make('thn_bentuk')
+                                    ->label(fn () => 'Tahun Pembentukan ' . $sebutan)
+                                    ->placeholder(fn () => 'Tahun Pembentukan ' . $sebutan)
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->autofocus()
+                                    ->required(),
+                                TextInput::make('dasar_hukum_bentuk')
+                                    ->label(fn () => 'Dasar Hukum ' . $sebutan)
+                                    ->placeholder(fn () => 'Dasar Hukum ' . $sebutan)
+                                    ->nullable()
+                                    ->autofocus()
+                                    ->required(),
+                                // Select::make('kepala')
+                                //     ->label(fn () => 'Kepala ' . $sebutan)
+                                //     ->placeholder(fn () => 'Kepala ' . $sebutan),
+                                TextInput::make('koordinat_lat')
+                                    ->label(fn () => 'Longitude ' . $sebutan)
+                                    ->placeholder(fn () => 'Luas Wilayah ' . $sebutan)
+                                    ->nullable(),
+                                TextInput::make('koordinat_lat')
+                                    ->label(fn () => 'Lattitude ' . $sebutan)
+                                    ->placeholder(fn () => 'Luas Wilayah ' . $sebutan)
+                                    ->nullable(),
+                                Textarea::make('alamat')
+                                    ->label(fn () => 'Alamat Kantor ' . $sebutan)
+                                    ->autofocus()
+                                    ->required()
+                                    ->placeholder(fn () => 'Alamat Kantor ' . $sebutan),
+                                TextInput::make('bts_utara')
+                                    ->label(fn () => 'Batas Utara ' . $sebutan)->nullable()
+                                    ->placeholder(fn () => 'Batas Utara ' . $sebutan),
+                                TextInput::make('bts_timur')
                                     ->label(
-                                        fn (Get $get) => 'Batas Timur ' . $get('deskel_sebutan')
+                                        fn () => 'Batas Timur ' . $sebutan
                                     )->nullable()
-                                    ->placeholder(fn (Get $get) => 'Batas Timur ' . $get('deskel_sebutan')),
-                                TextInput::make('deskel_batas_selatan')
-                                    ->label(fn (Get $get) => 'Batas Selatan ' . $get('deskel_sebutan'))->nullable()
-                                    ->placeholder(fn (Get $get) => 'Batas Selatan ' . $get('deskel_sebutan')),
-                                TextInput::make('deskel_batas_barat')
-                                    ->label(fn (Get $get) => 'Batas Barat ' . $get('deskel_sebutan'))->nullable()
-                                    ->placeholder(fn (Get $get) => 'Batas Barat ' . $get('deskel_sebutan')),
+                                    ->placeholder(fn () => 'Batas Timur ' . $sebutan),
+                                TextInput::make('bts_selatan')
+                                    ->label(fn () => 'Batas Selatan ' . $sebutan)->nullable()
+                                    ->placeholder(fn () => 'Batas Selatan ' . $sebutan),
+                                TextInput::make('bts_barat')
+                                    ->label(fn () => 'Batas Barat ' . $sebutan)->nullable()
+                                    ->placeholder(fn () => 'Batas Barat ' . $sebutan),
+
+                            ]),
+                        TabsTab::make('Data Umum Desa/Kelurahan ')
+                            ->schema([
+                                Select::make('tipologi')
+                                    ->label(fn () => 'Tipologi ' . $sebutan)
+                                    ->placeholder(fn () => 'Tipologi ' . $sebutan)
+                                    ->options(TipologiType::class),
+                                ComponentsGroup::make()
+                                    ->columns(3)
+                                    ->schema([
+                                        TextInput::make('luas_total')
+                                            ->label(fn () => 'Luas Wilayah ' . $sebutan)
+                                            ->placeholder('Luas Wilayah')
+                                            ->nullable()
+                                            ->columnSpan(1)
+                                            ->suffix('Ha'),
+                                        Repeater::make('luaswilayah')
+                                            ->hiddenLabel()
+                                            ->defaultItems(1)
+                                            ->addable(false)
+                                            ->reorderable(false)
+                                            ->deletable(false)
+                                            ->columnSpan(2)
+                                            ->schema([
+                                                ComponentsGrid::make([
+                                                    'default' => 2,
+                                                    'sm' => 2,
+                                                    'md' => 2,
+                                                ])
+                                                    ->schema([
+                                                        TextInput::make('lahan_sawah')
+                                                            ->label('Lahan Sawah')
+                                                            ->placeholder('Luas Lahan Sawah')
+                                                            ->nullable()
+                                                            ->numeric()
+                                                            ->inputMode('decimal')
+                                                            ->suffix('Ha'),
+                                                        TextInput::make('lahan_ladang')
+                                                            ->label('Lahan Ladang')
+                                                            ->placeholder('Luas Lahan Ladang')
+                                                            ->nullable()
+                                                            ->numeric()
+                                                            ->inputMode('decimal')
+                                                            ->suffix('Ha'),
+                                                        TextInput::make('lahan_perkebunan')
+                                                            ->label('Lahan Perkebunan')
+                                                            ->placeholder('Luas Lahan Perkebunan')
+                                                            ->nullable()
+                                                            ->numeric()
+                                                            ->inputMode('decimal')
+                                                            ->suffix('Ha'),
+                                                        TextInput::make('lahan_peternakan')
+                                                            ->label('Lahan Peternakan')
+                                                            ->placeholder('Luas Lahan Peternakan')
+                                                            ->nullable()
+                                                            ->numeric()
+                                                            ->inputMode('decimal')
+                                                            ->suffix('Ha'),
+                                                        TextInput::make('lahan_hutan')
+                                                            ->label('Lahan Hutan')
+                                                            ->placeholder('Luas Lahan Hutan')
+                                                            ->nullable()
+                                                            ->numeric()
+                                                            ->inputMode('decimal')
+                                                            ->suffix('Ha'),
+                                                        TextInput::make('waduk_danau_situ')
+                                                            ->label('Luas Waduk/Danau/Situ')
+                                                            ->placeholder('Luas Waduk/Danau/Situ')
+                                                            ->nullable()
+                                                            ->numeric()
+                                                            ->inputMode('decimal')
+                                                            ->suffix('Ha'),
+                                                        TextInput::make('lainnya')
+                                                            ->label('Lahan Lainnya')
+                                                            ->placeholder('Luas Lahan Lainnya')
+                                                            ->nullable()
+                                                            ->numeric()
+                                                            ->inputMode('decimal')
+                                                            ->columnSpanFull()
+                                                            ->suffix('Ha'),
+                                                    ]),
+                                            ]),
+                                    ]),
+                                TextInput::make('jmlh_sert_tanah')
+                                    ->label(fn () => 'Jumlah Tanah Bersertifikat ' . $sebutan)
+                                    ->placeholder(fn () => 'Jumlah Tanah Bersertifikat ' . $sebutan)
+                                    ->nullable()
+                                    ->numeric()
+                                    ->inputMode('decimal')
+                                    ->suffix('Sertifikat'),
+                                TextInput::make('tanah_kas')
+                                    ->label(fn () => 'Tanah Kas ' . $sebutan)
+                                    ->placeholder(fn () => 'Tanah Kas Desa/Kelurahan ' . $sebutan)
+                                    ->nullable()
+                                    ->numeric()
+                                    ->inputMode('decimal')
+                                    ->suffix('Ha'),
+                                Repeater::make('orbitrasi')
+                                    ->label(fn () => 'Orbitrasi ' . $sebutan . ' (Jarak dari Pusat Pemerintahan)')
+                                    ->defaultItems(1)
+                                    ->addable(false)
+                                    ->reorderable(false)
+                                    ->deletable(false)
+                                    ->schema([
+                                        ComponentsGrid::make([
+                                            'default' => 2,
+                                            'sm' => 2,
+                                            'md' => 2,
+                                        ])
+                                            ->schema([
+                                                TextInput::make('pusat_kec')
+                                                    ->label('Jarak dari Pusat Pemerintahan Kecamatan')
+                                                    ->placeholder('Jarak')
+                                                    ->nullable()
+                                                    ->numeric()
+                                                    ->inputMode('decimal')
+                                                    ->suffix('Km'),
+                                                TextInput::make('pusat_kota')
+                                                    ->label('Jarak dari Pusat Pemerintahan Kab/Kota')
+                                                    ->placeholder('Jarak')
+                                                    ->nullable()
+                                                    ->numeric()
+                                                    ->inputMode('decimal')
+                                                    ->suffix('Km'),
+                                                TextInput::make('pusat_kab')
+                                                    ->label('Jarak dari Kota/Ibukota Kabupaten')
+                                                    ->placeholder('Jarak')
+                                                    ->nullable()
+                                                    ->numeric()
+                                                    ->inputMode('decimal')
+                                                    ->suffix('Km'),
+                                                TextInput::make('pusat_prov')
+                                                    ->label('Jarak dari Pusat Pemerintahan Provinsi')
+                                                    ->placeholder('Jarak')
+                                                    ->nullable()
+                                                    ->numeric()
+                                                    ->inputMode('decimal')
+                                                    ->suffix('Km'),
+                                            ])
+                                    ]),
+                                TextInput::make('kantor')
+                                    ->label(fn () => 'Kantor ' . $sebutan)
+                                    ->placeholder(fn () => 'Kantor ' . $sebutan)
+                                    ->nullable(),
+                                $this->repeaterAdditionalData(key: 'prasarana_kesehatan', label: 'Kesehatan', sebutan: $sebutan),
+                                $this->repeaterAdditionalData(key: 'prasarana_pendidikan', label: 'Pendidikan', sebutan: $sebutan),
+                                $this->repeaterAdditionalData(key: 'prasarana_ibadah', label: 'Ibadah', sebutan: $sebutan),
+                                $this->repeaterAdditionalData(key: 'prasarana_umum', label: 'Umum', sebutan: $sebutan),
+                                $this->repeaterAdditionalData(key: 'prasarana_transportasi', label: 'Transportasi', sebutan: $sebutan),
+                                $this->repeaterAdditionalData(key: 'prasarana_air_bersih', label: 'Air Bersih', sebutan: $sebutan),
+                                $this->repeaterAdditionalData(key: 'prasarana_sanitasi_irigasi', label: 'Sanitasi Irigasi', sebutan: $sebutan),
+
+
                             ]),
                         TabsTab::make('Sejarah Desa/Kelurahan')
                             ->schema([
-                                Textarea::make('deskel_visi')
-                                    ->label(fn (Get $get) => 'Visi ' . $get('deskel_sebutan'))->nullable()
-                                    ->placeholder(fn (Get $get) => 'Visi ' . $get('deskel_sebutan')),
-                                RichEditor::make('deskel_misi')
-                                    ->label(fn (Get $get) => 'Misi ' . $get('deskel_sebutan'))->nullable()
-                                    ->placeholder(fn (Get $get) => 'Misi ' . $get('deskel_sebutan')),
-                                RichEditor::make('deskel_sejarah')
-                                    ->label(fn (Get $get) => 'Sejarah ' . $get('deskel_sebutan'))->nullable()
-                                    ->placeholder(fn (Get $get) => 'Sejarah ' . $get('deskel_sebutan')),
+                                Textarea::make('visi')
+                                    ->label(fn () => 'Visi ' . $sebutan)->nullable()
+                                    ->placeholder(fn () => 'Visi ' . $sebutan),
+                                RichEditor::make('misi')
+                                    ->label(fn () => 'Misi ' . $sebutan)->nullable()
+                                    ->placeholder(fn () => 'Misi ' . $sebutan),
+                                RichEditor::make('sejarah')
+                                    ->label(fn () => 'Sejarah ' . $sebutan)->nullable()
+                                    ->placeholder(fn () => 'Sejarah ' . $sebutan),
                             ]),
                         TabsTab::make('Kontak Desa/Kelurahan')
                             ->schema([
-                                TextInput::make('deskel_telepon')
-                                    ->label(fn (Get $get) => 'Telepon ' . $get('deskel_sebutan'))->nullable()->tel()->nullable()
-                                    ->placeholder(fn (Get $get) => 'Telepon ' . $get('deskel_sebutan')),
-                                TextInput::make('deskel_email')
-                                    ->label(fn (Get $get) => 'Email ' . $get('deskel_sebutan'))->nullable()->email()
-                                    ->placeholder(fn (Get $get) => 'Email ' . $get('deskel_sebutan')),
+                                TextInput::make('telepon')
+                                    ->label(fn () => 'Telepon ' . $sebutan)->nullable()->tel()->nullable()
+                                    ->placeholder(fn () => 'Telepon ' . $sebutan),
+                                TextInput::make('email')
+                                    ->label(fn () => 'Email ' . $sebutan)->nullable()->email()
+                                    ->placeholder(fn () => 'Email ' . $sebutan),
                             ]),
                     ]),
             ])
@@ -295,7 +702,7 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                             ->default('')
                             ->extraAttributes([
                                 'class' => ' h-80 w-full',
-                                'style' => 'background-image: url(' . ($this->deskel->deskel_gambar ? asset('storage/' . $this->deskel->deskel_gambar) : asset('images/bg-kantor.png')) . '); background-size: cover; background-position: center; background-repeat: no-repeat; border-radius: 0px; border-top-right-radius: 0.5rem; border-top-left-radius: 0.5rem;',
+                                'style' => 'background-image: url(' . ($this->deskel->gambar ? asset('storage/' . $this->deskel->gambar) : asset('images/bg-kantor.png')) . '); background-size: cover; background-position: center; background-repeat: no-repeat; border-radius: 0px; border-top-right-radius: 0.5rem; border-top-left-radius: 0.5rem;',
 
 
                             ]),
@@ -320,7 +727,7 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                     ])
                                     ->schema([
                                         Split::make([
-                                            ImageEntry::make('deskel_logo')
+                                            ImageEntry::make('logo')
                                                 ->hiddenLabel()
                                                 ->circular()
                                                 ->columnSpan(1)
@@ -344,11 +751,11 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                                     TextEntry::make('deskel_nama')
                                                         ->size('2xl')
                                                         ->placeholder(
-                                                            fn (): string => 'Nama ' . ucwords(strtolower($this->deskel->deskel_sebutan))
+                                                            fn (): string => 'Nama ' . ucwords(strtolower($this->deskel->sebutan))
                                                         )
                                                         ->hiddenLabel()
                                                         ->prefix(
-                                                            fn (): string => ucwords(strtolower(($this->deskel->deskel_sebutan)) . ' ')
+                                                            fn (): string => ucwords(strtolower(($this->deskel->sebutan)) . ' ')
                                                         )
                                                         ->formatStateUsing(fn (string $state): string => ucwords(strtolower($state)))
                                                         ->alignStart()
@@ -386,11 +793,11 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                                     'style' => 'font-weight: 700; font-size: 1.5rem;',
                                                 ])
                                                 ->schema([
-                                                    TextEntry::make('deskel_telepon')
+                                                    TextEntry::make('telepon')
                                                         ->hiddenLabel()
                                                         ->placeholder(
                                                             fn (): string => 'Telepon ' . ucwords(
-                                                                strtolower($this->deskel->deskel_sebutan)
+                                                                strtolower($this->deskel->sebutan)
                                                             )
                                                         )
                                                         ->icon('fas-phone')
@@ -407,12 +814,12 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                                                 return ucwords(strtolower($state));
                                                             }
                                                         ),
-                                                    TextEntry::make('deskel_email')
+                                                    TextEntry::make('email')
                                                         ->label('Telepon')
                                                         ->hiddenLabel()
                                                         ->placeholder(
                                                             fn (): string => 'Email ' . ucwords(
-                                                                strtolower($this->deskel->deskel_sebutan)
+                                                                strtolower($this->deskel->sebutan)
                                                             )
                                                         )
                                                         ->icon('far-envelope')
@@ -445,10 +852,10 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                     ->weight(FontWeight::SemiBold)
                                     ->default('VISI')
                                     ->alignCenter(),
-                                TextEntry::make('deskel_visi')
+                                TextEntry::make('visi')
                                     ->size(TextEntrySize::Medium)
                                     ->weight(FontWeight::Medium)
-                                    ->placeholder(fn (): string => 'Visi ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : ucwords(strtolower($this->deskel->deskel_sebutan))))
+                                    ->placeholder(fn (): string => 'Visi ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : ucwords(strtolower($this->deskel->sebutan))))
                                     ->hiddenLabel()
                                     ->alignCenter()
                                     ->columnSpanFull()
@@ -460,10 +867,10 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                     ->weight(FontWeight::SemiBold)
                                     ->default('MISI')
                                     ->alignCenter(),
-                                TextEntry::make('deskel_misi')
+                                TextEntry::make('misi')
                                     ->size(TextEntrySize::Medium)
                                     ->weight(FontWeight::Medium)
-                                    ->placeholder(fn (): string => 'Misi ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : ucwords(strtolower($this->deskel->deskel_sebutan))))
+                                    ->placeholder(fn (): string => 'Misi ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : ucwords(strtolower($this->deskel->sebutan))))
                                     ->hiddenLabel()
                                     ->alignCenter()
                                     ->listWithLineBreaks()
@@ -481,64 +888,64 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                         Group::make()
                                             ->schema([
                                                 TextEntry::make('deskel_nama')
-                                                    ->placeholder(fn () => 'Nama ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                                    ->label(fn () => 'Nama ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                                    ->placeholder(fn () => 'Nama ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                                    ->label(fn () => 'Nama ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                                     ->inlineLabel()
                                                     ->extraAttributes([
                                                         'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                                     ]),
                                                 TextEntry::make('deskel_id')
-                                                    ->placeholder(fn () => 'Kode ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                                    ->label(fn () => 'Kode ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                                    ->placeholder(fn () => 'Kode ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                                    ->label(fn () => 'Kode ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                                     ->inlineLabel()
                                                     ->extraAttributes([
                                                         'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                                     ]),
-                                                TextEntry::make('deskel_kodepos')
-                                                    ->placeholder(fn () => 'Kode Pos ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                                    ->label(fn () => 'Kode Pos ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                                TextEntry::make('kodepos')
+                                                    ->placeholder(fn () => 'Kode Pos ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                                    ->label(fn () => 'Kode Pos ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                                     ->inlineLabel()
                                                     ->extraAttributes([
                                                         'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                                     ]),
-                                                TextEntry::make('deskel_thn_pembentukan')
+                                                TextEntry::make('thn_bentuk')
                                                     ->placeholder('Tahun Pembentukan')
                                                     ->label('Tahun Pembentukan')
                                                     ->inlineLabel()
                                                     ->extraAttributes([
                                                         'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                                     ]),
-                                                TextEntry::make('deskel_dasar_hukum_pembentukan')
+                                                TextEntry::make('dasar_hukum_bentuk')
                                                     ->placeholder('Dasar Hukum Pembentukan')
                                                     ->label('Dasar Hukum Pembentukan')
                                                     ->inlineLabel()
                                                     ->extraAttributes([
                                                         'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                                     ]),
-                                                TextEntry::make('deskel_kepala')
-                                                    ->placeholder(fn () => 'Kepala ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                                    ->label(fn () => 'Kepala ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                                TextEntry::make('kepala')
+                                                    ->placeholder(fn () => 'Kepala ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                                    ->label(fn () => 'Kepala ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                                     ->inlineLabel()
                                                     ->extraAttributes([
                                                         'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                                     ]),
-                                                TextEntry::make('deskel_alamat')
-                                                    ->placeholder(fn () => 'Alamat ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                                    ->label(fn () => 'Alamat ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                                TextEntry::make('alamat')
+                                                    ->placeholder(fn () => 'Alamat ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                                    ->label(fn () => 'Alamat ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                                     ->inlineLabel()
                                                     ->extraAttributes([
                                                         'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                                     ]),
-                                                TextEntry::make('deskel_email')
-                                                    ->placeholder(fn () => 'Email ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                                    ->label(fn () => 'Email ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                                TextEntry::make('email')
+                                                    ->placeholder(fn () => 'Email ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                                    ->label(fn () => 'Email ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                                     ->inlineLabel()
                                                     ->extraAttributes([
                                                         'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                                     ]),
-                                                TextEntry::make('deskel_telepon')
-                                                    ->placeholder(fn () => 'Telepon ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                                    ->label(fn () => 'Telepon ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                                TextEntry::make('telepon')
+                                                    ->placeholder(fn () => 'Telepon ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                                    ->label(fn () => 'Telepon ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                                     ->inlineLabel()
                                                     ->extraAttributes([
                                                         'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
@@ -587,20 +994,20 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                                 ->extraAttributes([
                                                     'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                                 ]),
-                                            TextEntry::make('deskel_luaswilayah')
-                                                ->placeholder(fn () => 'Luas Wilayah ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                                ->label(fn () => 'Luas Wilayah ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                                ->suffix(' m<sup>2</sup>')
-                                                ->html()->inlineLabel()
-                                                ->extraAttributes([
-                                                    'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                ]),
+                                            // TextEntry::make('luaswilayah')
+                                            //     ->placeholder(fn () => 'Luas Wilayah ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                            //     ->label(fn () => 'Luas Wilayah ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                            //     ->suffix(' m<sup>2</sup>')
+                                            //     ->html()->inlineLabel()
+                                            //     ->extraAttributes([
+                                            //         'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
+                                            //     ]),
 
-                                            TextEntry::make('deskel_jumlahpenduduk')
-                                                ->label(fn () => 'Jumlah Penduduk ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                            TextEntry::make('jmlh_pdd')
+                                                ->label(fn () => 'Jumlah Penduduk ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                                 ->suffix(' Jiwa')
                                                 ->inlineLabel()
-                                                ->placeholder(fn () => 'Jumlah Penduduk ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                                ->placeholder(fn () => 'Jumlah Penduduk ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                                 ->extraAttributes([
                                                     'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                                 ]),
@@ -608,30 +1015,30 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                     ]),
                                 Tab::make('Batas Wilayah')
                                     ->schema([
-                                        TextEntry::make('deskel_batas_utara')
-                                            ->label(fn () => 'Batas Utara ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                            ->placeholder(fn () => 'Batas Utara ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                        TextEntry::make('bts_utara')
+                                            ->label(fn () => 'Batas Utara ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                            ->placeholder(fn () => 'Batas Utara ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                             ->inlineLabel()
                                             ->extraAttributes([
                                                 'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                             ]),
-                                        TextEntry::make('deskel_batas_timur')
-                                            ->label(fn () => 'Batas Timur ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                            ->placeholder(fn () => 'Batas Timur ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                        TextEntry::make('bts_timur')
+                                            ->label(fn () => 'Batas Timur ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                            ->placeholder(fn () => 'Batas Timur ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                             ->inlineLabel()
                                             ->extraAttributes([
                                                 'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                             ]),
-                                        TextEntry::make('deskel_batas_selatan')
-                                            ->label(fn () => 'Batas Selatan ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                            ->placeholder(fn () => 'Batas Selatan ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                        TextEntry::make('bts_selatan')
+                                            ->label(fn () => 'Batas Selatan ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                            ->placeholder(fn () => 'Batas Selatan ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                             ->inlineLabel()
                                             ->extraAttributes([
                                                 'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
                                             ]),
-                                        TextEntry::make('deskel_batas_barat')
-                                            ->label(fn () => 'Batas Barat ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                            ->placeholder(fn () => 'Batas Barat ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                        TextEntry::make('bts_barat')
+                                            ->label(fn () => 'Batas Barat ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                            ->placeholder(fn () => 'Batas Barat ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                             ->inlineLabel()
                                             ->extraAttributes([
                                                 'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
@@ -639,9 +1046,9 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                                     ]),
                                 Tab::make('Sejarah')
                                     ->schema([
-                                        TextEntry::make('deskel_sejarah')
-                                            ->label(fn () => 'Sejarah ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
-                                            ->placeholder(fn () => 'Sejarah ' . ($this->deskel->deskel_sebutan === null ? 'Desa/Kelurahan' : $this->deskel->deskel_sebutan))
+                                        TextEntry::make('sejarah')
+                                            ->label(fn () => 'Sejarah ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
+                                            ->placeholder(fn () => 'Sejarah ' . ($this->deskel->sebutan === null ? 'Desa/Kelurahan' : $this->deskel->sebutan))
                                             ->inlineLabel()
                                             ->markdown()
                                             ->extraAttributes([
@@ -674,7 +1081,7 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                 $datalama->update($data);
 
                 Notification::make()
-                    ->title('Data ' . $this->deskel->deskel_sebutan . $this->deskel->deskel_nama . ' berhasil diperbarui')
+                    ->title('Data ' . $this->deskel->sebutan . $this->deskel->deskel_nama . ' berhasil diperbarui')
                     ->body('Silahkan cek kembali data yang telah diperbarui.')
                     ->success()
                     ->seconds(5)
@@ -686,7 +1093,7 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
                 DesaKelurahanProfile::create($data);
 
                 Notification::make()
-                    ->title('Data ' . $this->deskel->deskel_sebutan . $this->deskel->deskel_nama . ' berhasil ditambahkan')
+                    ->title('Data ' . $this->deskel->sebutan . $this->deskel->deskel_nama . ' berhasil ditambahkan')
                     ->body('Silahkan cek kembali data yang telah ditambahkan.')
                     ->success()
                     ->seconds(5)

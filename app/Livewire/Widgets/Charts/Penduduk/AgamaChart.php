@@ -170,16 +170,16 @@ class AgamaChart extends ApexChartWidget
         return $options;
     }
 
-    public function getTableEloquentQuery(array $filters): Builder
+    public function getTableEloquentQuery(null|array $filters): Builder
     {
         return PendudukAgama::query()
-            ->when($filters['agama'] !== [], function (Builder $query) use ($filters) {
-                $query->whereIn('agama', $filters['agama']);
+            ->when(isset($filters['key']) && $filters['key'] !== [], function (Builder $query) use ($filters) {
+                $query->whereIn('agama', $filters['key']);
             })
-            ->when($filters['parent_id'] !== '' && $filters['parent_id'] !== null, function (Builder $query) use ($filters) {
+            ->when(isset($filters['parent_id']) && $filters['parent_id'] !== '' && $filters['parent_id'] !== null, function (Builder $query) use ($filters) {
                 $query->where('parent_id', $filters['parent_id']);
             })
-            ->when($filters['children_id'] !== '' && $filters['children_id'] !== null, function (Builder $query) use ($filters) {
+            ->when(isset($filters['children_id']) && $filters['children_id'] !== '' && $filters['children_id'] !== null, function (Builder $query) use ($filters) {
                 $query->where('wilayah_id', $filters['children_id']);
             })
             ->select(

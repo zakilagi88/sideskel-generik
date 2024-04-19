@@ -29,14 +29,14 @@ class Berita extends Model
         'published_at',
         'status',
         'user_id',
-        'kategori+berita_id',
-        'featured_image_url',
+        'kategori_berita_id',
+        'gambar',
         'scheduled_for',
 
     ];
 
     protected $casts = [
-        'featured_image_url' => 'array',
+        'gambar' => 'array',
         'scheduled_for' => 'datetime',
         'published_at' => 'datetime',
         'status' => StatusBeritaType::class
@@ -50,7 +50,7 @@ class Berita extends Model
 
     public function kategori(): BelongsTo
     {
-        return $this->belongsTo(KategoriBerita::class);
+        return $this->belongsTo(KategoriBerita::class, 'kategori_berita_id');
     }
 
     public function scopePublished($query)

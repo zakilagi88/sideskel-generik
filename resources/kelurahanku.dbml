@@ -88,7 +88,7 @@ Table "berita" {
   "kategori_berita_id" bigint [not null]
   "title" varchar(255) [not null]
   "slug" varchar(255) [default: NULL]
-  "featured_image_url" varchar(255) [default: NULL]
+  "gambar" varchar(255) [default: NULL]
   "body" longtext
   "meta_description" varchar(255) [default: NULL]
   "meta_tags" varchar(255) [default: NULL]
@@ -135,22 +135,22 @@ Indexes {
 Table "deskel_profils" {
   "id" bigint [pk, not null, increment]
   "deskel_id" varchar(10) [not null]
-  "deskel_tipe" varchar(255) [default: NULL]
-  "deskel_alamat" varchar(255) [default: NULL]
-  "deskel_kodepos" varchar(255) [default: NULL]
-  "deskel_luaswilayah" double [default: NULL]
-  "deskel_jumlahpenduduk" int [default: NULL]
-  "deskel_batas_utara" varchar(255) [default: NULL]
-  "deskel_batas_timur" varchar(255) [default: NULL]
-  "deskel_batas_selatan" varchar(255) [default: NULL]
-  "deskel_batas_barat" varchar(255) [default: NULL]
-  "deskel_visi" longtext
-  "deskel_misi" longtext
-  "deskel_sejarah" longtext
-  "deskel_gambar" varchar(255) [default: NULL]
-  "deskel_logo" varchar(255) [default: NULL]
-  "deskel_telepon" varchar(255) [default: NULL]
-  "deskel_email" varchar(255) [default: NULL]
+  "struktur" varchar(255) [default: NULL]
+  "alamat" varchar(255) [default: NULL]
+  "kodepos" varchar(255) [default: NULL]
+  "luaswilayah" double [default: NULL]
+  "jmlh_pdd" int [default: NULL]
+  "bts_utara" varchar(255) [default: NULL]
+  "bts_timur" varchar(255) [default: NULL]
+  "bts_selatan" varchar(255) [default: NULL]
+  "bts_barat" varchar(255) [default: NULL]
+  "visi" longtext
+  "misi" longtext
+  "sejarah" longtext
+  "gambar" varchar(255) [default: NULL]
+  "logo" varchar(255) [default: NULL]
+  "telepon" varchar(255) [default: NULL]
+  "email" varchar(255) [default: NULL]
   "created_at" timestamp [default: NULL]
   "updated_at" timestamp [default: NULL]
 

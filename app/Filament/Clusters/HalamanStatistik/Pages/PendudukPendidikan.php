@@ -17,7 +17,7 @@ class PendudukPendidikan extends Page
 
     protected static ?string $navigationGroup = 'Statistik Penduduk';
 
-    protected static ?string $cluster = HalamanStatistik::class;
+    // protected static ?string $cluster = HalamanStatistik::class;
 
     protected static string $view = 'filament.clusters.penduduk-stats.index';
 

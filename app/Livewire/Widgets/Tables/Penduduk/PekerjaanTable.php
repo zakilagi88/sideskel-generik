@@ -4,6 +4,7 @@ namespace App\Livewire\Widgets\Tables\Penduduk;
 
 use App\Enums\Kependudukan\PekerjaanType;
 use App\Models\{Penduduk\PendudukPekerjaan, RT, RW};
+use App\Models\Penduduk\PendudukView;
 use Filament\Forms\Components\Group;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
@@ -23,7 +24,9 @@ class PekerjaanTable extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->query(static::getTableEloquentQuery($this->filters))
+            ->query(
+                PendudukView::getView(PekerjaanType::class, 'pekerjaan', null)
+            )
             ->queryStringIdentifier('pekerjaan')
             ->columns([
                 TextColumn::make('index')

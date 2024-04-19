@@ -74,7 +74,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
 
     public static function shouldRegisterNavigation(): bool
     {
-        $cek = Deskel::getFacadeRoot()->deskel_status;
+        $cek = Deskel::getFacadeRoot()->status;
         if ($cek == true) {
             return false;
         } else {

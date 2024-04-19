@@ -7,6 +7,7 @@ use App\Models\Penduduk;
 use App\Models\User;
 use App\Models\Wilayah;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
+use Filament\Facades\Filament;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\On;
@@ -39,6 +40,13 @@ class SistemPreparation extends Widget
      * @var view-string
      */
     protected static string $view = 'livewire.widgets.sistem-preparation';
+
+    public static function canView(): bool
+    {
+        if (Filament::auth()->user()->hasRole('Admin')) {
+            return true;
+        }
+    }
 
     public function mount()
     {
@@ -169,7 +177,7 @@ class SistemPreparation extends Widget
     #[On('complete-step')]
     public function completeStep(int $step)
     {
-        $this->deskel->update(['deskel_status' => true]);
+        $this->deskel->update(['status' => true]);
         $this->redirect(route('filament.admin.pages.dashboard'));
     }
 }
