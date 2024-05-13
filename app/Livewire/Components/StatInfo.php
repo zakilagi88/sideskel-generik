@@ -18,7 +18,7 @@ class StatInfo extends Widget
                     'id' => 1,
                     'heading' => 'Penduduk',
                     'icon' => 'fas-users',
-                    'value' => Penduduk::count(),
+                    'value' => Penduduk::where('status_dasar', 'HIDUP')->count(),
                     'iconColor' => 'primary',
                 ],
                 [
@@ -26,14 +26,14 @@ class StatInfo extends Widget
                     'heading' => 'Penduduk Laki-laki',
                     'icon' => 'fas-person',
                     'value' => Penduduk::where('jenis_kelamin', 'LAKI-LAKI')->count(),
-                    'iconColor' => 'success',
+                    'iconColor' => 'secondary',
                 ],
                 [
                     'id' => 3,
                     'heading' => 'Penduduk Perempuan',
                     'icon' => 'fas-person',
                     'value' => Penduduk::where('jenis_kelamin', 'PEREMPUAN')->count(),
-                    'iconColor' => 'danger',
+                    'iconColor' => 'info',
                 ],
                 [
                     'id' => 4,
