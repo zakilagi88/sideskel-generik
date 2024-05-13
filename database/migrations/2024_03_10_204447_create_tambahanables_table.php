@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tambahanables', function (Blueprint $table) {
-            $table->foreignId('tambahan_id')->constrained('tambahans', 'tambahan_id')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('tambahan_id')->constrained('tambahans')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('tambahanable_id');
             $table->string('tambahanable_type');
             $table->string('tambahanable_ket')->nullable();

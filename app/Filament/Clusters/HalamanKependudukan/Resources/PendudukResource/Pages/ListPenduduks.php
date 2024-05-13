@@ -46,12 +46,6 @@ class ListPenduduks extends ListRecords
         return [
             Actions\CreateAction::make()->label('Tambah Penduduk')
                 ->url(route('filament.admin.kependudukan.resources.keluarga.create')),
-            ExportAction::make()->exports([
-                ExcelExport::make('table')->fromTable()->askForFilename()
-                    ->askForWriterType(),
-                ExcelExport::make('form')->fromForm()->askForFilename()
-                    ->askForWriterType(),
-            ])
         ];
     }
 
@@ -86,5 +80,12 @@ class ListPenduduks extends ListRecords
                 $query->where('status_dasar', 'MENINGGAL');
             })->badge($this->statuswarga[StatusDasarType::MENINGGAL->value] ?? '0')->icon('fas-person-falling-burst')->badgeColor('danger'),
         ];
+    }
+
+    public function setPage($page, $pageName = 'page')
+    {
+        parent::setPage($page, $pageName);
+
+        $this->dispatch('scroll-to-top');
     }
 }

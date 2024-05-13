@@ -18,6 +18,7 @@ class StatKategori extends Model
 
     public function stats(): HasMany
     {
-        return $this->hasMany(Stat::class, 'stat_kategori_id');
+        return $this->hasMany(StatSDM::class, 'stat_kategori_id');
     }
+    
 }

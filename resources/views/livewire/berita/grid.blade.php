@@ -71,14 +71,14 @@
                         @endif
                         <b class="flex flex-col ">
                             <div>
-                                <img src="{{ asset('storage/' . $b->gambar) }}" alt="{{ $b->slug }}"
+                                <img src="{{ $b->getThumbnail() }}" alt="{{ $b->slug }}"
                                     class="w-full h-64 object-cover rounded-lg mb-3">
                             </div>
                             <div>
                                 <div class="flex items-center gap-x-4 text-xs">
                                     <time datetime="2020-03-16"
                                         class="text-gray-500">{{ $b->published_at->format('F j, Y') }}</time>
-                                    <a href="{{ route('kategori_berita', $b->kategori->slug) }}"
+                                    <a href="{{ route('index.kategori_berita', $b->kategori->slug) }}"
                                         class="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100">{{ str($b->kategori->name)->ucFirst() }}</a>
                                 </div>
                             </div>
@@ -86,7 +86,7 @@
                                 <div class="group relative" style="min-height: 18rem">
                                     <h3
                                         class="mt-3 mb-2 text-2xl font-semibold leading-8 text-gray-900 group-hover:text-gray-600">
-                                        <a href="{{ route('berita', $b->slug) }}">
+                                        <a href="{{ route('index.berita.show', $b->slug) }}">
                                             <span class="absolute inset-0"></span>
                                             {{ $b->title }}
                                         </a>
@@ -103,13 +103,13 @@
                             <div class="flex flex-col">
                                 <div class="text-gray-600 space-y-3">
                                     <div class="relative mt-3 flex items-center gap-x-4">
-                                        <img src="{{ asset($b->user->getFilamentAvatarUrl()) }}" alt=""
+                                        <img src="{{ $b->author->getFilamentAvatarUrl() }}" alt=""
                                             class="h-10 w-10 rounded-full object-contain bg-gray-50">
                                         <div class="text-sm leading-6">
                                             <p class="font-semibold text-gray-900">
                                                 <a href="#">
                                                     <span class="absolute inset-0"></span>
-                                                    {{ $b->user->name }}
+                                                    {{ $b->author->name }}
                                                 </a>
                                             </p>
 
@@ -119,14 +119,13 @@
                                     @foreach ($b->tags as $tag)
                                         @php
                                             $colors = [
-                                                'bg-blue-100',
-                                                'bg-red-100',
-                                                'bg-green-100',
-                                                'bg-yellow-100',
-                                                'bg-indigo-100',
-                                                'bg-purple-100',
-                                                'bg-pink-100',
-                                                'bg-gray-100',
+                                                'bg-primary-300',
+                                                'bg-secondary-300',
+                                                'bg-info-300',
+                                                'bg-warning-300',
+                                                'bg-success-300',
+                                                'bg-danger-300',
+                                                'bg-gray-300',
                                             ];
                                             $colorClass = $colors[array_rand($colors)];
                                         @endphp

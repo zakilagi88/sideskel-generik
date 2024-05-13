@@ -13,6 +13,7 @@ class PendudukView extends Model
 
     public static function getView($key, $wilayahId = null)
     {
+
         $enumClass = GenerateEnumUnionQuery::getEnumClassByKeyName(key: $key);
 
         $subQuery = GenerateEnumUnionQuery::getSubQuery($enumClass, $key);

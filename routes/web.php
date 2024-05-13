@@ -1,20 +1,16 @@
 <?php
 
-use App\Enums\Kependudukan\AgamaType;
-use App\Enums\Kependudukan\PekerjaanType;
-use App\Enums\Kependudukan\PendidikanType;
 use App\Exports\TemplateImport;
-use App\Livewire\Berita\Display as BeritaDisplay;
-
 use App\Livewire\Home;
 use App\Livewire\KategoriBerita;
-use App\Livewire\Stat\Index;
-use App\Livewire\Stat\StatDisplay;
-use App\Livewire\Widgets\Tables\Penduduk\AgamaTable;
-use App\Models\Wilayah;
-use App\Services\GenerateEnumUnionQuery;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Livewire\Pages\{Berita\BeritaDisplay, BeritaPage, KeputusanPage, LembagaPage, Lembaga\LembagaDisplay, PeraturanPage, Stat\StatSDMDisplay};
+use App\Models\Desa\Keputusan;
+use App\Models\Desa\Peraturan;
+use App\Models\KategoriBerita as KategoriBeritaModel;
+use App\Models\Lembaga;
+use App\Models\StatSDM;
+use App\Models\Tambahan;
+use App\Models\Web\Berita;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Http;
@@ -30,7 +26,32 @@ use Illuminate\Support\Facades\Http;
 |
 */
 
-Route::get('/', Home::class)->name('home');
+Route::name('index.')->group(function () {
+    Route::get('/', Home::class)->name('beranda')
+        ->linkKey(label: 'Beranda');
+    Route::get('/stat/{record}', StatSDMDisplay::class)->name('stat.show')
+        ->linkKey(label: 'Statistik', model: StatSDM::class, modelLabel: 'nama');
+    Route::get('/stat/tambahan/{record}', StatSDMDisplay::class)->name('stat.tambahan.show')
+        ->linkKey(label: 'Statistik Tambahan', model: Tambahan::class, modelLabel: 'nama');
+    Route::get('/berita', BeritaPage::class)->name('berita')
+        ->linkKey(label: 'Berita List');
+    Route::get('/berita/{record}', BeritaDisplay::class)->name('berita.show')
+        ->linkKey(label: 'Berita', model: Berita::class, modelLabel: 'title');
+    Route::get('/kat_berita/{kategori_berita:slug}', KategoriBerita::class)->name('kategori_berita')
+        ->linkKey(label: 'Kategori Berita', model: KategoriBeritaModel::class, modelLabel: 'name');
+    Route::get('/peraturan', PeraturanPage::class)->name('peraturan')
+        ->linkKey(label: 'Peraturan', model: Peraturan::class);
+    Route::get('/keputusan', KeputusanPage::class)->name('keputusan')
+        ->linkKey(label: 'Keputusan', model: Keputusan::class);
+    Route::get('/lembaga', LembagaPage::class)->name('lembaga')
+        ->linkKey(label: 'Lembaga', model: Lembaga::class);
+    Route::get('/lembaga/{record}', LembagaDisplay::class)->name('lembaga.show')
+        ->linkKey(label: 'Lembaga', model: Lembaga::class, modelLabel: 'nama');
+});
+
+Route::get('/downloadtemplate', function () {
+    return Excel::download(new TemplateImport, 'template_imports.xlsx');
+})->name('downloadtemplate');
 
 
 Route::get('/indeks-desa', function () {
@@ -43,52 +64,12 @@ Route::get('/preview-pdf', function () {
     return view('preview_pdf');
 });
 
-
-
-
-Route::get('/downloadtemplate', function () {
-    return Excel::download(new TemplateImport, 'template_imports.xlsx');
-})->name('downloadtemplate');
-
-Route::get('/greeting', function () {
-    // Ambil semua wilayah dengan struktur pohon
-    $enum_type = GenerateEnumUnionQuery::getSubQuery(PekerjaanType::class, 'pekerjaan');
-
-    $results = DB::statement('CALL sp_create_penduduk_view(?,?,?)', [$enum_type, 'pekerjaan', 20]);
-
-    return $results;
-    // // Kembalikan hasil filter
+Route::get('/tests', function () {
+    $default_tables = config('app_data.default_tables');
+    foreach ($default_tables['sarana_prasarana'] as $jenis => $value) {
+        dd($jenis, $value);
+    }
 });
-
-Route::get(
-    'stat',
-    Index::class
-)->name('stat');
-Route::get(
-    'stat/{stat:slug}',
-    StatDisplay::class
-)->name('stat.display');
-
-Route::get(
-    'berita/{berita:slug}',
-    BeritaDisplay::class
-)->name('berita');
-
-
-Route::get(
-    'kat_berita/{kategori_berita:slug}',
-    KategoriBerita::class
-)->name('kategori_berita');
-
-
-
-// Route::get('/admin/edit-profil/{record}', DeskelProfile::class);
-
-
-
-
-
-// buat route untuk admin/penduduk-stats/umur admin/penduduk-stats/agama gunakan group
 
 
 

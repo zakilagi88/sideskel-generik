@@ -1,7 +1,7 @@
-<div class="bg-primary">
+<div class="my-4 rounded-xl bg-primary">
 
     <div class="flex flex-col justify-center">
-        <ul class="circles z-[100]">
+        {{-- <ul class="circles">
             <li></li>
             <li></li>
             <li></li>
@@ -13,10 +13,9 @@
             <li></li>
             <li></li>
             <li></li>
-        </ul>
+        </ul> --}}
         <div class="dark:bg-gray-800 dark:text-gray-100">
-            <div
-                class="container-fluid flex flex-col justify-center p-6 mx-auto sm:pt-12 lg:pt-32 lg:flex-row lg:justify-around">
+            <div class="flex flex-col justify-center p-6 mx-auto sm:pt-12 lg:pt-32 lg:flex-row lg:justify-around">
                 <div
                     class="flex flex-col lg:max-w-md xl:max-w-lg lg:text-left mt-40 xs:mt-6 lg:mt-6 p-6 text-center rounded-sm">
                     <h1 class="text-5xl font-bold inline sm:text-6xl whitespace-nowrap">Website Resmi <br>

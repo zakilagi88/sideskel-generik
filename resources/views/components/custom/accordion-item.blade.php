@@ -1,7 +1,7 @@
 <!-- resources/views/components/AccordionItem.blade.php -->
 @props(['stat'])
 <div>
-    <li class="bg-white border-solid border-[1.5px] border-gray-200 my-2 rounded-xl">
+    <li class="bg-white border-solid border-[1.5px] border-gray-200 my-2 rounded-xl" x-data="{ selected: null }">
         <button type="button" class="w-full px-8 py-1 h-9 text-left"
             @click="selected = selected !== {{ $stat['id'] }} ? {{ $stat['id'] }} : null">
             <div class="flex items-center justify-between">
@@ -15,7 +15,7 @@
             style="transition: transform 0.3s ease; transform: translateX(0%);">
         </div>
         @foreach ($stat->stats as $komponen)
-            <a href="{{ route('stat.display', $komponen['slug']) }}"
+            <a href="{{ route('index.stat.show', $komponen['slug']) }}"
                 class="relative  overflow-hidden transition-all max-h-0 duration-700 block" style=""
                 x-ref="container{{ $komponen['id'] }}"
                 x-bind:style="selected == {{ $stat['id'] }} ? 'max-height: ' + $refs.container{{ $komponen['id'] }}

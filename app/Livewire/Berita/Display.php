@@ -2,16 +2,10 @@
 
 namespace App\Livewire\Berita;
 
-use App\Models\Berita;
-use Livewire\Component;
+use App\Filament\Clusters\HalamanBerita\Resources\BeritaResource;
+use App\Livewire\Templates\SimplePage;
 
-class Display extends Component
+class Display extends SimplePage
 {
-
-    public Berita $berita;
-
-    public function render()
-    {
-        return view('livewire.berita.display');
-    }
+    protected static string $resource = BeritaResource::class;
 }

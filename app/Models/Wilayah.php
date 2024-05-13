@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Traits\Dumpable;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 class Wilayah extends Model
 {
-    use HasFactory;
+    use HasFactory, Dumpable;
     use HasRecursiveRelationships;
     /**
      * The attributes that are mass assignable.
@@ -36,8 +38,8 @@ class Wilayah extends Model
         return $this->belongsTo(DesaKelurahan::class, 'deskel_id', 'deskel_id');
     }
 
-    public function kepalaWilayah(): BelongsTo
+    public function kepalaWilayah(): HasOne
     {
-        return $this->belongsTo(Penduduk::class, 'wilayah_kepala', 'nik');
+        return $this->hasOne(Penduduk::class, 'nik', 'wilayah_kepala');
     }
 }

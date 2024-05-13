@@ -15,24 +15,11 @@
             display: none !important;
         }
     </style>
-    <style>
-        @import url(https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css);
-
-        .inset-l-full {
-            left: 100%;
-        }
-    </style>
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-    <link rel="stylesheet" href="https://cdn.tailgrids.com/tailgrids-fallback.css" />
+    {{-- <link rel="stylesheet" href="https://cdn.tailgrids.com/tailgrids-fallback.css" /> --}}
     <link rel="stylesheet" href="assets('css/all.css')">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-
-    <!-- Font Awesome Link -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
-        integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
-        crossorigin="anonymous" />
-
 
     @filamentStyles
     @vite('resources/css/app.css')
@@ -40,11 +27,25 @@
 
 </head>
 
-<body class="antialiased">
+<body class="antialiased bg-secondary-100">
+    <header class="flex flex-row justify-start items-center gap-2 p-2">
+        <div class="flex items-center space-x-2">
+            <x-filament::icon icon="fas-envelope" class="h-5 w-5 text-primary-400 dark:text-gray-400" />
+            <p class="text-primary-400 text-sm">Sesuatu@gmail.com</p>
+        </div>
+        <div class="flex items-center space-x-2">
+            <x-filament::icon icon="fas-phone" class="h-5 w-5 text-primary-400 dark:text-gray-400" />
+            <p class="text-primary-400 text-sm ">+628110213981892</p>
+        </div>
+    </header>
 
-    @include('components.layouts.partials.header')
+    @livewire('components.header')
 
-    {{ $slot }}
+    <main class="container">
+
+        {{ $slot }}
+
+    </main>
 
     @filamentScripts
     @vite('resources/js/app.js')

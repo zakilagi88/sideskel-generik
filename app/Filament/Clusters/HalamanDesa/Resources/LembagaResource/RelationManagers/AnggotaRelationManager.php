@@ -12,6 +12,10 @@ use Filament\Tables;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 class AnggotaRelationManager extends RelationManager
 {
@@ -44,38 +48,40 @@ class AnggotaRelationManager extends RelationManager
             ]);
     }
 
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return true;
+    }
+
+    public function hideIndexPage(): bool
+    {
+        return !str_contains($this->pageClass, 'Filament');
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('nik')
+            ->recordTitle(
+                fn (Penduduk $record): string => "{$record->nama_lengkap} - ({$record->nik} - {$record->wilayah->wilayah_nama})"
+            )
             ->columns([
+                Tables\Columns\TextColumn::make('nama_lengkap')
+                    ->label('Nama Lengkap'),
                 Tables\Columns\TextColumn::make('jabatan')
+                    ->label('Jabatan')
+                    ->badge(),
+                Tables\Columns\TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->badge(),
-                Tables\Columns\TextColumn::make('keterangan')->label('Keterangan')->badge(),
-                Tables\Columns\TextColumn::make('nama_lengkap')->label('Nama Lengkap'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
-                    ->recordSelect(
-                        function (Select $select) {
-                            return $select->options(
-                                fn () => Penduduk::query()
-                                    ->with('kartuKeluarga.wilayahs')
-                                    ->get()
-                                    ->sortBy(function ($penduduk) {
-                                        return optional($penduduk->kartuKeluarga)->wilayah_id;
-                                    })
-                                    ->map(fn ($penduduk) => [
-                                        'value' => $penduduk->nik,
-                                        'label' => $penduduk->nik . ' - ' . $penduduk->nama_lengkap . ' - ' . optional($penduduk->kartuKeluarga->wilayahs)->wilayah_nama,
-                                    ])->pluck('label', 'value')
-                            );
-                        }
-                    )
+                    ->hidden($this->hideIndexPage())
+                    ->recordSelectOptionsQuery(fn (Builder $query) => $query->with('wilayah'))
+                    ->recordSelectSearchColumns(['nama_lengkap', 'nik'])
                     ->form(fn (AttachAction $action): array => [
                         Forms\Components\Select::make('jabatan')
                             ->options(
@@ -120,13 +126,17 @@ class AnggotaRelationManager extends RelationManager
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->hidden($this->hideIndexPage()),
+                Tables\Actions\DeleteAction::make()
+                    ->hidden($this->hideIndexPage()),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                ])
+                    ->hidden($this->hideIndexPage()),
+            ])
+            ->deferLoading(false);
     }
 }

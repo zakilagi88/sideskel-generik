@@ -9,14 +9,21 @@ use App\Models\Desa\Peraturan;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Carbon\Carbon;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\{Form, Get, Set};
+use Filament\Infolists\Components\Actions;
+use Filament\Infolists\Components\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
+use Filament\Panel;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Illuminate\Support\Str;
 
 class PeraturanResource extends Resource implements HasShieldPermissions
 {
@@ -70,7 +77,7 @@ class PeraturanResource extends Resource implements HasShieldPermissions
                                 ->label('Dokumen')
                                 ->live()
                                 ->disk('public')
-                                ->directory('peraturan')
+                                ->directory('deskel/peraturan')
                                 ->openable()
                                 ->previewable()
                                 ->downloadable()
@@ -238,24 +245,28 @@ class PeraturanResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 Tables\Actions\Action::make('Preview File')
-                    ->label('')
+                    ->hiddenLabel()
+                    ->button()
+                    ->modalContent(function (Peraturan $record) {
+                        return view('filament.pages.preview-file', ['record' => $record]);
+                    })
+                    ->modalSubmitAction(false)
                     ->color('success')
                     ->icon('fas-eye')
-                    ->button()
-                    ->infolist([
-                        ViewEntry::make('dokumens')
-                            ->view('filament.pages.preview-file'),
-                    ])
+                    ->iconSize('md'),
+                Tables\Actions\EditAction::make()
+                    ->hiddenLabel()
+                    ->icon('fas-edit')
                     ->iconSize('md')
-                    ->extraAttributes([
-                        'class' => 'text-green-500 hover:text-green-700 mr-2',
-                    ]),
-                Tables\Actions\EditAction::make()->label('')->button(),
+                    ->button(),
             ], ActionsPosition::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                ])
+                    ->hidden(
+                        fn () => Str::startsWith(Route::currentRouteName(), 'index')
+                    ),
             ]);
     }
 

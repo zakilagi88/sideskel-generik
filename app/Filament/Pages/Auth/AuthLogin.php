@@ -19,7 +19,7 @@ class AuthLogin extends Login
 
     protected static string $view = 'filament.pages.auth.login';
 
-    protected ?string $maxWidth = MaxWidth::FiveExtraLarge->value;
+    protected ?string $maxWidth = MaxWidth::FourExtraLarge->value;
 
     public function form(Form $form): Form
     {

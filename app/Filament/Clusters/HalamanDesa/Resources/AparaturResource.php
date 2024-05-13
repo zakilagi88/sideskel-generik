@@ -4,7 +4,6 @@ namespace App\Filament\Clusters\HalamanDesa\Resources;
 
 use App\Filament\Clusters\HalamanDesa;
 use App\Filament\Clusters\HalamanDesa\Resources\AparaturResource\Pages;
-use App\Filament\Clusters\HalamanDesa\Resources\AparaturResource\RelationManagers;
 use App\Models\Desa\Aparatur;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;

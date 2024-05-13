@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Berita;
 
-use App\Models\Berita;
+use App\Models\Web\Berita;
 use Livewire\Component;
 use Illuminate\Support\Str;
 

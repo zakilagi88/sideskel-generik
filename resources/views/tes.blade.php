@@ -1,392 +1,91 @@
-<div class="fixed z-[100] py-3 px-5 w-full bg-white rounded shadow-xl">
-    <div class="-mx-1">
-        <ul class="flex w-full flex-wrap items-center h-10">
-            <li class="block relative" x-data="{ showChildren: false }" @click.away="showChildren=false">
-                <a href="#"
-                    class="flex items-center h-10 leading-10 px-4 rounded cursor-pointer no-underline hover:no-underline transition-colors duration-100 mx-1 bg-indigo-500 text-white"
-                    @click.prevent="showChildren=!showChildren">
-                    <span class="mr-3 text-xl"> <i class="mdi mdi-gauge"></i> </span>
-                    <span>Dashboard</span>
-                    <span class="ml-2"> <i class="mdi mdi-chevron-down"></i> </span>
-                </a>
-                <div class="bg-white shadow-md rounded border border-gray-300 text-sm absolute top-auto left-0 min-w-full w-56 z-30 mt-1"
-                    x-show="showChildren" style="display: none;"
-                    x-transition:enter="transition ease duration-300 transform"
-                    x-transition:enter-start="opacity-0 translate-y-2"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease duration-300 transform"
-                    x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 translate-y-4">
-                    <span class="absolute top-0 left-0 w-3 h-3 bg-white border transform rotate-45 -mt-1 ml-6"></span>
-                    <div class="bg-white rounded w-full relative z-10 py-1">
-                        <ul class="list-reset">
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Dashboard 1</span> </a>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Dashboard 2</span> </a>
-                            </li>
-                        </ul>
-                    </div>
+<div class="bg-white max-w-xl mx-auto border border-gray-200">
+    <ul class="shadow-box">
+
+        <li class="relative border-b border-gray-200" x-data="{ selected: null }">
+
+            <button type="button" class="w-full px-8 py-6 text-left"
+                @click="selected !== 1 ? selected = 1 : selected = null">
+                <div class="flex items-center justify-between">
+                    <span>
+                        Should I use reCAPTCHA v2 or v3? </span>
+                    <span class="ico-plus"></span>
                 </div>
-            </li>
-            <li class="block relative">
-                <a href="#"
-                    class="flex items-center h-10 leading-10 px-4 rounded cursor-pointer no-underline hover:no-underline transition-colors duration-100 mx-1 hover:bg-gray-100">
-                    <span class="mr-3 text-xl"> <i class="mdi mdi-widgets-outline"></i> </span>
-                    <span>Widgets</span>
-                </a>
-            </li>
-            <li class="block relative" x-data="{ showChildren: false }" @click.away="showChildren=false">
-                <a href="#"
-                    class="flex items-center h-10 leading-10 px-4 rounded cursor-pointer no-underline hover:no-underline transition-colors duration-100 mx-1 hover:bg-gray-100"
-                    @click.prevent="showChildren=!showChildren">
-                    <span class="mr-3 text-xl"> <i class="mdi mdi-layers-outline"></i> </span>
-                    <span>UI Elements</span>
-                    <span class="ml-2"> <i class="mdi mdi-chevron-down"></i> </span>
-                </a>
-                <div class="bg-white shadow-md rounded border border-gray-300 text-sm absolute top-auto left-0 min-w-full w-56 z-30 mt-1"
-                    x-show="showChildren" x-transition:enter="transition ease duration-300 transform"
-                    x-transition:enter-start="opacity-0 translate-y-2"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease duration-300 transform"
-                    x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 translate-y-4" style="display: none;">
-                    <span class="absolute top-0 left-0 w-3 h-3 bg-white border transform rotate-45 -mt-1 ml-6"></span>
-                    <div class="bg-white rounded w-full relative z-10 py-1">
-                        <ul class="list-reset">
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Basic Elements</span>
-                                    <span class="ml-2"> <i class="mdi mdi-chevron-right"></i> </span>
-                                </a>
-                                <div class="bg-white shadow-md rounded border border-gray-300 text-sm absolute inset-l-full top-0 min-w-full w-56 z-30 mt-1"
-                                    x-show="showChildren" x-transition:enter="transition ease duration-300 transform"
-                                    x-transition:enter-start="opacity-0 translate-y-2"
-                                    x-transition:enter-end="opacity-100 translate-y-0"
-                                    x-transition:leave="transition ease duration-300 transform"
-                                    x-transition:leave-start="opacity-100 translate-y-0"
-                                    x-transition:leave-end="opacity-0 translate-y-4" style="display: none;">
-                                    <span
-                                        class="absolute top-0 left-0 w-3 h-3 bg-white border transform rotate-45 -ml-1 mt-2"></span>
-                                    <div class="bg-white rounded w-full relative z-10 py-1">
-                                        <ul class="list-reset">
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Accordion</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Buttons</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Badges</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Breadcrumbs</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Dropdown</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Modals</span> </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Advanced Elements</span>
-                                    <span class="ml-2"> <i class="mdi mdi-chevron-right"></i> </span>
-                                </a>
-                                <div class="bg-white shadow-md rounded border border-gray-300 text-sm absolute inset-l-full top-0 min-w-full w-56 z-30 mt-1"
-                                    x-show="showChildren" x-transition:enter="transition ease duration-300 transform"
-                                    x-transition:enter-start="opacity-0 translate-y-2"
-                                    x-transition:enter-end="opacity-100 translate-y-0"
-                                    x-transition:leave="transition ease duration-300 transform"
-                                    x-transition:leave-start="opacity-100 translate-y-0"
-                                    x-transition:leave-end="opacity-0 translate-y-4" style="display: none;">
-                                    <span
-                                        class="absolute top-0 left-0 w-3 h-3 bg-white border transform rotate-45 -ml-1 mt-2"></span>
-                                    <div class="bg-white rounded w-full relative z-10 py-1">
-                                        <ul class="list-reset">
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Charts</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Maps</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Drag n Drop</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Slider</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Loader</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Notification</span> </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Forms &amp; Tables</span>
-                                    <span class="ml-2"> <i class="mdi mdi-chevron-right"></i> </span>
-                                </a>
-                                <div class="bg-white shadow-md rounded border border-gray-300 text-sm absolute inset-l-full top-0 min-w-full w-56 z-30 mt-1"
-                                    x-show="showChildren" x-transition:enter="transition ease duration-300 transform"
-                                    x-transition:enter-start="opacity-0 translate-y-2"
-                                    x-transition:enter-end="opacity-100 translate-y-0"
-                                    x-transition:leave="transition ease duration-300 transform"
-                                    x-transition:leave-start="opacity-100 translate-y-0"
-                                    x-transition:leave-end="opacity-0 translate-y-4" style="display: none;">
-                                    <span
-                                        class="absolute top-0 left-0 w-3 h-3 bg-white border transform rotate-45 -ml-1 mt-2"></span>
-                                    <div class="bg-white rounded w-full relative z-10 py-1">
-                                        <ul class="list-reset">
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Form Elements</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Advanced Forms</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Basic Tables</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Data Tables</span> </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Icons</span> </a>
-                            </li>
-                        </ul>
-                    </div>
+            </button>
+
+            <div class="relative overflow-hidden transition-all max-h-0 duration-700" style="" x-ref="container1"
+                x-bind:style="selected == 1 ? 'max-height: ' + $refs.container1.scrollHeight + 'px' : ''">
+                <div class="p-6">
+                    <p>reCAPTCHA v2 is not going away! We will continue to fully support and improve security and
+                        usability for v2.</p>
+                    <p>reCAPTCHA v3 is intended for power users, site owners that want more data about their traffic,
+                        and for use cases in which it is not appropriate to show a challenge to the user.</p>
+                    <p>For example, a registrati    on page might still use reCAPTCHA v2 for a higher-friction challenge,
+                        whereas more common actions like sign-in, searches, comments, or voting might use reCAPTCHA v3.
+                        To see more details, see the reCAPTCHA v3 developer guide.</p>
                 </div>
-            </li>
-            <li class="block relative" x-data="{ showChildren: false }" @click.away="showChildren=false">
-                <a href="#"
-                    class="flex items-center h-10 leading-10 px-4 rounded cursor-pointer no-underline hover:no-underline transition-colors duration-100 mx-1 hover:bg-gray-100"
-                    @click.prevent="showChildren=!showChildren">
-                    <span class="mr-3 text-xl"> <i class="mdi mdi-web"></i> </span>
-                    <span>Pages</span>
-                    <span class="ml-2"> <i class="mdi mdi-chevron-down"></i> </span>
-                </a>
-                <div class="bg-white shadow-md rounded border border-gray-300 text-sm absolute top-auto left-0 min-w-full w-56 z-30 mt-1"
-                    x-show="showChildren" x-transition:enter="transition ease duration-300 transform"
-                    x-transition:enter-start="opacity-0 translate-y-2"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease duration-300 transform"
-                    x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 translate-y-4" style="display: none;">
-                    <span class="absolute top-0 left-0 w-3 h-3 bg-white border transform rotate-45 -mt-1 ml-6"></span>
-                    <div class="bg-white rounded w-full relative z-10 py-1">
-                        <ul class="list-reset">
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">User Profile</span> </a>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Account Settings</span> </a>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Invoice</span> </a>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Authentication</span>
-                                    <span class="ml-2"> <i class="mdi mdi-chevron-right"></i> </span>
-                                </a>
-                                <div class="bg-white shadow-md rounded border border-gray-300 text-sm absolute inset-l-full top-0 min-w-full w-56 z-30 mt-1"
-                                    x-show="showChildren" x-transition:enter="transition ease duration-300 transform"
-                                    x-transition:enter-start="opacity-0 translate-y-2"
-                                    x-transition:enter-end="opacity-100 translate-y-0"
-                                    x-transition:leave="transition ease duration-300 transform"
-                                    x-transition:leave-start="opacity-100 translate-y-0"
-                                    x-transition:leave-end="opacity-0 translate-y-4" style="display: none;">
-                                    <span
-                                        class="absolute top-0 left-0 w-3 h-3 bg-white border transform rotate-45 -ml-1 mt-2"></span>
-                                    <div class="bg-white rounded w-full relative z-10 py-1">
-                                        <ul class="list-reset">
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Login</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Register</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Reset Password</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">Lock Screen</span> </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Errors</span>
-                                    <span class="ml-2"> <i class="mdi mdi-chevron-right"></i> </span>
-                                </a>
-                                <div class="bg-white shadow-md rounded border border-gray-300 text-sm absolute inset-l-full top-0 min-w-full w-56 z-30 mt-1"
-                                    x-show="showChildren" x-transition:enter="transition ease duration-300 transform"
-                                    x-transition:enter-start="opacity-0 translate-y-2"
-                                    x-transition:enter-end="opacity-100 translate-y-0"
-                                    x-transition:leave="transition ease duration-300 transform"
-                                    x-transition:leave-start="opacity-100 translate-y-0"
-                                    x-transition:leave-end="opacity-0 translate-y-4" style="display: none;">
-                                    <span
-                                        class="absolute top-0 left-0 w-3 h-3 bg-white border transform rotate-45 -ml-1 mt-2"></span>
-                                    <div class="bg-white rounded w-full relative z-10 py-1">
-                                        <ul class="list-reset">
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">400</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">404</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">500</span> </a>
-                                            </li>
-                                            <li>
-                                                <a href="#"
-                                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                                    <span class="flex-1">505</span> </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+            </div>
+
+        </li>
+
+
+        <li class="relative border-b border-gray-200" x-data="{ selected: null }">
+
+            <button type="button" class="w-full px-8 py-6 text-left"
+                @click="selected !== 2 ? selected = 2 : selected = null">
+                <div class="flex items-center justify-between">
+                    <span>
+                        I'd like to run automated tests with reCAPTCHA. What should I do? </span>
+                    <span class="ico-plus"></span>
                 </div>
-            </li>
-            <li class="block relative" x-data="{ showChildren: false }" @click.away="showChildren=false">
-                <a href="#"
-                    class="flex items-center h-10 leading-10 px-4 rounded cursor-pointer no-underline hover:no-underline transition-colors duration-100 mx-1 hover:bg-gray-100"
-                    @click.prevent="showChildren=!showChildren">
-                    <span class="mr-3 text-xl"> <i class="mdi mdi-apple-safari"></i> </span>
-                    <span>Apps</span>
-                    <span class="ml-2"> <i class="mdi mdi-chevron-down"></i> </span>
-                </a>
-                <div class="bg-white shadow-md rounded border border-gray-300 text-sm absolute top-auto left-0 min-w-full w-56 z-30 mt-1"
-                    x-show="showChildren" x-transition:enter="transition ease duration-300 transform"
-                    x-transition:enter-start="opacity-0 translate-y-2"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease duration-300 transform"
-                    x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 translate-y-4" style="display: none;">
-                    <span class="absolute top-0 left-0 w-3 h-3 bg-white border transform rotate-45 -mt-1 ml-6"></span>
-                    <div class="bg-white rounded w-full relative z-10 py-1">
-                        <ul class="list-reset">
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Calender</span> </a>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Chat</span> </a>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Email</span> </a>
-                            </li>
-                            <li class="relative" x-data="{ showChildren: false }" @mouseleave="showChildren=false"
-                                @mouseenter="showChildren=true">
-                                <a href="#"
-                                    class="px-4 py-2 flex w-full items-start hover:bg-gray-100 no-underline hover:no-underline transition-colors duration-100 cursor-pointer">
-                                    <span class="flex-1">Todo</span> </a>
-                            </li>
-                        </ul>
-                    </div>
+            </button>
+
+            <div class="relative overflow-hidden transition-all max-h-0 duration-700" style="" x-ref="container2"
+                x-bind:style="selected == 2 ? 'max-height: ' + $refs.container2.scrollHeight + 'px' : ''">
+                <div class="p-6">
+                    <p>For reCAPTCHA v3, create a separate key for testing environments. Scores may not be accurate as
+                        reCAPTCHA v3 relies on seeing real traffic.</p>
+                    <p>For reCAPTCHA v2, use the following test keys. You will always get No CAPTCHA and all
+                        verification requests will pass.</p>
                 </div>
-            </li>
-        </ul>
-    </div>
+            </div>
+
+        </li>
+
+
+        <li class="relative border-b border-gray-200" x-data="{ selected: null }">
+
+            <button type="button" class="w-full px-8 py-6 text-left"
+                @click="selected !== 3 ? selected = 3 : selected = null">
+                <div class="flex items-center justify-between">
+                    <span>
+                        Can I run reCAPTCHA v2 and v3 on the same page? </span>
+                    <span class="ico-plus"></span>
+                </div>
+            </button>
+
+            <div class="relative overflow-hidden transition-all max-h-0 duration-700" style="" x-ref="container3"
+                x-bind:style="selected == 3 ? 'max-height: ' + $refs.container3.scrollHeight + 'px' : ''">
+                <div class="p-6">
+                    <p>To do this, load the v3 site key as documented, and then explicitly render v2 using
+                        grecaptcha.render.</p>
+                    <p>You are allowed to hide the badge as long as you include the reCAPTCHA branding visibly in the
+                        user flow. Please include the following text:</p>
+                    <p>Yes, please use "www.recaptcha.net" in your code in circumstances when "www.google.com" is not
+                        accessible.</p>
+                    <ul>
+                        <li>First, replace &lt;script src="https://www.google.com/recaptcha/api.js" async
+                            defer&gt;&lt;/script&gt; with &lt;script src="https://www.recaptcha.net/recaptcha/api.js"
+                            async defer&gt;&lt;/script&gt;</li>
+                        <li>After that, apply the same to everywhere else that uses "www.google.com/recaptcha/" on your
+                            site.</li>
+                    </ul>
+                    <p>After that, apply the same to everywhere else that uses "www.google.com/recaptcha/" on your site.
+                    </p>
+                </div>
+            </div>
+
+        </li>
+
+    </ul>
+</div>
 </div>

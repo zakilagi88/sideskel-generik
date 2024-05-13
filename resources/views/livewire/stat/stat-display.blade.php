@@ -1,18 +1,12 @@
-<div class="wrapper pt-28 bg-gray-100">
+<div class="bg-white rounded-xl p-4">
 
-    <!-- Breadcrumbs -->
-    <div class="py-4 flex items-start pl-10">
-        <x-filament::breadcrumbs :breadcrumbs="[
-            '/' => 'Beranda',
-        ]" />
-    </div>
-    <h1 class="flex items-start font-bold text-4xl pl-10">{{ $stat->nama }}</h1>
+    <h1 class="flex items-start font-bold text-3xl pl-10 mt-4">{{ $record->nama }}</h1>
     <!-- Dua kolom utama -->
     <div class="flex items-start">
         <div class="w-1/4 ml-10">
             <h1 class="font-semibold max-w-xl mx-auto pt-8 pb-4">Subjek</h1>
-            <div class="bg-transparent max-w-xl mx-auto  " x-data="{ selected: null }">
-                <ul class="shadow-box ">
+            <div class="bg-transparent max-w-xl mx-auto  ">
+                <ul class="shadow-box " x-data="{ selected: null }">
                     <!-- Accordion item  -->
                     @foreach ($kategori as $kat)
                         <x-custom.accordion-item :stat="$kat" :key="$kat->id" />
@@ -46,7 +40,7 @@
                 </div>
 
                 <div class="ml-10 space-y-2 mt-4">
-                    <livewire:stat.filter-form :$stat :activeTab="$activeTab" />
+                    <livewire:stat.filter-form :stat="$record" :activeTab="$activeTab" />
                 </div>
             </div>
 

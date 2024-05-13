@@ -14,7 +14,7 @@ class TambahanExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('tambahans.tambahan_nama')->label('Nama Data Tambahan'),
+            ExportColumn::make('tambahans.nama')->label('Nama Data Tambahan'),
             ExportColumn::make('nik'),
             ExportColumn::make('nama_lengkap'),
             ExportColumn::make('alamat_sekarang'),

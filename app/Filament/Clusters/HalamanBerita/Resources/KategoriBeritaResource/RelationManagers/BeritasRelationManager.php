@@ -2,7 +2,7 @@
 
 namespace App\Filament\Clusters\HalamanBerita\Resources\KategoriBeritaResource\RelationManagers;
 
-use App\Models\Berita;
+use App\Models\Web\Berita;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;

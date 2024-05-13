@@ -12,14 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tambahans', function (Blueprint $table) {
-            $table->id('tambahan_id');
-            $table->string('tambahan_nama');
-            $table->string('tambahan_sasaran');
-            $table->longText('tambahan_keterangan');
+            $table->id();
+            $table->string('nama');
+            $table->string('slug')->unique();
+            $table->string('sasaran');
+            $table->longText('keterangan');
             $table->json('kategori')->nullable();
-            $table->date('tambahan_tgl_mulai');
-            $table->date('tambahan_tgl_selesai');
-            $table->boolean('tambahan_status')->default(true);
+            $table->date('tgl_mulai');
+            $table->date('tgl_selesai');
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

@@ -3,8 +3,8 @@
 
     <div style="display: flex; justify-content: space-between;">
         <x-filament::breadcrumbs :breadcrumbs="[
-            '/admin' => 'Beranda',
-            '/admin/deskel-profil' => 'DesaKelurahan Profil',
+            '/panel' => 'Beranda',
+            '/panel/deskel-profil' => 'DesaKelurahan Profil',
         ]" />
 
         <div>

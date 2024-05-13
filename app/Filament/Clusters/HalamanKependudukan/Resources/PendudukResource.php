@@ -11,10 +11,9 @@ use App\Models\{Bantuan, Kepindahan, Kematian, Penduduk, Dinamika};
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Coolsam\FilamentFlatpickr\Enums\FlatpickrTheme;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
-use Faker\Provider\ar_EG\Text;
+use Filament\Facades\Filament;
 use Filament\Forms\Form;
 use Filament\Forms\Components\{Actions\Action as FormsAction, Checkbox, Component, Group, Section, Select, TextInput, DatePicker, DateTimePicker, Fieldset, FileUpload, Grid as FormsGrid, Hidden, Placeholder, Split as ComponentsSplit, Textarea, TimePicker, Wizard};
-use Filament\Forms\Components\Actions\Action as ComponentsActionsAction;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -30,15 +29,11 @@ use Filament\Tables\Table;
 use Filament\Tables\Actions\{Action as ActionsAction, ActionGroup, BulkAction};
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
-use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
-use Illuminate\Validation\Rule;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class PendudukResource extends Resource implements HasShieldPermissions
 {
@@ -212,11 +207,18 @@ class PendudukResource extends Resource implements HasShieldPermissions
 
     public static function table(Table $table): Table
     {
+        $freezeColoumn = [
+            'style' => 'position: sticky; left: 0;',
+            'class' => ''
+        ];
         return $table
             ->columns([
                 TextColumn::make('nik')
                     ->label('NIK')
                     ->searchable()
+                    // ->extraAttributes($freezeColoumn)
+                    ->extraHeaderAttributes($freezeColoumn)
+                    ->extraCellAttributes(array_merge($freezeColoumn, ['class' => 'to-be-striped']))
                     ->sortable(),
                 TextColumn::make('nama_lengkap')
                     ->searchable()
@@ -280,15 +282,14 @@ class PendudukResource extends Resource implements HasShieldPermissions
             ->actions(
                 [
                     Tables\Actions\ViewAction::make()->button()->color('primary')->iconSize(IconSize::Small),
+                    ActionsAction::make('Batalkan')
+                        ->action(
+                            function (Penduduk $record) {
 
-
-                    ActionsAction::make('Batalkan')->action(
-                        function (Penduduk $record) {
-
-                            static::restoreAuditSelected($record);
-                            $record->update(['status_pengajuan' => 'SELESAI']);
-                        }
-                    )
+                                static::restoreAuditSelected($record);
+                                $record->update(['status_pengajuan' => 'SELESAI']);
+                            }
+                        )
                         ->color('danger')->label(
                             'Batalkan'
                         )->button()
@@ -542,17 +543,16 @@ class PendudukResource extends Resource implements HasShieldPermissions
                         )
                         ->visible(
                             function () {
-                                $roles = auth()->user()->roles->pluck('name');
-                                if ($roles->contains('super_admin')) {
+                                if (Filament::auth()->user()->hasRole('Admin')) {
                                     return true;
                                 } else {
                                     return false;
                                 }
                             }
-
-                        )->deselectRecordsAfterCompletion()->requiresConfirmation(),
+                        )
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation(),
                 ]),
-                ExportBulkAction::make()
             ])
             ->emptyStateActions([])
             ->deferLoading()
@@ -563,7 +563,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
     {
         return $infolist
             ->schema([
-
                 Grid::make(3)
                     ->schema([
                         ComponentsGroup::make([
@@ -819,7 +818,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                 $roles = auth()->user()->roles->pluck('name');
                                                 $pengajuan = $record->status_pengajuan->value;
                                                 foreach ($roles as $role) {
-                                                    if ($role == 'super_admin' && ($pengajuan == 'DALAM PROSES' || $pengajuan == 'SELESAI')) {
+                                                    if ($role == 'Admin' && ($pengajuan == 'DALAM PROSES' || $pengajuan == 'SELESAI')) {
                                                         return true;
                                                     }
                                                 }

@@ -44,7 +44,6 @@ class DeskelProfile extends Page implements HasForms, HasInfolists
     protected static ?string $title = '';
 
     public ?array $data = [];
-    public ?array $prasaranaKesehatan = [];
     public int $pdd = 0;
 
     use HasPageShield;

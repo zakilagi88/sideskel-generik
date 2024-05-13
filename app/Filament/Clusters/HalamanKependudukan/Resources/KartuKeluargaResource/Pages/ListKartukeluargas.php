@@ -93,7 +93,7 @@ class ListKartukeluargas extends ListRecords
                             ->body(
                                 'Data kartu keluarga berhasil diimport'
                             )->sendToDatabase(User::whereHas('roles', function ($query) {
-                                $query->where('name', 'super_admin');
+                                $query->where('name', 'Admin');
                             })->get())
 
                             ->send();

@@ -6,27 +6,37 @@ use App\Filament\Exports\TambahanExporter;
 use App\Models\Penduduk;
 use App\Models\Tambahan;
 use App\Models\Tambahanable;
+use App\Models\Wilayah;
 use Carbon\Carbon;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Actions\Exports\Models\Export;
 use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\IconPosition;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\AttachAction;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DetachAction;
 use Filament\Tables\Actions\DetachBulkAction;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\{TextColumn};
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class PenduduksRelationManager extends RelationManager
@@ -45,20 +55,28 @@ class PenduduksRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        $operatorWilayah = Filament::auth()->user()->hasRole('Operator Wilayah');
-        $monitorWilayah = Filament::auth()->user()->hasRole('Monitor Wilayah');
+        /** @var \App\Models\User */
+        $authUser = Filament::auth()->user();
+        $descendants = ($authUser->hasRole('Monitor Wilayah')) ? Wilayah::tree()->find($authUser->wilayah_id)->descendants->pluck('wilayah_id') : null;
         return $table
-            ->recordTitleAttribute('nama_lengkap')
+            ->recordTitle(
+                fn (Penduduk $record): string => "{$record->nama_lengkap} - ({$record->wilayah?->wilayah_nama})"
+            )
+            ->modifyQueryUsing(
+                fn (Builder $query) => $query->byWilayah($authUser, $descendants)
+            )
             ->heading('Data Penduduk Terdaftar Data Tambahan')
             ->columns([
                 TextColumn::make('no')->label('No')->alignCenter()->rowIndex(),
-                TextColumn::make('tambahanable_ket')->label('Keterangan')->badge(),
+                TextColumn::make('tambahanable_ket')->label('Keterangan')->badge()->sortable()->alignJustify(),
                 TextColumn::make('nik')->label('NIK'),
+                TextColumn::make('wilayah.wilayah_nama')->label('Wilayah'),
                 TextColumn::make('nama_lengkap')->label('Nama'),
                 TextColumn::make('alamat_sekarang')->label('Alamat'),
                 TextColumn::make('jenis_kelamin')->label('Jenis Kelamin'),
                 TextColumn::make('tempat_lahir')->label('Tempat Lahir'),
-                TextColumn::make('tanggal_lahir')
+                TextColumn::make('umur')
+                    ->sortable()
                     ->label('Usia')
                     ->suffix(' Tahun')
             ])
@@ -77,11 +95,20 @@ class PenduduksRelationManager extends RelationManager
                         }
                     ),
             ], layout: FiltersLayout::AboveContent)
-            ->deferLoading()
             ->persistFiltersInSession()
             ->persistColumnSearchesInSession()
             ->persistSearchInSession()
             ->persistSortInSession()
+            ->filtersFormColumns(2)
+            ->filtersFormSchema(fn (array $filters): array => [
+                Group::make()
+                    ->extraAttributes(['class' => 'mb-4'])
+                    ->schema([
+                        $filters['tambahanable_ket'],
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+            ])
             ->striped()
             ->headerActions([
                 ExportAction::make()
@@ -94,46 +121,14 @@ class PenduduksRelationManager extends RelationManager
                     ])
                     ->columnMapping(),
                 AttachAction::make()->label('Tambahkan Data Terpilih')
-                    ->recordSelect(
-                        fn (Select $select) =>
-                        $select
-                            ->multiple()
-                            ->disableOptionWhen(
-                                fn (string $value): bool => Tambahanable::query()
-                                    ->where('tambahanable_type', Penduduk::class)
-                                    ->where('tambahanable_id', $value)
-                                    ->exists()
-                            )
-                            ->searchable()
-                            ->placeholder('Cari NIK atau Nama Lengkap...')
-                            ->options(
-                                fn () => Penduduk::query()
-                                    ->with('kartuKeluarga.wilayahs')
-                                    ->when($operatorWilayah, function ($query) {
-                                        $query->whereHas('kartuKeluarga', function ($query) {
-                                            $query->where('wilayah_id', auth()->user()->wilayah_id);
-                                        });
-                                    })
-                                    ->when($monitorWilayah, function ($query) {
-                                        $query->whereHas('kartuKeluarga', function ($query) {
-                                            $query->where('wilayah_id', auth()->user()->wilayah_id);
-                                        });
-                                    })
-                                    ->get()
-                                    ->sortBy(function ($penduduk) {
-                                        return optional($penduduk->kartuKeluarga)->wilayah_id;
-                                    })
-                                    ->map(fn ($penduduk) => [
-                                        'value' => $penduduk->nik,
-                                        'label' => $penduduk->nik . ' - ' . $penduduk->nama_lengkap . ' - ' . optional($penduduk->kartuKeluarga->wilayahs)->wilayah_nama,
-                                    ])->pluck('label', 'value')
-                            )
-
+                    ->recordSelectOptionsQuery(
+                        fn (Builder $query) => $query->byWilayah($authUser, $descendants)
                     )
-                    ->color('success')
+                    ->recordSelectSearchColumns(['nama_lengkap', 'nik'])
+                    ->preloadRecordSelect()
+
                     ->form(fn (AttachAction $action): array => [
-                        $action->getRecordSelect(),
-                        Select::make('tambahanable_ket')
+                        Forms\Components\Select::make('tambahanable_ket')
                             ->options(
                                 function () {
                                     $kategoris = $this->getOwnerRecord()->kategori;
@@ -144,8 +139,11 @@ class PenduduksRelationManager extends RelationManager
                                     }
                                     return $modifiedKeyValue;
                                 }
-                            ),
-                    ]),
+                            )
+                            ->dehydrateStateUsing(fn (string $state): string => ucwords($state)),
+                        $action->getRecordSelect()->multiple(),
+                    ])
+                    ->color('success')
             ])
             ->actions([
                 DetachAction::make()
@@ -156,10 +154,62 @@ class PenduduksRelationManager extends RelationManager
                     ->modalHeading('Apakah Anda Yakin?')
                     ->modalDescription('Data yang tidak valid akan dihapus dari daftar tambahan.')
                     ->button(),
+                EditAction::make('edit')
+                    ->label('Ganti Keterangan')
+                    ->color('info')
+                    ->size(ActionSize::ExtraSmall)
+                    ->button()
+                    ->form([
+                        Forms\Components\Select::make('tambahanable_ket')
+                            ->options(
+                                function () {
+                                    $kategoris = $this->getOwnerRecord()->kategori;
+                                    $modifiedKeyValue = [];
+                                    foreach ($kategoris as $kategori) {
+                                        $normalizedKey = str_replace(' ', '-', strtolower($kategori));
+                                        $modifiedKeyValue[$normalizedKey] = $kategori;
+                                    }
+                                    return $modifiedKeyValue;
+                                }
+                            )
+                            ->dehydrateStateUsing(fn (string $state): string => ucwords($state)),
+                    ]),
             ], ActionsPosition::BeforeColumns)
             ->bulkActions([
                 BulkActionGroup::make([
                     DetachBulkAction::make(),
+                    BulkAction::make('edit')
+                        ->icon('fas-edit')
+                        ->iconSize(IconSize::Small)
+                        ->form([
+                            Forms\Components\Select::make('tambahanable_ket')
+                                ->options(
+                                    function () {
+                                        $kategoris = $this->getOwnerRecord()->kategori;
+                                        $modifiedKeyValue = [];
+                                        foreach ($kategoris as $kategori) {
+                                            $normalizedKey = str_replace(' ', '-', strtolower($kategori));
+                                            $modifiedKeyValue[$normalizedKey] = $kategori;
+                                        }
+                                        return $modifiedKeyValue;
+                                    }
+                                )
+                                ->dehydrateStateUsing(fn (string $state): string => ucwords($state)),
+
+                        ])
+                        ->action(function (Collection $records, array $data) {
+
+                            $records->each(function ($penduduk) use ($data) {
+                                $penduduk->tambahans()->updateExistingPivot($penduduk->id, [
+                                    'tambahanable_ket' => $data['tambahanable_ket'],
+                                ]);
+                            });
+                            Notification::make()
+                                ->title('Keterangan Berhasil Diubah')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion()
                 ]),
             ]);
     }
@@ -167,6 +217,6 @@ class PenduduksRelationManager extends RelationManager
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
-        return $ownerRecord->tambahan_sasaran == 'Penduduk';
+        return $ownerRecord->sasaran == 'Penduduk';
     }
 }

@@ -8,14 +8,19 @@ use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource\Pages;
 use App\Models\DeskelProfil;
 use App\Models\Penduduk;
 use App\Models\Wilayah;
-use Filament\Forms\Components\{Group, Hidden, Select, TextInput};
+use Filament\Facades\Filament;
+use Filament\Forms\Components\{Group, Hidden, Section, Select, TextInput};
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group as GroupingGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class WilayahResource extends Resource
@@ -28,124 +33,77 @@ class WilayahResource extends Resource
 
     protected static ?string $cluster = HalamanWilayah::class;
 
+    protected static ?string $slug = 'wilayah';
+
+
     public static function form(Form $form): Form
     {
         $deskelProfile = Deskel::getFacadeRoot();
 
         return $form
             ->schema([
-                Hidden::make('deskel_id')->default(
-                    fn () => $deskelProfile->deskel_id ?? null
-                ),
-                Hidden::make('alamat')->default(
-                    fn () => $deskelProfile->alamat ?? null
-                ),
+                Hidden::make('deskel_id')
+                    ->default(
+                        fn () => $deskelProfile->deskel_id ?? null
+                    ),
                 Select::make('parent_id')
+                    ->inlineLabel()
                     ->searchable()
                     ->live()
+                    ->label('Wilayah Induk')
                     ->native(false)
                     ->options(
                         fn () => Wilayah::with('parent')->pluck('wilayah_nama', 'wilayah_id')
                     ),
                 TextInput::make('wilayah_nama')
+                    ->inlineLabel()
                     ->required()
+                    ->label('Nama Wilayah')
                     ->maxLength(100),
-                TextInput::make('tingkatan')
-                    ->readOnly()
+                Hidden::make('tingkatan')
                     ->required(
                         function (Get $get, Set $set) {
                             $parent = $get('parent_id');
                             if ($parent == null) {
-                                $set('tingkatan', 0);
+                                $set('tingkatan', 1);
                             } else {
-                                $level = Wilayah::tree()->find($parent)->depth;
-
-                                $set('tingkatan', $level + 1);
+                                (int) $level = Wilayah::tree()->find($parent)->depth;
+                                $set('tingkatan', $level + 2);
                             }
                         }
                     ),
                 Select::make('wilayah_kepala')
-                    ->relationship('kepalaWilayah')
-                    ->searchable()
-                    ->options(
-                        fn () => Penduduk::query()
-                            ->get()
-                            ->sortBy(function ($penduduk) {
-                                return $penduduk->kartuKeluarga ? $penduduk->kartuKeluarga->wilayah_id : PHP_INT_MAX;
-                            })
-                            ->map(function ($penduduk) {
-                                $label = $penduduk->nik . ' - ' . $penduduk->nama_lengkap;
-                                if ($penduduk->kartuKeluarga && $penduduk->kartuKeluarga->wilayahs) {
-                                    $label .= ' - ' . $penduduk->kartuKeluarga->wilayahs->wilayah_nama;
-                                }
-                                return [
-                                    'value' => $penduduk->nik,
-                                    'label' => $label,
-                                ];
-                            })
-                            ->pluck('label', 'value')
-                    ),
-            ]);
+                    ->label('Kepala Wilayah')
+                    ->inlineLabel()
+                    ->relationship(
+                        name: 'kepalaWilayah',
+                        titleAttribute: 'nama_lengkap',
+                        modifyQueryUsing: fn (Builder $query) => $query->with('kartuKeluarga.wilayah')->orderBy('nama_lengkap')
+                    )
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->nama_lengkap} - {$record->kartuKeluarga->wilayah->wilayah_nama}")
+                    ->searchable(['nama_lengkap', 'nik'])
+            ])
+            ->columns(1);
     }
 
     public static function table(Table $table): Table
     {
+        /** @var \App\Models\User */
+        $auth = Filament::auth()->user();
+
         return $table
             ->query(
-                function () {
-                    return (Wilayah::tree()
-                        ->orderByRaw("CAST(SUBSTRING_INDEX(path, '.', 1) AS UNSIGNED), 
-                                        CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(path, '.', 2), '.', -1) AS UNSIGNED),
-                                        CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(path, '.', 3), '.', -1) AS UNSIGNED)")
-                    );
-                }
-
+                static::$model::tree()->depthFirst()
             )
             ->columns([
                 Tables\Columns\TextColumn::make('No')
                     ->rowIndex(),
-                Tables\Columns\TextColumn::make('parent.wilayah_nama')
-                    ->getStateUsing(
-                        function (Wilayah $record) {
-                            if ($record->tingkatan !== "0") {
-                                return null;
-                            }
-                            return $record->bloodline()->where('tingkatan', 0)->pluck('wilayah_nama');
-                        }
-                    )
-                    ->label('RW')
-                    ->listWithLineBreaks()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('subparent.wilayah_nama')
-                    ->getStateUsing(
-                        function (Wilayah $record) {
-                            if ($record->tingkatan === "0") {
-                                return null;
-                            } else {
-                                return $record->childrenAndSelf()->where('tingkatan', 1)->pluck('wilayah_nama');
-                            }
-                        }
-                    )
-                    ->label('RT')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('children.wilayah_nama')
-                    ->getStateUsing(
-                        function (Wilayah $record) {
-                            if ($record->tingkatan === "0" | $record->tingkatan === '1') {
-                                return null;
-                            } else {
-                                return $record->childrenAndSelf()->where('tingkatan', 2)->pluck('wilayah_nama');
-                            }
-                        }
-                    )
-                    ->hidden(
-                        fn () =>
-                        Deskel::getFacadeRoot()->where('struktur', 'Dasar')
-
-                    )
-                    ->label('RT')
+                Tables\Columns\TextColumn::make('wilayah_nama')
+                    ->label('Wilayah')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('kepalaWilayah.nama_lengkap')
+                    ->label('Kepala Wilayah')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -156,17 +114,56 @@ class WilayahResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->persistFiltersInSession()
+            ->persistColumnSearchesInSession()
+            ->persistSearchInSession()
+            ->persistSortInSession()
             ->filters([
-                //
+                SelectFilter::make('parent_id')
+                    ->options(
+                        fn () => Wilayah::isRoot()
+                            ->pluck('wilayah_nama', 'wilayah_id')
+                    )
+                    ->label(''),
+            ], layout: FiltersLayout::AboveContent)
+            ->filtersFormColumns(2)
+            ->filtersFormSchema(fn (array $filters): array => [
+                Group::make()
+                    ->extraAttributes(['class' => 'mb-4'])
+                    ->schema([
+                        $filters['parent_id'],
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->button(),
+                Tables\Actions\Action::make('wilayah_kepala')
+                    ->label('Kepala Wilayah')
+                    ->button()
+                    ->color('info')
+                    ->icon('fas-user')
+                    ->form([
+                        Select::make('wilayah_kepala')
+                            ->relationship(
+                                name: 'kepalaWilayah',
+                                titleAttribute: 'nama_lengkap',
+                                modifyQueryUsing: fn (Builder $query) => $query->with('kartuKeluarga.wilayah')->orderBy('nama_lengkap')
+                            )
+                            ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->nama_lengkap} - {$record->kartuKeluarga->wilayah->wilayah_nama}")
+                            ->searchable(['nama_lengkap', 'nik'])
+                    ])
+                    ->action(
+                        fn (Wilayah $record, array $data) =>
+                        $record->update(['wilayah_kepala' => $data['wilayah_kepala']])
+                    ),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->reorderable('wilayah_id', $auth->hasRole('Admin'));;
     }
 
     public static function getRelations(): array

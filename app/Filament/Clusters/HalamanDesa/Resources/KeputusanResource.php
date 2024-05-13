@@ -6,15 +6,21 @@ use App\Filament\Clusters\HalamanDesa;
 use App\Filament\Clusters\HalamanDesa\Resources\KeputusanResource\Pages;
 use App\Models\Desa\Keputusan;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Carbon\Carbon;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Filament\Forms;
 use Filament\Forms\{Form, Get, Set};
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\Alignment;
 use Filament\Tables;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+
 
 class KeputusanResource extends Resource implements HasShieldPermissions
 {
@@ -90,23 +96,20 @@ class KeputusanResource extends Resource implements HasShieldPermissions
                             ->label('Dokumen')
                             ->live()
                             ->disk('public')
-                            ->directory('keputusan')
+                            ->directory('deskel/keputusan')
                             ->openable()
                             ->previewable()
                             ->downloadable()
                             ->getUploadedFileNameForStorageUsing(
-                                function (TemporaryUploadedFile $file, Get $get, Set $set) {
-                                    if ($get('dok_nama') === null) {
-                                        $filename = (string) str_replace(' ', '_', $file->getClientOriginalName());
-                                    } else {
-                                        $filename = (string) str_replace(' ', '_', $get('dok_nama')) . '.' . $file->getClientOriginalExtension();
-                                    }
-
-                                    return $set('dok_nama', $filename);
+                                function (TemporaryUploadedFile $file, Get $get) {
+                                    $prefix = 'Keputusan';
+                                    $tentang = str_replace(' ', '_', 'Tentang_' . $get('../tentang'));
+                                    $detail = str_replace(' ', '_', 'No_' . $get('../no') . '_Tahun_' . Carbon::parse($get('../tgl'))->format('Y'));
+                                    $filetype = str_replace(' ', '_', $file->getClientOriginalExtension());
+                                    return (string) $prefix . '_' . $detail . '_' . $tentang . '.' . $filetype;
                                 }
                             )
                             ->acceptedFileTypes(['application/pdf', 'application/msword']),
-
                     ]),
             ]);
     }
@@ -121,9 +124,12 @@ class KeputusanResource extends Resource implements HasShieldPermissions
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('dokumens.dok_nama')
                     ->label('Nama Dokumen')
+                    ->alignJustify()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('no')
                     ->label('Nomor/Tanggal Keputusan')
+                    ->alignment(Alignment::Justify)
+                    ->sortable()
                     ->getStateUsing(
                         function (Keputusan $record) {
                             return $record->no . ' / ' . $record->tgl->format('Y-m-d');
@@ -175,7 +181,10 @@ class KeputusanResource extends Resource implements HasShieldPermissions
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                ])
+                    ->hidden(
+                        fn () => Str::startsWith(Route::currentRouteName(), 'index')
+                    ),
             ]);
     }
 

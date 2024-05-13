@@ -2,38 +2,48 @@
 
 namespace App\Livewire\Stat;
 
-use App\Models\Stat;
 use App\Models\StatKategori;
-use App\Enums\Kependudukan\AgamaType;
-use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Support\Enums\Alignment;
-use Illuminate\Http\Request;
+use App\Filament\Clusters\HalamanStatistik\Resources\StatSDMResource;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
 
 class StatDisplay extends Component
 {
 
-    public $stat;
     public ?array $komponen = [];
     public $kategori;
     public $activeTab;
 
 
-    public function mount(Stat $stat, StatKategori $kategori): void
+    protected static string $resource = StatSDMResource::class;
+
+    protected static string $heading = 'Statistik Penduduk';
+
+    public Model | int | string | null $record;
+
+    public function mount(int | string $record): void
     {
-        $this->stat = $stat;
-        $this->kategori = $kategori->all();
+        $this->record = $this->resolveRecord($record);
+        $this->kategori = StatKategori::all();
     }
 
+    protected function resolveRecord(int | string $key): Model
+    {
 
+        $record = static::getResource()::resolveRecordRouteBinding($key);
+
+        return $record;
+    }
+
+    public static function getResource(): string
+    {
+        return static::$resource;
+    }
+
+    protected function getPageHeading(): string
+    {
+        return $this->record->title ?? static::$heading;
+    }
 
     public function render()
     {

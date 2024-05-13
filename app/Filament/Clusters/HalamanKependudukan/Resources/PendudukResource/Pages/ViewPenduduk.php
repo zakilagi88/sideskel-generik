@@ -5,8 +5,6 @@ namespace App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\P
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
-use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
-use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class ViewPenduduk extends ViewRecord
 {
@@ -15,12 +13,10 @@ class ViewPenduduk extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('Kembali')->action(fn () => redirect()->route('filament.admin.resources.penduduk.index'))->button(),
+            Actions\Action::make('Kembali')
+                ->url(route(static::$resource::getRouteBaseName() . '.index'))
+                ->button(),
             Actions\EditAction::make(),
-            ExportAction::make()->exports([
-                ExcelExport::make('form')->fromForm()->askForFilename()
-                    ->askForWriterType(),
-            ])
         ];
     }
 }

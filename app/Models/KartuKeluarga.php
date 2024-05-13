@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Facades\Deskel;
 use App\Facades\DeskelProfile;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,12 +15,13 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Traits\Dumpable;
 use OwenIt\Auditing\Contracts\Auditable;
 use Znck\Eloquent\Relations\BelongsToThrough;
 
 class KartuKeluarga extends Model implements Auditable
 {
-    use HasFactory;
+    use HasFactory, Dumpable;
 
     use \OwenIt\Auditing\Auditable;
     /**
@@ -52,46 +54,54 @@ class KartuKeluarga extends Model implements Auditable
 
     protected static function booted(): void
     {
-        static::addGlobalScope('wilayahs', function (Builder $query) {
-            if (auth()->check()) {
-                if (auth()->user()->hasRole('Admin')) {
-                    return $query;
-                } else {
-                    return $query->byWilayah(auth()->user()->wilayah_id);
-                }
-            }
+        static::addGlobalScope('wilayah', function (Builder $query) {
+            /** @var \App\Models\User */
+            // $role = Filament::auth()->user();
+            // return $query->whereHas('wilayah', function ($query) use ($authUser) {
+            //     $query->where('parent_id', 116);
+            // });
+
+
+            // $descendants = Wilayah::tree()->find($authUser->wilayah_id)->descendants->pluck('wilayah_id');
+
+
+
+
+
+
+            // return $query;
+            // whereHas('wilayah', function ($query) use ($authUser) {
+            //     $query->where('wilayah_id', $authUser->wilayah_id)->get()->dd();
+            // })->first();
+            // $child = $level->descendants;
+            // if ($child->isEmpty()) {
+            //     return $query->whereIn('wilayah_id', $descendants);
+            // } else {
+            //     return $query->where('wilayah_id', $authUser->wilayah_id);
+            // }
+            // if (auth()->check()) {
+            //     if ($authUser->hasRole('Admin')) {
+            //         return $query;
+            //     } else {
+            //         return $query->byWilayah($authUser);
+            //     }
+            // }
         });
     }
 
-    public function scopeByWilayah($query, $wilayah_id): Builder
+    public function scopeByWilayah($query, $user, $descendants = null): Builder
     {
-        $struktur = Deskel::getFacadeRoot();
-
-        switch ($struktur->struktur) {
-            case 'Khusus':
-                return $query->where('wilayah_id', $wilayah_id);
+        switch (true) {
+            case $user->hasRole('Admin') || $user->hasRole('Admin Web'):
+                return $query;
                 break;
 
-            case 'Dasar':
-                $level = Wilayah::tree()->find($wilayah_id);
-                if ($level->depth == 0) {
-                    $descendants = $level->descendants->pluck('wilayah_id');
-                    return $query->whereIn('wilayah_id', $descendants);
-                } else {
-                    return $query->where('wilayah_id', $wilayah_id);
-                }
-                break;
-
-            case 'Lengkap':
-                $level = Wilayah::tree()->find($wilayah_id);
-                if ($level->depth == 0) {
-                    $descendants = $level->descendants()->whereDepth(2)->pluck('wilayah_id');
-                } elseif ($level->depth == 1) {
-                    $descendants = $level->descendants->pluck('wilayah_id');
-                } else {
-                    return $query->where('wilayah_id', $wilayah_id);
-                }
+            case $user->hasRole('Monitor Wilayah'):
                 return $query->whereIn('wilayah_id', $descendants);
+                break;
+
+            case $user->hasRole('Operator Wilayah'):
+                return $query->where('wilayah_id', $user->wilayah_id);
                 break;
 
             default:
@@ -106,7 +116,7 @@ class KartuKeluarga extends Model implements Auditable
         return $this->hasMany(Penduduk::class, 'kk_id', 'kk_id');
     }
 
-    public function wilayahs(): BelongsTo
+    public function wilayah(): BelongsTo
     {
         return $this->belongsTo(Wilayah::class, 'wilayah_id', 'wilayah_id');
     }
@@ -124,7 +134,7 @@ class KartuKeluarga extends Model implements Auditable
     public function tambahans(): MorphToMany
     {
         return $this->morphToMany(Tambahan::class, 'tambahanable', 'tambahanables', 'tambahanable_id', 'tambahan_id')
-            ->withPivot('tambahanable_type', 'tambahanable_id', 'tambahanable_ket')
+            ->withPivot('tambahan_id', 'tambahanable_type', 'tambahanable_id', 'tambahanable_ket')
             ->withTimestamps();
     }
 

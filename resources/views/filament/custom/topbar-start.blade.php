@@ -21,7 +21,7 @@
 
 <header>
     <span class="text-lg font-semibold sm:text-center dark:text-gray-400">
-        @if ($roles->contains('super_admin'))
+        @if ($roles->contains('Admin'))
             Admin
         @endif
         @if ($roles->contains('RW'))

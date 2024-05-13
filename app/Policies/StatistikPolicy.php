@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Statistik;
+use App\Models\StatSDMistik;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class StatistikPolicy
@@ -25,7 +25,7 @@ class StatistikPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Statistik  $statistik
+     * @param  \App\Models\StatSDMistik  $statistik
      * @return bool
      */
     public function view(User $user, Statistik $statistik): bool
@@ -48,7 +48,7 @@ class StatistikPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Statistik  $statistik
+     * @param  \App\Models\StatSDMistik  $statistik
      * @return bool
      */
     public function update(User $user, Statistik $statistik): bool
@@ -60,7 +60,7 @@ class StatistikPolicy
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Statistik  $statistik
+     * @param  \App\Models\StatSDMistik  $statistik
      * @return bool
      */
     public function delete(User $user, Statistik $statistik): bool
@@ -83,7 +83,7 @@ class StatistikPolicy
      * Determine whether the user can permanently delete.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Statistik  $statistik
+     * @param  \App\Models\StatSDMistik  $statistik
      * @return bool
      */
     public function forceDelete(User $user, Statistik $statistik): bool
@@ -106,7 +106,7 @@ class StatistikPolicy
      * Determine whether the user can restore.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Statistik  $statistik
+     * @param  \App\Models\StatSDMistik  $statistik
      * @return bool
      */
     public function restore(User $user, Statistik $statistik): bool
@@ -129,7 +129,7 @@ class StatistikPolicy
      * Determine whether the user can replicate.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Statistik  $statistik
+     * @param  \App\Models\StatSDMistik  $statistik
      * @return bool
      */
     public function replicate(User $user, Statistik $statistik): bool
@@ -147,5 +147,4 @@ class StatistikPolicy
     {
         return $user->can('{{ Reorder }}');
     }
-
 }

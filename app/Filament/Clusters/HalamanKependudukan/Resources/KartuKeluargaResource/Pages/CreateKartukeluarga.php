@@ -148,7 +148,7 @@ class CreateKartukeluarga extends CreateRecord
                                                         ->map(function ($item) {
                                                             return [
                                                                 'key' => $item->kk_id,
-                                                                'value' => $item->kepalaKeluarga->nama_lengkap . ' - ' . $item->kk_id . ' - ' . $item->wilayahs->wilayah_nama,
+                                                                'value' => $item->kepalaKeluarga->nama_lengkap . ' - ' . $item->kk_id . ' - ' . $item->wilayah->wilayah_nama,
                                                             ];
                                                         })->pluck('value', 'key')
 

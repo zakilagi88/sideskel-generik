@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Web\Berita;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -74,7 +75,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function getFilamentAvatarUrl(): ?string
     {
-        return $this->avatar_url ? Storage::url($this->avatar_url) : null;
+        return $this->avatar_url ? Storage::url($this->avatar_url) : 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=random';
     }
 
     public function beritas()

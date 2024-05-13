@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Berita;
+use App\Models\Web\Berita;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BeritaPolicy
@@ -25,7 +25,7 @@ class BeritaPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Berita  $berita
+     * @param  \App\Models\Web\Berita  $berita
      * @return bool
      */
     public function view(User $user, Berita $berita): bool
@@ -48,7 +48,7 @@ class BeritaPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Berita  $berita
+     * @param  \App\Models\Web\Berita  $berita
      * @return bool
      */
     public function update(User $user, Berita $berita): bool
@@ -60,7 +60,7 @@ class BeritaPolicy
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Berita  $berita
+     * @param  \App\Models\Web\Berita  $berita
      * @return bool
      */
     public function delete(User $user, Berita $berita): bool
@@ -83,7 +83,7 @@ class BeritaPolicy
      * Determine whether the user can permanently delete.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Berita  $berita
+     * @param  \App\Models\Web\Berita  $berita
      * @return bool
      */
     public function forceDelete(User $user, Berita $berita): bool
@@ -106,7 +106,7 @@ class BeritaPolicy
      * Determine whether the user can restore.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Berita  $berita
+     * @param  \App\Models\Web\Berita  $berita
      * @return bool
      */
     public function restore(User $user, Berita $berita): bool
@@ -129,7 +129,7 @@ class BeritaPolicy
      * Determine whether the user can replicate.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Berita  $berita
+     * @param  \App\Models\Web\Berita  $berita
      * @return bool
      */
     public function replicate(User $user, Berita $berita): bool
@@ -147,5 +147,4 @@ class BeritaPolicy
     {
         return $user->can('reorder_berita');
     }
-
 }

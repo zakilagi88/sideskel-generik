@@ -1,19 +1,104 @@
 @import "../../../../vendor/filament/filament/resources/css/theme.css";
+@import "../../../../vendor/awcodes/filament-table-repeater/resources/css/plugin.css";
 
 @config './tailwind.config.js';
 
 @layer components {
 
-    /* .fi-simple-layout {
-        @apply bg-primary-400 dark:bg-info-950 !important;
-    } */
+    .fi-body {
+        @apply bg-secondary-100 pt-2 px-2 dark:bg-gray-950 !important;
+    } 
 
     .fi-user-avatar {
         @apply !w-10 !h-10 !object-contain !important;
     }
 
-    .fi-sidebar {
-        @apply bg-primary-400 mr-4 rounded-2xl shadow-none dark:bg-info-950  !important;
+    .fi-topbar nav {
+        @apply bg-primary-400 !ring-0 py-2 !border-none rounded-r-2xl dark:bg-gray-900 !important;
+    }
+
+    .fi-topbar nav .fi-icon-btn{
+        @apply !text-gray-100 dark:!text-primary-700 !important;
+    }
+
+    .fi-sidebar.fi-sidebar-open {
+        @apply lg:!w-1/4 2xl:!w-1/5 !important;
+    }
+
+    .fi-sidebar-nav-groups {
+        @apply !gap-y-2 -mr-6 !important;
+    }
+
+    .fi-sidebar-header {
+        @apply py-2 bg-primary-400 !ring-0 rounded-l-2xl dark:bg-gray-900 !important;
+    }
+
+    .fi-sidebar-header button {
+        @apply !text-gray-100 dark:!text-primary-400 !important;
+    }
+
+    .fi-sidebar-group>.fi-sidebar-group-items {
+        @apply gap-y-2 !important;
+    }
+
+/* SIDEBAR ITEM */
+
+.fi-sidebar-nav {
+    @apply !bg-white mt-4 ring-1 ring-gray-950/5 rounded-2xl dark:bg-gray-900 !important;
+}
+
+.fi-sidebar-item a {
+    @apply px-4 py-2 rounded-xl !important;
+}
+.fi-sidebar-item-button>.fi-sidebar-item-label,
+.fi-sidebar-item-button>.fi-sidebar-item-icon {
+    @apply dark:text-primary-400 !important;
+}
+
+.fi-sidebar-item a>span,
+.fi-sidebar-item a>svg {
+    @apply font-semibold dark:font-bold dark:text-gray-100 !important;
+}
+
+.fi-sidebar-item a:focus,
+.fi-sidebar-item a:hover {
+    @apply bg-primary-100 shadow-md dark:bg-primary-900 dark:shadow-lg transition-all ease-in-out duration-100 !important;
+}
+
+.fi-sidebar-item a:hover svg,
+.fi-sidebar-item a:focus span,
+.fi-sidebar-item a:hover span {
+    @apply text-primary-600 dark:text-gray-100 transition-all ease-in-out duration-100 !important;
+}
+
+.fi-sidebar-item-active a {
+    @apply shadow-md bg-primary-100 dark:bg-gray-800 dark:shadow-lg;
+}
+
+.fi-sidebar-item a:hover svg,
+.fi-sidebar-item a:focus svg,
+.fi-sidebar-item-active svg {
+    @apply !text-primary-500 dark:!text-gray-100 transition-all ease-in-out duration-300 !important;
+}
+
+/* .fi-sidebar.fi-sidebar-open {
+
+    .fi-sidebar-item a:hover svg,
+    .fi-sidebar-item a:focus svg,
+    .fi-sidebar-item-active svg {
+        @apply !ml-2;
+    }
+    
+} */
+
+.fi-sidebar.fi-sidebar-open .fi-sidebar-item a:hover svg,
+.fi-sidebar.fi-sidebar-open .fi-sidebar-item a:focus svg,
+.fi-sidebar.fi-sidebar-open .fi-sidebar-item-active svg {
+    @apply !ml-1;
+}
+
+    /* .fi-sidebar {
+        @apply  rounded-2xl shadow-none  !important;
     }
 
     .fi-sidebar-nav .fi-sidebar-nav-groups{
@@ -25,7 +110,7 @@
     }
 
     .fi-sidebar-header {
-        @apply ring-0 bg-primary-400 rounded-r-2xl shadow-none dark:bg-info-950 h-20 !important;
+        @apply ring-0 bg-primary-400 rounded-l-2xl shadow-none dark:bg-info-950 h-16 !important;
     }
 
     .fi-sidebar-header button {
@@ -37,32 +122,28 @@
             padding-bottom: 1rem !important;
         }
 
+    .fi-sidebar-item-active .fi-sidebar-item-button {
+        @apply !bg-primary-400 dark:bg-info-950 !important;
+    }
     .fi-sidebar-item-icon {
-        @apply !text-gray-700 dark:text-primary-400 !important;
+        @apply !text-primary-400 dark:text-primary-400 !important;
     }
     .fi-sidebar-item-active .fi-sidebar-item-icon {
-        @apply !text-primary-700 dark:text-primary-400 !important;
+        @apply !text-gray-200 dark:text-primary-400 !important;
     }
 
     .fi-sidebar-item-active .fi-sidebar-item-label {
-        @apply !text-primary-700 dark:text-primary-400  !important;
+        @apply !text-white dark:text-primary-400  !important;
     }
 
     .fi-sidebar-group-label {
         @apply !text-gray-700 dark:text-primary-400  !important;
     }
 
-    .fi-topbar nav {
-        @apply bg-primary-400 rounded-2xl dark:bg-info-950 !important;
-    }
-
-    .fi-topbar nav button {
-        @apply !text-gray-700 dark:!text-primary-200 !important;
-    }
 
     .fi-aside-section header {
         @apply bg-transparent rounded-none dark:bg-transparent !important;
-    }
+    } */
 
     .fi-aside-section header .fi-section-header-heading {
         @apply !text-primary-700 !text-2xl dark:text-primary-400 !important;
@@ -70,6 +151,14 @@
 
     .fi-section-header {
         @apply py-3 bg-transparent rounded-t-lg dark:bg-info-950 !important;
+    }
+
+    .fi-section-sidebar .fi-section-content {
+        @apply !p-2 !important;
+    }
+
+    .fi-section-sidebar .fi-section-content .fi-fo-component-ctn {
+        @apply !gap-2  !important;
     }
 
     /* .fi-section-header-heading {
@@ -91,6 +180,35 @@
         padding-bottom: .3rem !important;
     }
 
+    /* table {
+        position: relative;
+    } */
+
+    table th {
+        @apply !bg-secondary-100 !important;
+    }
+
+    /* table th:nth-child(even) {
+        left: 0;
+        z-index: 3;
+    } */
+    /* mengambil tr:nth-child(even) dan ada class 'to-be-striped */
+    /* table tbody tr:nth-child(even) {
+        @apply !bg-secondary-100 !important;
+    }  */
+
+    table tbody tr:nth-child(even) td.to-be-striped {
+        @apply !bg-gray-50 !important;
+    }
+    table tbody tr:nth-child(odd) td.to-be-striped {
+        @apply !bg-white hover:bg-gray-50 !important;
+    }  
+    /* table tbody tr:nth-child(even) {
+        @apply !bg-secondary-100 !important;
+    } */
+    /* table tbody tr:nth-child(odd) {
+        @apply !bg-blue-500 hover:bg-gray-50 z-50 !important;
+    } */
     /* .fi-icon-btn-icon {
         @apply !text-white dark:text-primary-400 !important;
     } */
@@ -142,96 +260,9 @@
     .deskel-profile-section .fi-in-placeholder {
         @apply text-white dark:!text-gray-500 !important;
     }
-
-
-    /* .fi-pond-ta {
-        @apply !h-64  !important;
-    } */
-    
-
-    /* .fi-badge .grid .truncate {
-        @apply overflow-visible whitespace-normal !important;
-    } */
-
-    /* .fi-sidebar {
-        @apply bg-[#96B6C5] mr-4 rounded-lg dark:bg-info-800  !important;
+    .fi-repeater-no-container > ul li {
+    @apply bg-none ring-0 shadow-none !important;
     }
-
-    .fi-sidebar-header {
-        @apply ring-0  bg-[#96B6C5] shadow-none rounded-lg dark:bg-info-800 !important;
-    }
-
-    .fi-sidebar-header button {
-        @apply pl-4 !text-blue-950 dark:!text-white !important;
-    }
-
-    .fi-sidebar-open .fi-sidebar-header button {
-        @apply !text-blue-950  dark:text-white !important;
-    }
-
-    .fi-sidebar-open .fi-sidebar-header {
-        @apply mt-4 shadow-none dark:bg-info-800   !important;
-    }
-
-    nav {
-        @apply pr-2 !important;
-    }
-
-    .fi-body {
-        @apply bg-[#F1F0E8] dark:from-slabg-info-950 dark:to-slabg-info-950 !important;
-    }
-
-    .fi-sidebar-item-icon {
-        @apply !text-gray-800 dark:text-info-800 !important;
-    }
-
-    .fi-sidebar-item-label {
-        @apply !text-gray-800 dark:text-info-800  !important;
-    }
-
-    .fi-sidebar-group div button {
-        @apply !text-gray-800 dark:text-white focus:ring-transparent !important;
-    }
-    .fi-sidebar-group div span {
-        @apply !text-gray-800 dark:text-white !important;
-    }
-
-    .fi-sidebar-item-active .fi-sidebar-item-label {
-        @apply !text-primary-900 dark:text-info-800 !important;
-    }
-
-    .fi-sidebar-item {
-        @apply !text-white dark:text-info-800 dark:bg-info-800 !important;
-    }
-
-
-    .fi-sidebar-item-active .fi-sidebar-item-label {
-        @apply !text-gray-800 dark:text-gray-300 !important;
-    }
-
-    .fi-sidebar-item-active a {
-        @apply !text-black bg-[#F1F0E8] dark:bg-[#2E4374] dark:text-info-800  !important;
-    }
-
-    .fi-sidebar-item-active .fi-sidebar-item-icon {
-        @apply !text-gray-800 dark:text-gray-300 !important;
-    }
-     .fi-sidebar-item-active .fi-sidebar-item-icon :hover {
-        @apply !text-white dark:text-gray-300 !important;
-    }
-
-
-    .fi-topbar nav {
-        @apply mr-4 bg-[#96B6C5] rounded-lg dark:bg-info-800 !important;
-    }
-
-    .fi-sidebar-nav ul{
-        @apply gap-y-2 !important;
-    } */
-
-    /* .fi-sidebar-nav ul li{
-        @apply hover:bg-[#F1F0E8] rounded-lg !important;
-    } */
 
     
 }

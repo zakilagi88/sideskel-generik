@@ -6,6 +6,13 @@
       'EloquentSerialize' => 'AnourValar\\EloquentSerialize\\Facades\\EloquentSerializeFacade',
     ),
   ),
+  'awcodes/filament-table-repeater' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Awcodes\\TableRepeater\\TableRepeaterServiceProvider',
+    ),
+  ),
   'barryvdh/laravel-debugbar' => 
   array (
     'providers' => 
@@ -223,6 +230,17 @@
       0 => 'OwenVoke\\BladeFontAwesome\\BladeFontAwesomeServiceProvider',
     ),
   ),
+  'riodwanto/filament-ace-editor' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Riodwanto\\FilamentAceEditor\\FilamentAceEditorServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'FilamentAceEditor' => 'Riodwanto\\FilamentAceEditor\\Facades\\FilamentAceEditor',
+    ),
+  ),
   'ryangjchandler/blade-capture-directive' => 
   array (
     'providers' => 
@@ -285,6 +303,13 @@
     'providers' => 
     array (
       0 => 'Spatie\\Permission\\PermissionServiceProvider',
+    ),
+  ),
+  'spatie/laravel-settings' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Spatie\\LaravelSettings\\LaravelSettingsServiceProvider',
     ),
   ),
   'spatie/laravel-tags' => 

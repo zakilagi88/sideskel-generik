@@ -11,10 +11,12 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Carbon\Carbon;
 use Coolsam\FilamentFlatpickr\Enums\FlatpickrTheme;
 use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
+use Filament\Facades\Filament;
 use Filament\Forms;
-use Filament\Forms\Components\{DatePicker, Repeater, Select, Textarea, TextInput, ToggleButtons};
+use Filament\Forms\Components\{DatePicker, Group, Repeater, Select, Textarea, TextInput, ToggleButtons};
 use Filament\Forms\Form;
 use Filament\Forms\FormsComponent;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
@@ -25,6 +27,8 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
+
+use function PHPUnit\Framework\isEmpty;
 
 class TambahanResource extends Resource implements HasShieldPermissions
 {
@@ -52,75 +56,87 @@ class TambahanResource extends Resource implements HasShieldPermissions
 
     public static function form(Form $form): Form
     {
-        $authWilayah = auth()->user()->hasRole('Operator Wilayah') || auth()->user()->hasRole('Monitor Wilayah') ? true : false;
+        /** @var \App\Models\User */
+        $authUser = Filament::auth()->user();
+
+        $authWilayah = $authUser->hasRole('Operator Wilayah') || $authUser->hasRole('Monitor Wilayah') ? true : false;
+
+
         return $form
             ->schema([
-                TextInput::make('tambahan_nama')
+                TextInput::make('nama')
                     ->required()
                     ->label('Nama Data Tambahan')
-                    ->disabled($authWilayah)
+                    ->live(onBlur: true)
+                    ->hidden($authWilayah)
+                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state)))
                     ->maxLength(255),
-                Select::make('tambahan_sasaran')
+                TextInput::make('slug')
+                    ->disabled()
+                    ->hidden($authWilayah)
+                    ->label('Rute Data Tambahan')
+                    ->dehydrated()
                     ->required()
-                    ->disabled($authWilayah)
-
+                    ->unique(Tambahan::class, 'slug', ignoreRecord: true),
+                Textarea::make('keterangan')
+                    ->label('Keterangan Data Tambahan')
+                    ->hidden($authWilayah)
+                    ->autosize()
+                    ->required(),
+                Select::make('sasaran')
+                    ->required()
+                    ->hidden($authWilayah)
+                    ->disabledOn('edit')
                     ->label('Sasaran Data Tambahan')
                     ->options([
                         'Penduduk' => 'Penduduk',
                         'Keluarga' => 'Keluarga',
                     ]),
-                Textarea::make('tambahan_keterangan')
-                    ->label('Keterangan Data Tambahan')
-                    ->disabled($authWilayah)
-
-                    ->autosize()
-                    ->required(),
-                Cluster::make([
-                    Flatpickr::make('tambahan_tgl_mulai')
-                        ->label('Tanggal Mulai')
-                        ->disabled($authWilayah)
-
-                        ->placeholder('Pilih Tanggal Mulai')
-                        ->animate()
-                        ->enableSeconds(false) // Enable seconds in a time picker
-
-                        ->allowInput(true)
-                        ->clickOpens(true)
-                        ->theme(FlatpickrTheme::MATERIAL_BLUE)
-                        ->postfix('s/d')
-                        ->required(),
-                    Flatpickr::make('tambahan_tgl_selesai')
-                        ->label('Tanggal Selesai')
-                        ->disabled($authWilayah)
-
-                        ->placeholder('Pilih Tanggal Selesai')
-                        ->animate()
-                        ->enableSeconds(false) // Enable seconds in a time picker
-                        ->allowInput(true)
-                        ->clickOpens(true)
-                        ->theme(FlatpickrTheme::MATERIAL_BLUE)
-                        ->required(),
-                ])->label('Tanggal Berlaku'),
+                Group::make()
+                    ->schema([
+                        Cluster::make([
+                            Flatpickr::make('tgl_mulai')
+                                ->label('Tanggal Mulai')
+                                ->hidden($authWilayah)
+                                ->placeholder('Pilih Tanggal Mulai')
+                                ->animate()
+                                ->enableSeconds(false) // Enable seconds in a time picker
+                                ->allowInput(true)
+                                ->clickOpens(true)
+                                ->theme(FlatpickrTheme::MATERIAL_BLUE)
+                                ->postfix('s/d')
+                                ->required(),
+                            Flatpickr::make('tgl_selesai')
+                                ->label('Tanggal Selesai')
+                                ->hidden($authWilayah)
+                                ->placeholder('Pilih Tanggal Selesai')
+                                ->animate()
+                                ->enableSeconds(false) // Enable seconds in a time picker
+                                ->allowInput(true)
+                                ->clickOpens(true)
+                                ->theme(FlatpickrTheme::MATERIAL_BLUE)
+                                ->required(),
+                        ])->label('Tanggal Berlaku'),
+                        ToggleButtons::make('status')
+                            ->label('Status Data Tambahan')
+                            ->options([
+                                '0' => 'Tidak Aktif',
+                                '1' => 'Aktif',
+                            ])
+                            ->inline()
+                            ->hidden($authWilayah)
+                            ->default('1')
+                            ->required(),
+                    ]),
                 Repeater::make('kategori')
                     ->label('Kategori Data Tambahan')
-                    ->disabled($authWilayah)
+                    ->hidden($authWilayah)
                     ->simple(
                         TextInput::make('kategori_nama')
                             ->label('Nama Kategori')
                             ->required()
                             ->maxLength(255),
                     ),
-                ToggleButtons::make('tambahan_status')
-                    ->label('Status Data Tambahan')
-                    ->options([
-                        '0' => 'Tidak Aktif',
-                        '1' => 'Aktif',
-                    ])
-                    ->inline()
-                    ->disabled($authWilayah)
-
-                    ->default('1')
-                    ->required(),
             ]);
     }
 
@@ -128,37 +144,37 @@ class TambahanResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
-                TextColumn::make('tambahan_nama')
+                TextColumn::make('nama')
                     ->label('Nama Tambahan')
                     ->alignJustify()
                     ->wrap()
                     ->description(
-                        fn (Tambahan $record) => self::limitwords($record->tambahan_keterangan, 250, ' ...')
+                        fn (Tambahan $record) => self::limitwords($record->keterangan, 250, ' ...')
                     )
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('terdaftar_count')
                     ->label('Terdaftar')
                     ->suffix(
-                        fn (Tambahan $record) => $record->tambahan_sasaran == 'Penduduk' ? ' Penduduk' : ' Keluarga'
+                        fn (Tambahan $record) => $record->sasaran == 'Penduduk' ? ' Penduduk' : ' Keluarga'
                     )
                     ->getStateUsing(
-                        fn (Tambahan $record) => $record->terdaftar($record->tambahan_sasaran)->count()
+                        fn (Tambahan $record) => $record->terdaftar($record->sasaran)->count()
                     )
                     ->alignCenter(),
-                TextColumn::make('tambahan_tgl_mulai')
+                TextColumn::make('tgl_mulai')
                     ->label('Tanggal Berlaku')
                     ->alignJustify()
                     ->getStateUsing(
-                        fn (Tambahan $record) => Carbon::parse($record->tambahan_tgl_mulai)->isoFormat('dddd, D MMMM YYYY') . ' - ' . Carbon::parse($record->tambahan_tgl_selesai)->isoFormat('dddd, D MMMM YYYY')
+                        fn (Tambahan $record) => Carbon::parse($record->tgl_mulai)->isoFormat('dddd, D MMMM YYYY') . ' - ' . Carbon::parse($record->tgl_selesai)->isoFormat('dddd, D MMMM YYYY')
                     )
                     ->sortable(),
-                TextColumn::make('tambahan_sasaran')
+                TextColumn::make('sasaran')
                     ->label('Sasaran')
                     ->alignJustify()
                     ->sortable()
                     ->searchable(),
-                IconColumn::make('tambahan_status')
+                IconColumn::make('status')
                     ->alignCenter()
                     ->boolean(),
                 TextColumn::make('created_at')
@@ -174,6 +190,7 @@ class TambahanResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

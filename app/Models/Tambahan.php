@@ -9,41 +9,52 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Traits\Dumpable;
 
 class Tambahan extends Model
 {
-    use HasFactory;
+    use HasFactory, Dumpable;
 
     protected $table = 'tambahans';
 
-    protected $primaryKey = 'tambahan_id';
-
     protected $fillable = [
-        'tambahan_id',
-        'tambahan_nama',
-        'tambahan_sasaran',
+        'id',
+        'nama',
+        'slug',
+        'sasaran',
         'kategori',
-        'tambahan_keterangan',
-        'tambahan_tgl_mulai',
-        'tambahan_tgl_selesai',
-        'tambahan_status',
+        'keterangan',
+        'tgl_mulai',
+        'tgl_selesai',
+        'status',
     ];
 
     protected $casts = [
         'kategori' => 'array',
     ];
 
+    public function getLinkKey(): string
+    {
+        return $this->slug;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+
     public function penduduks(): MorphToMany
     {
         return $this->morphedByMany(Penduduk::class, 'tambahanable', 'tambahanables', 'tambahan_id', 'tambahanable_id')
-            ->withPivot('tambahanable_type', 'tambahanable_id', 'tambahanable_ket')
+            ->withPivot('tambahanable_type', 'tambahanable_id', 'tambahanable_ket', 'tambahan_id')
             ->withTimestamps();
     }
 
     public function keluargas(): MorphToMany
     {
         return $this->morphedByMany(KartuKeluarga::class, 'tambahanable', 'tambahanables', 'tambahan_id', 'tambahanable_id')
-            ->withPivot('tambahanable_type', 'tambahanable_id', 'tambahanable_ket')
+            ->withPivot('tambahanable_type', 'tambahanable_id', 'tambahanable_ket', 'tambahan_id')
             ->withTimestamps();
     }
 
@@ -59,5 +70,10 @@ class Tambahan extends Model
         } else {
             return $this->keluargas;
         }
+    }
+
+    public function scopeAktif($query)
+    {
+        return $query->where('status', true);
     }
 }

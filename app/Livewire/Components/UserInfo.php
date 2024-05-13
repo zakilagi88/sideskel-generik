@@ -57,12 +57,6 @@ class UserInfo extends EditProfile
                 $this->getEmailFormComponent(),
                 $this->getPasswordFormComponent(),
                 $this->getPasswordConfirmationFormComponent(),
-                ColorPicker::make('settings.color')
-                    ->label('Warna Utama')
-                    ->formatStateUsing(
-                        fn (?string $state): string => $state ?? config('filament.theme.colors.primary')
-                    )
-                    ->inlineLabel()
             ]);
     }
 

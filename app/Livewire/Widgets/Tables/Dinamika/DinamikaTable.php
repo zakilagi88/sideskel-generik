@@ -26,31 +26,26 @@ class DinamikaTable extends TableWidget
                 TextColumn::make('id')
                     ->label('No')
                     ->rowIndex()
-                    ->alignCenter()
-                    ->sortable(),
+                    ->alignCenter(),
                 TextColumn::make('Perincian')
                     ->label('Perincian')
-                    ->alignLeft()
-                    ->sortable(),
+                    ->alignLeft(),
                 TextColumn::make('Laki_Laki')
                     ->label('Laki-laki')
-                    ->alignCenter()
-                    ->sortable(),
+                    ->alignCenter(),
                 TextColumn::make('Perempuan')
                     ->label('Perempuan')
-                    ->alignCenter()
-                    ->sortable(),
+                    ->alignCenter(),
                 TextColumn::make('Total')
                     ->label('Total')
-                    ->alignCenter()
-                    ->sortable(),
+                    ->alignCenter(),
             ])
             ->deferLoading()
             ->deferFilters()
             ->persistFiltersInSession()
             ->persistColumnSearchesInSession()
             ->persistSearchInSession()
-            ->persistSortInSession()
+            ->paginated(false)
             ->striped();
     }
 

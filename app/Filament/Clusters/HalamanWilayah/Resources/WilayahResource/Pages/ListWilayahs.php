@@ -375,6 +375,7 @@ class ListWilayahs extends ListRecords
                     'wilayah_nama' => $this->generateWilayahName(1, $data['nama_1'], $dataTingkatan['tingkat_1']),
                     'deskel_id' => $data['deskel_id'],
                     'parent_id' => null,
+                    'tingkatan' => 1,
                 ];
                 $parent = $this->insertParentWilayah($parents);
                 $parentUser[] = [
@@ -392,6 +393,7 @@ class ListWilayahs extends ListRecords
                             'wilayah_nama' => $this->generateWilayahName(2, $data['nama_2'], $childNumber, $data['nama_1'], $dataTingkatan['tingkat_1']),
                             'deskel_id' => $data['deskel_id'],
                             'parent_id' => $parent->wilayah_id,
+                            'tingkatan' => 2,
                         ];
                         $childrenUser[] = [
                             'name' => $this->generateWilayahName(2, $data['nama_2'], $childNumber, $data['nama_1'], $dataTingkatan['tingkat_1']),
@@ -409,6 +411,8 @@ class ListWilayahs extends ListRecords
                             'wilayah_nama' => $this->generateWilayahName(2, $data['nama_2'], $subParent['tingkat_2'], $data['nama_1'], $dataTingkatan['tingkat_1']),
                             'deskel_id' => $data['deskel_id'],
                             'parent_id' => $parent->wilayah_id,
+                            'tingkatan' => 2,
+
                         ];
                         $subparent = $this->insertParentWilayah($sub_parent);
                         $subparentUser[] = [
@@ -424,6 +428,8 @@ class ListWilayahs extends ListRecords
                                 'wilayah_nama' => $this->generateWilayahName(3, $data['nama_3'], $childNumber, $data['nama_2'], $subParent['tingkat_2'], $data['nama_1'], $dataTingkatan['tingkat_1']),
                                 'deskel_id' => $data['deskel_id'],
                                 'parent_id' => $subparent->wilayah_id,
+                                'tingkatan' => 3,
+
                             ];
                             $childrenUser[] = [
                                 'name' => $this->generateWilayahName(3, $data['nama_3'], $childNumber, $data['nama_2'], $subParent['tingkat_2'], $data['nama_1'], $dataTingkatan['tingkat_1']),

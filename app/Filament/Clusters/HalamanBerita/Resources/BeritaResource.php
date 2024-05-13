@@ -5,7 +5,7 @@ namespace App\Filament\Clusters\HalamanBerita\Resources;
 use App\Enums\Desa\StatusBeritaType;
 use App\Filament\Clusters\HalamanBerita;
 use App\Filament\Clusters\HalamanBerita\Resources\BeritaResource\Pages;
-use App\Models\Berita;
+use App\Models\Web\Berita;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Carbon\Carbon;
 use Filament\Forms;
@@ -32,7 +32,7 @@ class BeritaResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $slug = 'list';
+    protected static ?string $slug = 'berita';
 
     public static function getPermissionPrefixes(): array
     {
@@ -89,7 +89,7 @@ class BeritaResource extends Resource implements HasShieldPermissions
                                             ->columnSpanFull(),
 
                                         Forms\Components\Select::make('user_id')
-                                            ->relationship('user', 'name')
+                                            ->relationship('author', 'name')
                                             ->label('Penulis')
                                             ->preload()
                                             ->searchable()
@@ -205,7 +205,7 @@ class BeritaResource extends Resource implements HasShieldPermissions
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('author.name')
                     ->label('Penulis')
                     ->searchable()
                     ->sortable()

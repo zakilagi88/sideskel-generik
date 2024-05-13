@@ -2,7 +2,7 @@
 
 namespace App\Filament\Clusters;
 
-use App\Models\Statistik;
+use App\Models\StatSDMistik;
 use Filament\Clusters\Cluster;
 
 class HalamanStatistik extends Cluster

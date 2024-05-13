@@ -3,7 +3,9 @@
 namespace App\Livewire;
 
 use App\Facades\Deskel;
+use App\Settings\WebSettings;
 use Livewire\Component;
+use PhpOffice\PhpSpreadsheet\Calculation\Web;
 
 class Home extends Component
 {
@@ -21,4 +23,6 @@ class Home extends Component
     {
         return view('livewire.home');
     }
+
+   
 }

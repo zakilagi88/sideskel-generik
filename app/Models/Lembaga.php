@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Storage;
 
 class Lembaga extends Model
 {
@@ -16,6 +17,9 @@ class Lembaga extends Model
     protected $fillable = [
         'nama',
         'singkatan',
+        'deskripsi',
+        'logo_url',
+        'slug',
         'kategori_jabatan',
         'alamat',
         'dokumen_id',
@@ -24,6 +28,21 @@ class Lembaga extends Model
     protected $casts = [
         'kategori_jabatan' => 'array',
     ];
+
+    public function getLogoUrl(): ?string
+    {
+        return $this->logo_url ? Storage::url($this->logo_url) : 'https://ui-avatars.com/api/?name=' . urlencode($this->nama) . '&background=random';
+    }
+
+    public function getLinkKey(): string
+    {
+        return $this->slug;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     public function dokumen(): BelongsTo
     {

@@ -13,10 +13,6 @@ use Filament\Forms\{Form, Get, Set};
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\HtmlString;
 
 class KesehatanAnakResource extends Resource implements HasShieldPermissions
 {
@@ -64,7 +60,6 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     ->content(
                                         function (Get $get) {
                                             $bgColor = 'primary';
-
                                             $indeks = "BB/U";
                                             $status = $get('kategori_bbu');
                                             $nilai = $get('z_score_bbu');
@@ -76,7 +71,7 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     ->columns(1)
                                     ->content(
                                         function (Get $get) {
-                                            $bgColor = 'warning';
+                                            $bgColor = 'secondary';
                                             $indeks = "TB/U";
                                             $status = $get('kategori_tbu');
                                             $nilai = $get('z_score_tbu');
@@ -89,7 +84,7 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     ->columns(1)
                                     ->content(
                                         function (Get $get) {
-                                            $bgColor = 'success';
+                                            $bgColor = 'warning';
                                             $indeks = "IMT/U";
                                             $status = $get('kategori_imtu');
                                             $nilai = $get('z_score_imtu');
@@ -124,7 +119,7 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                         $id = $component->getState();
                                         $relasi = $component->getRelationship()->getRelated()->where('nik', $id)->first();
                                         $set('tanggal_lahir', $relasi->tanggal_lahir);
-                                        $set('umur', round(now()->diffInMonths($relasi->tanggal_lahir, true)), 0);
+                                        $set('umur', $relasi->umur);
                                         $set('jenis_kelamin', $relasi->jenis_kelamin->value);
                                         $set('nama_ibu', $relasi->nama_ibu);
                                         // $component->getContainer()->getComponent('anak')->getChildComponentContainer()

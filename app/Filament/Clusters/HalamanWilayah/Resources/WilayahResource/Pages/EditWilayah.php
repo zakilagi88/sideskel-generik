@@ -21,7 +21,6 @@ class EditWilayah extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         $record->update($data);
-
         return $record;
     }
 }

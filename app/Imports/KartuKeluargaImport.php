@@ -119,6 +119,7 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
                 'jenis_kelamin' => $row['jenis_kelamin'],
                 'tempat_lahir' => $row['tempat_lahir'],
                 'tanggal_lahir' => self::formatTanggal($row['tanggal_lahir']),
+                'umur' => Carbon::parse(self::formatTanggal($row['tanggal_lahir']))->age ?: null,
                 'agama' => $row['agama'],
                 'pendidikan' => $row['pendidikan'],
                 'pekerjaan' => $row['pekerjaan'],
