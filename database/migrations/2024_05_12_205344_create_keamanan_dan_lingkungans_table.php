@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('keamanan_dan_lingkungans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('deskel_profil_id')->constrained('deskel_profils')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('deskel_profil_id')->constrained();
             $table->string('jenis');
             $table->json('data');
             $table->timestamps();

@@ -6,6 +6,8 @@ use App\Facades\Deskel;
 use App\Models\Penduduk;
 use App\Models\User;
 use App\Models\Wilayah;
+use App\Settings\GeneralSettings;
+use App\Settings\WebSettings;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Facades\Filament;
 use Filament\Widgets\Widget;
@@ -32,6 +34,7 @@ class SistemPreparation extends Widget
     private $pendudukCount;
     private $accountCount;
 
+    public bool $initSetup = false;
     public array $completedSteps = [];
     public bool $allStepsCompleted = false;
 
@@ -43,7 +46,9 @@ class SistemPreparation extends Widget
 
     public static function canView(): bool
     {
-        if (Filament::auth()->user()->hasRole('Admin')) {
+        /** @var \App\Models\User */
+        $auth = Filament::auth()->user();
+        if ($auth->hasRole('Admin')) {
             return true;
         }
     }
@@ -73,7 +78,7 @@ class SistemPreparation extends Widget
     public function initCompletedSteps()
     {
 
-        for ($i = 1; $i <= $this->totalSteps; $i++) {
+        for ($i = 0; $i <= $this->totalSteps; $i++) {
             $this->completedSteps[$i] = false;
         }
     }
@@ -81,13 +86,17 @@ class SistemPreparation extends Widget
     #[On('update-step')]
     public function updateCompletedSteps()
     {
-        $this->deskelCount = $this->deskel->count();
+        $set = app(GeneralSettings::class)->toArray();
+
+        $this->initSetup = $set['site_init'];
+        $this->deskelCount = $this->deskel->deskel_id;
         $this->wilayahCount = Wilayah::count();
         $this->pendudukCount = Penduduk::count();
         $this->accountCount = User::count();
 
         $conditions = [
-            1 => $this->deskelCount > 0,
+            0 => $this->initSetup == true,
+            1 => !(is_null($this->deskelCount)),
             2 => $this->wilayahCount > 0,
             3 => $this->pendudukCount > 0,
         ];
@@ -117,7 +126,12 @@ class SistemPreparation extends Widget
 
     public function updateStep($stepId)
     {
-        if ($stepId == 4) {
+        $set = app(GeneralSettings::class);
+
+        if ($stepId == 0) {
+            $set->fill(['site_init' => true])->save();
+            $this->completedSteps[0] = true;
+        } elseif ($stepId == 4) {
             $this->completedSteps[4] = true;
         }
 
@@ -130,25 +144,33 @@ class SistemPreparation extends Widget
         return [
             'steps' => [
                 [
+                    'id' => 0,
+                    'label' => 'Pengaturan Aplikasi',
+                    'description' => 'Selamat datang di SIDeskel Generik. Silahkan Masuk ke Pengaturan Aplikasi untuk memulai konfigurasi sistem.',
+                    'href' => route('filament.admin.pages.pengaturan-umum'),
+                    'completed' => $this->completedSteps[0],
+                    'icon' => 'fas-city',
+                ],
+                [
                     'id' => 1,
                     'label' => 'Profil Desa',
-                    'description' => 'Lengkapi data profil desa untuk memulai konfigurasi sistem.',
-                    'href' => route('filament.admin.pages.deskel-profile'),
+                    'description' => 'Langkah selanjutnya adalah mengisi profil Desa/Kelurahan Anda.',
+                    'href' => route('filament.admin.deskel.resources.profil.edit', ['record' => ($this->deskel->first())]),
                     'completed' => $this->completedSteps[1],
                     'icon' => 'fas-city',
                 ],
                 [
                     'id' => 2,
                     'label' => 'Wilayah Administratif',
-                    'description' => 'Konfigurasi wilayah administratif sesuai kebutuhan desa Anda.',
-                    'href' => route('filament.admin.wilayah.resources.wilayahs.index'),
+                    'description' => 'Inisiasi Wilayah sesuai kebutuhan Desa/Kelurahan Anda.',
+                    'href' => route('filament.admin.index.resources.wilayah.index'),
                     'completed' => $this->completedSteps[2],
                     'icon' => 'fas-map',
                 ],
                 [
                     'id' => 3,
                     'label' => 'Data Kependudukan',
-                    'description' => 'Kelola data penduduk desa dengan menambahkan data kependudukan.',
+                    'description' => 'Kelola Data Kependudukan dengan mengelola Kartu Keluarga dan Penduduk.',
                     'href' => route('filament.admin.kependudukan.resources.keluarga.index'),
                     'completed' => $this->completedSteps[3],
                     'icon' => 'fas-city',
@@ -177,7 +199,9 @@ class SistemPreparation extends Widget
     #[On('complete-step')]
     public function completeStep(int $step)
     {
-        $this->deskel->update(['status' => true]);
+        app(GeneralSettings::class)->fill(['site_active' => true])->save();
+        app(WebSettings::class)->fill(['web_active' => true])->save();
+
         $this->redirect(route('filament.admin.pages.dashboard'));
     }
 }

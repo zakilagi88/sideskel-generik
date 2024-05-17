@@ -22,7 +22,9 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
-
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\IconColumn\IconColumnSize;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,42 +45,7 @@ class PotensiSDAResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    public static function generateArrayTextInput($state): array
-    {
-        $input = [];
-        foreach ($state as $value) {
-            // Lakukan pengecekan untuk memastikan 'numeric' ada dan berupa boolean
-            $isNumeric = isset($value['numeric']) ? (bool)$value['numeric'] : false;
 
-            if ($value['select'] ?? false) {
-                $input[] = Forms\Components\Select::make($value['label'])
-                    ->label(fn () => $value['label'])
-                    ->options($value['options']);
-            } else if ($value['checkbox'] ?? false) {
-                $input[] = Forms\Components\Checkbox::make($value['label'])
-                    ->extraAttributes([
-                        'class' => 'mx-auto',
-                    ])
-                    ->hiddenLabel();
-            } else if ($value['checkbox-list'] ?? false) {
-                $input[] = Forms\Components\CheckboxList::make($value['label'])
-                    ->label(fn () => $value['label'])
-                    ->options($value['options'])
-                    ->columns($value['columns'] ?? 1);
-            } else {
-                $input[] = Forms\Components\TextInput::make($value['label'])
-                    ->label(fn () => $value['label'])
-                    ->numeric($isNumeric)
-                    ->validationAttribute($value['label'])
-                    ->suffix($value['suffix'] ?? null)
-                    ->inlineLabel($value['inline'] ?? false)
-                    ->placeholder('Masukkan ' . $value['label'])
-                    ->minValue(0);
-            }
-        }
-
-        return $input;
-    }
 
     public static function form(Form $form): Form
     {
@@ -135,7 +102,7 @@ class PotensiSDAResource extends Resource
                                                     $items = $component->getState();
 
                                                     if (empty($items)) {
-                                                        $items = [];
+                                                        $items[$newUuid] = [];
                                                     } else {
                                                         $keys = array_keys($items[array_key_first($items)]);
 
@@ -247,7 +214,7 @@ class PotensiSDAResource extends Resource
     public static function extraTextInputs(): array
     {
         return [
-            'pertanian-&-perkebunan' => [
+            'pertanian-perkebunan' => [
                 [
                     'label' => 'Luas Tanaman Pangan Menurut Komoditas',
                     'entitas' => [
@@ -649,13 +616,47 @@ class PotensiSDAResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('jenis')
-                    ->weight(FontWeight::Bold)
-                    ->formatStateUsing(function ($state) {
-                        return ucwords(str_replace('-', ' ', $state));
-                    })
-                    ->searchable()
-                    ->sortable(),
+                Split::make([
+                    IconColumn::make('jenis')
+                        ->size(IconColumnSize::TwoExtraLarge)
+                        ->grow(false)
+                        ->color(fn (string $state): string => match ($state) {
+                            'pertanian-perkebunan' => 'success',
+                            'kehutanan' => 'success',
+                            'peternakan' => 'danger',
+                            'perikanan' => 'info',
+                            'bahan-galian' => 'primary',
+                            'sumber-daya-air' => 'secondary',
+                            'udara' => 'warning',
+                            'kebisingan' => 'danger',
+                            'ruang-publik' => 'info',
+                            'wisata' => 'warning',
+                            default => 'gray',
+                        })
+                        ->icon(fn (string $state): string => match ($state) {
+                            'pertanian-perkebunan' => 'fas-seedling',
+                            'kehutanan' => 'fas-tree',
+                            'peternakan' => 'fas-cow',
+                            'perikanan' => 'fas-fish',
+                            'bahan-galian' => 'fas-gem',
+                            'sumber-daya-air' => 'fas-water',
+                            'udara' => 'fas-wind',
+                            'kebisingan' => 'fas-volume-up',
+                            'ruang-publik' => 'fas-map-marked',
+                            'wisata' => 'fas-umbrella-beach',
+                            default => 'heroicon-o-information-circle',
+                        }),
+                    TextColumn::make('jenis')
+                        ->verticallyAlignCenter()
+                        ->alignment(Alignment::Left)
+                        ->weight(FontWeight::Bold)
+                        ->formatStateUsing(function ($state) {
+                            return ucwords(str_replace('-', ' ', $state));
+                        })
+                        ->searchable()
+                        ->sortable(),
+                ]),
+
                 Panel::make([
                     Split::make([
                         TextColumn::make('data')
@@ -665,7 +666,7 @@ class PotensiSDAResource extends Resource
                             ->listWithLineBreaks()
                             ->bulleted()
                     ])->from('md'),
-                ])->collapsed(false)
+                ])->collapsible()
 
             ])
             ->contentGrid([

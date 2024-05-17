@@ -7,12 +7,14 @@ use App\Filament\Clusters\HalamanKesehatan;
 use App\Models\KesehatanAnak;
 use App\Services\GenerateStatusAnak;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\{Select, TextInput};
 use Filament\Forms\{Form, Get, Set};
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class KesehatanAnakResource extends Resource implements HasShieldPermissions
 {
@@ -129,16 +131,12 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                         //         'nama_ibu' => $relasi->nama_ibu,
                                         //     ]);
                                     }),
-                                TextInput::make('umur')
+                                TextInput::make('tanggal_lahir')
                                     ->readOnly()
                                     ->formatStateUsing(
-                                        function (TextInput $component) {
-                                            if ($component->getRecord()) {
-                                                $record = $component->getRecord() ?? null;
-                                                $tgl = $record->anak->tanggal_lahir ?? now();
-                                                $umur = now()->diffInMonths($tgl, true);
-                                                return round($umur, 0);
-                                            }
+                                        function (Model $record) {
+                                            $umur = Carbon::parse($record->anak->tanggal_lahir)->diffInMonths(now());
+                                            return round($umur, 0);
                                         }
 
                                     )
@@ -206,7 +204,7 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                 Forms\Components\TextInput::make('imt')
                                     ->label('Indeks Massa Tubuh')
                                     ->placeholder('Indeks Massa Tubuh')
-                                    ->reactive()
+                                    ->live(onBlur: true)
                                     ->readOnly()
                                     ->afterStateUpdated(
                                         function (Get $get, Set $set) {

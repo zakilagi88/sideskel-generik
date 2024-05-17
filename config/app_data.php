@@ -11,6 +11,259 @@ return
                     'nama' => 'Statistik Keluarga',
                 ],
             ],
+            'potensi-sda' => [
+                'pertanian-perkebunan' => [
+                    [
+                        'label' => 'Luas Tanaman Pangan Menurut Komoditas',
+                        'entitas' => [[
+                            '0 Nama Komoditas' => null,
+                            '1 Luas (Ha)' => null,
+                            '2 Hasil Panen' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Jenis Komoditas Buah Buahan yang dibudidayakan',
+                        'entitas' => [[
+                            '0 Nama Komoditas' => null,
+                            '1 Luas (Ha)' => null,
+                            '2 Hasil Panen' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Tanaman Apotik Hidup Dan Sejenisnya',
+                        'entitas' => [[
+                            '0 Nama Tanaman' => null,
+                            '1 Luas (Ha)' => null,
+                            '2 Hasil Panen' => null,
+                        ]],
+                    ],
+
+                    [
+                        'label' => 'Luas dan hasil perkebunan menurut Jenis Komoditas',
+                        'entitas' => [[
+                            '0 Jenis Komoditas' => null,
+                            '1 Luas (Swasta/Negara)' => null,
+                            '2 Hasil Panen (Swasta/Negara)' => null,
+                            '3 Luas (Rakyat)' => null,
+                            '4 Hasil Panen (Rakyat)' => null,
+                        ]],
+                    ]
+
+                ],
+                'kehutanan' => [
+                    [
+                        'label' => 'Hasil Hutan',
+                        'entitas' => [[
+                            '0 Nama Komoditas' => null,
+                            '1 Hasil Panen' => null,
+                            '2 Satuan' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Kondisi Hutan',
+                        'entitas' => [[
+                            '0 Jenis Hutan' => null,
+                            '1 Kondisi Baik' => null,
+                            '2 Kondisi Rusak' => null,
+                            '3 Total' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Dampak yang Timbul dari Pengolahan Hutan',
+                        'entitas' => [[
+                            '0 Jenis Dampak' => null,
+                            '1 Dampak' => null,
+                        ]],
+                    ],
+                ],
+                'peternakan' => [
+                    [
+                        'label' => 'Jumlah Populasi Ternak Menurut Jenis Ternak',
+                        'entitas' => [[
+                            '0 Jenis Ternak' => null,
+                            '1 Jumlah Populasi' => null,
+                            '2 Perkiraan Jumlah Populasi' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Produksi Peternakan',
+                        'entitas' => [[
+                            '0 Jenis Produksi' => null,
+                            '1 Hasil Produksi' => null,
+                            '2 Satuan' => null,
+
+                        ]],
+                    ],
+                    [
+                        'label' => 'Ketersediaan Hijauan Pakan Ternak',
+                        'entitas' => [[
+                            '0 Keterangan' => null,
+                            '1 Jumlah' => null,
+                            '2 Satuan' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Pemilik Usaha Pengolahan Hasil Ternak',
+                        'entitas' => [[
+                            '0 Jenis Usaha' => null,
+                            '1 Jumlah Pemilik Usaha' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Ketersediaan lahan pemeliharaan ternak/padang penggembalaan',
+                        'entitas' => [[
+                            '0 Jumlah Kepemilikan Lahan' => null,
+                            '1 Luas' => null,
+                        ]],
+                    ]
+                ],
+                'perikanan' => [
+                    [
+                        'label' => 'Jenis dan Alat Produksi Budidaya Ikan Laut dan Payau',
+                        'entitas' => [[
+                            '0 Jenis Alat' => null,
+                            '1 Jumlah' => null,
+                            '2 Satuan' => null,
+                            '3 Hasil Produksi' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Jenis dan Sarana Produksi Budidaya Ikan Air Tawar',
+                        'entitas' => [[
+                            '0 Jenis Sarana' => null,
+                            '1 Jumlah' => null,
+                            '2 Satuan' => null,
+                            '3 Hasil Produksi' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Jenis Ikan dan Produksi',
+                        'entitas' => [[
+                            '0 Jenis Ikan' => null,
+                            '1 Hasil Produksi' => null,
+                        ]],
+                    ],
+
+                ],
+                'bahan-galian' => [
+                    [
+                        'label' => 'Jenis, deposit dan kepemilikan bahan galian',
+                        'entitas' => [[
+                            '0 Jenis Bahan Galian' => null,
+                            '1 Keberadaan' => null,
+                            '2 Skala Produksi' => null,
+                            '3 Kepemilikan' => null,
+                        ]],
+                    ],
+                ],
+                'sumber-daya-air' => [
+                    [
+                        'label' => 'Potensi Air dan Sumber Daya Air',
+                        'entitas' => [[
+                            '0 Jenis Sumber Air' => null,
+                            '1 Debit Volume' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Sumber dan Kualitas Air Bersih',
+                        'entitas' => [[
+                            '0 Jenis' => null,
+                            '1 Jumlah Unit' => null,
+                            '2 Kondisi Rusak' => null,
+                            '3 Pemanfaatan' => null,
+                            '4 Kualitas' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Sungai',
+                        'extra' => 'Jumlah Sungai',
+                        'entitas' => [[
+                            '0 Kondisi' => null,
+                            '1 Keterangan' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Rawa',
+                        'extra' => 'Jumlah Rawa',
+                        'entitas' => [[
+                            '0 Pemanfaatan' => null,
+                            '1 Keterangan' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Pemanfaatan Danau/Waduk/Situ',
+                        'extra' => 'Jumlah Danau/Waduk/Situ',
+                        'entitas' => [
+                            [
+                                '0 Kondisi' => null,
+                                '1 Keterangan' => null,
+                            ]
+                        ],
+                    ],
+                    [
+                        'label' => 'Kondisi Danau/Waduk/Situ',
+                        'extra' => 'Jumlah Danau/Waduk/Situ',
+                        'entitas' => [[
+                            '0 Kondisi' => null,
+                            '1 Keterangan' => null,
+                        ]],
+                    ],
+                    [
+                        'label' => 'Air Panas',
+                        'entitas' => [[
+                            '0 Sumber' => null,
+                            '1 Jumlah Lokasi' => null,
+                            '2 Pemanfaatan Wisata' => null,
+                            '3 Kepemilikian/Pengelolaan' => null
+                        ]],
+                    ]
+
+                ],
+                'udara' => [
+                    [
+                        'label' => 'Kualitas Udara',
+                        'entitas' => [[
+                            '0 Sumber' => null,
+                            '1 Jumlah Lokasi' => null,
+                            '2 Polutan' => null,
+                            '3 Efek terhadap Kesehatan' => null,
+                            '4 Kepemilikian' => null,
+                        ]],
+                    ]
+                ],
+                'kebisingan' => [
+                    [
+                        'label' => 'Kebisingan',
+                        'entitas' => [[
+                            '0 Tingkat Kebisingan' => null,
+                            '1 Ekses Dampak Kebisingan' => null,
+                            '2 Sumber Kebisingan' => null,
+                            '3 Efek terhadap Penduduk' => null,
+                        ]],
+                    ]
+                ],
+                'ruang-publik' => [
+                    [
+                        'label' => 'Ruang Publik/Taman',
+                        'entitas' => [[
+                            '0 Ruang Publik/Taman' => null,
+                            '1 Keberadaan' => null,
+                            '2 Luas' => null,
+                            '3 Tingkat Pemanfaatan' => null,
+                        ]],
+                    ]
+                ],
+                'wisata' => [
+                    [
+                        'label' => 'Jenis dan Jumlah Wisata',
+                        'entitas' => [[
+                            '0 Lokasi Tempat/Area Wisata' => null,
+                            '1 Luas' => null,
+                            '2 Tingkat Pemanfaatan' => null,
+                        ]],
+                    ],
+                ]
+            ],
             'sarana_prasarana' => [
                 'kesehatan' => [
                     ['Puskesmas', 0, 'Buah'],
@@ -118,6 +371,30 @@ return
                     'nama' => 'Kewarganegaraan',
                     'slug' => 'kewarganegaraan',
                     'deskripsi' => 'Jumlah Penduduk Menurut Kewarganegaraan',
+                    'status' => true,
+                ],
+                7 => [
+                    'stat_kategori_id' => 1,
+                    'key' => 'jenis_kelamin',
+                    'nama' => 'Jenis Kelamin',
+                    'slug' => 'jenis-kelamin',
+                    'deskripsi' => 'Jumlah Penduduk Menurut Jenis Kelamin',
+                    'status' => true,
+                ],
+                8 => [
+                    'stat_kategori_id' => 1,
+                    'key' => 'umur',
+                    'nama' => 'Umur',
+                    'slug' => 'umur',
+                    'deskripsi' => 'Jumlah Penduduk Menurut Umur',
+                    'status' => true,
+                ],
+                9 => [
+                    'stat_kategori_id' => 1,
+                    'key' => 'kategori_umur',
+                    'nama' => 'Kategori Umur',
+                    'slug' => 'kategori-umur',
+                    'deskripsi' => 'Jumlah Penduduk Menurut Kategori Umur',
                     'status' => true,
                 ],
             ],

@@ -8,21 +8,23 @@
                     class="grid-cols-1 flex justify-start items-center bg-secondary-100 w-full shadow-lg rounded-lg p-10 gap-10">
                     <div class="flex ">
                         <x-filament::icon :icon="$stat['icon']" @class([
-                            'h-20 w-20 dark:text-gray-500',
+                            'size-10 sm:size-16 lg:size-20 dark:text-gray-500',
                             match ($stat['iconColor'] ?? null) {
-                                'primary' => 'h-20 w-20 text-primary-400 ',
-                                'secondary' => 'h-20 w-20 text-secondary-400 ',
-                                'info' => 'h-20 w-20 text-info-400 ',
-                                'warning' => 'h-20 w-20 text-warning-400 ',
-                                'success' => 'h-20 w-20 text-success-400 ',
-                                'danger' => 'h-20 w-20 text-danger-400 ',
-                                default => 'h-20 w-20 text-gray-500 ',
+                                'primary' => 'text-primary-400 ',
+                                'secondary' => 'text-secondary-400 ',
+                                'info' => 'text-info-400 ',
+                                'warning' => 'text-warning-400 ',
+                                'success' => 'text-success-400 ',
+                                'danger' => 'text-danger-400 ',
+                                default => 'text-gray-500 ',
                             },
                         ]) />
                     </div>
                     <div class="flex flex-col justify-center ">
-                        <h4 class="text-2xl font-semibold mb-2">{{ $stat['heading'] }}</h4>
-                        <p class="text-gray-600 font-semibold text-4xl">{{ $stat['value'] }}</p>
+                        <h4 class="text-xl sm:text-2xl md:text-3xl  font-semibold mb-2">{{ $stat['heading'] }}
+                        </h4>
+                        <p class="text-2xl sm:text-3xl md:text-4xl text-gray-600 font-semibold ">
+                            {{ $stat['value'] }}</p>
                     </div>
                 </div>
             @endforeach

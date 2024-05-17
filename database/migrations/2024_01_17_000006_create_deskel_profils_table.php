@@ -1,6 +1,7 @@
 <?php
 
-use App\Models\{Kab_Kota, KabKota, Kecamatan, Kelurahan, Provinsi};
+use App\Facades\Deskel;
+use App\Models\{DesaKelurahanProfile, Kab_Kota, KabKota, Kecamatan, Kelurahan, Provinsi};
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,8 +16,8 @@ return new class extends Migration
     {
         Schema::create('deskel_profils', function (Blueprint $table) {
             $table->id();
-            $table->string('deskel_id', 10);
-            $table->foreign('deskel_id')->references('deskel_id')->on('desa_kelurahan')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('deskel_id', 10)->nullable();
+            $table->foreign('deskel_id')->references('deskel_id')->on('desa_kelurahan')->cascadeOnUpdate()->cascadeOnDelete()->nullable();
             $table->string('sebutan')->nullable();
             $table->string('struktur')->nullable();
             $table->string('kepala')->nullable();
@@ -29,7 +30,7 @@ return new class extends Migration
             $table->string('tipologi')->nullable();
             $table->string('klasifikasi')->nullable();
             $table->string('kategori')->nullable();
-            $table->json('orbitasi')->nullable();
+            $table->json('orbitrasi')->nullable();
             $table->json('luaswilayah')->nullable();
             $table->integer('jmlh_pdd')->nullable();
             $table->integer('jmlh_sert_tanah')->nullable();
@@ -39,13 +40,6 @@ return new class extends Migration
             $table->string('bts_selatan')->nullable();
             $table->string('bts_barat')->nullable();
             $table->string('kantor')->nullable();
-            $table->json('prasarana_pendidikan')->nullable();
-            $table->json('prasarana_kesehatan')->nullable();
-            $table->json('prasarana_ibadah')->nullable();
-            $table->json('prasarana_umum')->nullable();
-            $table->json('prasarana_transportasi')->nullable();
-            $table->json('prasarana_air_bersih')->nullable();
-            $table->json('prasarana_sanitasi_irigasi')->nullable();
             $table->longText('visi')->nullable();
             $table->longText('misi')->nullable();
             $table->longText('sejarah')->nullable();
@@ -57,6 +51,17 @@ return new class extends Migration
 
             $table->timestamps();
         });
+
+        $cek = new DesaKelurahanProfile([
+            'id' => 1,
+            'orbitrasi' => [
+                'pusat_kec' => null,
+                'pusat_pemerintahan' => null,
+                'pusat_kota' => null,
+                'pusat_prov' => null,
+            ],
+        ]);
+        $cek->save();
     }
 
     /**

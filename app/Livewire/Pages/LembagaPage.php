@@ -23,17 +23,6 @@ class LembagaPage extends TablePage
             ->recordUrl(
                 fn (Model $record): string => route('index.lembaga.show', ['record' => $record]),
             )
-            ->actions([
-                Tables\Actions\Action::make('Preview File')
-                    ->hiddenLabel()
-                    ->button()
-                    ->modalContent(function (Model $record) {
-                        return view('filament.pages.preview-file', ['record' => $record]);
-                    })
-                    ->modalSubmitAction(false)
-                    ->color('success')
-                    ->icon('fas-eye')
-                    ->iconSize('md'),
-            ], ActionsPosition::AfterColumns);
+            ->actions([], ActionsPosition::AfterColumns);
     }
 }

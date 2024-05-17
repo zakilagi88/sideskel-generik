@@ -25,11 +25,14 @@ class LembagaResource extends Resource
 {
     protected static ?string $model = Lembaga::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'fas-users-line';
 
     protected static ?string $cluster = HalamanDesa::class;
 
     protected static ?string $slug = 'lembaga';
+
+    protected static ?int $navigationSort = 4;
+
 
     public static function form(Form $form): Form
     {

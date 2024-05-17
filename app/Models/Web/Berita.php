@@ -44,9 +44,9 @@ class Berita extends Model
         'status' => StatusBeritaType::class
     ];
 
-    public function getLinkKey(): string
+    public function getLinkLabel(): string
     {
-        return $this->slug;
+        return $this->title;
     }
 
     public function getRouteKeyName()
@@ -67,6 +67,13 @@ class Berita extends Model
     public function scopePublished($query)
     {
         return $query->where('status', StatusBeritaType::PUBLISH);
+    }
+
+    public function scopeKategoriBerita($query, $kategori)
+    {
+        return $query->whereHas('kategori', function ($query) use ($kategori) {
+            $query->where('slug', $kategori);
+        });
     }
 
     public function getExcerpt(): string

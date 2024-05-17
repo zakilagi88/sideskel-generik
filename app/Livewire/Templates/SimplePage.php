@@ -25,13 +25,21 @@ class SimplePage extends Component implements HasInfolists, HasForms
 
     public Model | int | string | null $record;
 
+    protected static $hasExtraResources = false;
+
+    public string $currentResource = '';
+
     protected static $routes;
 
     protected static string $resource;
 
     protected static string $heading;
 
-    protected static string $parameter = '';
+    protected static bool $isCluster = false; // apakah halaman ini adalah cluster
+
+    protected static string $parameter = ''; // parameter untuk menentukan slug
+
+    protected static string $parentSlug = ''; // slug parent cluster jika bukan satu cluster
 
 
     public function mount(int | string $record): void
@@ -39,7 +47,7 @@ class SimplePage extends Component implements HasInfolists, HasForms
         $this->record = $this->resolveRecord($record);
     }
 
-    #[Computed()]
+    #[Computed]
     public function extraResources(): array
     {
         return [];
@@ -71,7 +79,8 @@ class SimplePage extends Component implements HasInfolists, HasForms
 
     public function getExtraResourceByKey($key)
     {
-        return $this->extraResources()[$key];
+        $this->currentResource = $this->extraResources()[$key];
+        return $this->currentResource;
     }
 
     protected function getPageHeading(): string
@@ -89,33 +98,58 @@ class SimplePage extends Component implements HasInfolists, HasForms
         return view('livewire.templates.simple-page');
     }
 
-    public static function getPageBreadcrumb(): array
+    public function getPageBreadcrumb(): array
     {
         if (!static::$routes) {
             static::$routes = Route::getRoutes();
         }
 
-        $routeName = static::getRouteName();
+        $routeName = $this->getRouteName();
+
+        // dd($routeName, static::getRouteParameter($routeName));
+
         $routeParameter = static::getRouteParameter($routeName);
 
         return [
             'routeName' => $routeName,
             'routeParameter' => $routeParameter,
+            'routeLabel' => static::getRouteParameterLabel($this->record, null) ?? null,
         ];
     }
 
     public function getShiftPageBreadcrumb(): array
     {
         return  [
-            'routeName' => static::getRouteName() . '.show',
+            'routeName' => $this->getRouteName() . '.show',
             'routeParameter' => $this->getPageSlug(),
+            'routeLabel' => static::getRouteParameterLabel($this->record, null) ?? null,
         ];
     }
 
-
-    protected static function getRouteName(): string
+    public function getSlug()
     {
-        return 'index.' . (static::$parameter ?: static::getResource()::getSlug());
+        return;
+    }
+
+    protected function getRouteName(): string
+    {
+        $req = app(Request::class);
+
+        $slug = $this->getSlug() ?: static::$resource::getSlug();
+
+        if ($req->routeIs('index.stat.show')) {
+            return 'index.' . $slug;
+        } else {
+            if (static::$isCluster) {
+                if (static::$parentSlug) {
+                    return 'index.'  . static::$parentSlug . '.' . $this->currentResource::getSlug();
+                } else {
+                    return 'index.' . $this->currentResource::getCluster()::getSlug() . '.' . $this->currentResource::getSlug();
+                }
+            }
+        }
+
+        return 'index.' . $slug;
     }
 
     protected static function getRouteParameter($routeName): ?string
@@ -129,8 +163,8 @@ class SimplePage extends Component implements HasInfolists, HasForms
     {
         $label = null;
 
-        if (method_exists($model, 'getLinkKey')) {
-            $label = $model->getLinkKey();
+        if (method_exists($model, 'getLinkLabel')) {
+            $label = $model->getLinkLabel();
         } elseif (property_exists($model, 'linkKey')) {
             $label = $model->{$model->linkKey};
         } else {
@@ -139,9 +173,9 @@ class SimplePage extends Component implements HasInfolists, HasForms
 
         if (is_null($label)) {
             $modelClass = $model::class;
-            throw new \Exception("Could not automatically determine a label for the model [{$modelClass}]. Please implement the HasLinkPickerOptions interface on your model or provide a custom parameterOptions array on the route itself.");
+            throw new \Exception("Tidak bisa menemukan Key [{$modelClass}]. Silahkan tambahkan property \$linkKey atau method getLinkLabel() pada model.");
         }
 
-        return $model->$modelLabel;
+        return $label;
     }
 }

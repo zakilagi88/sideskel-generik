@@ -9,8 +9,6 @@ use App\Filament\Clusters\HalamanKependudukan\Resources\TambahanResource\Relatio
 use App\Models\Tambahan;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Carbon\Carbon;
-use Coolsam\FilamentFlatpickr\Enums\FlatpickrTheme;
-use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\{DatePicker, Group, Repeater, Select, Textarea, TextInput, ToggleButtons};
@@ -21,7 +19,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
 use Filament\Tables\Table;
-use Guava\FilamentClusters\Forms\Cluster;
 use Illuminate\Support\Str;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -39,6 +36,7 @@ class TambahanResource extends Resource implements HasShieldPermissions
     protected static ?string $navigationLabel = 'Data Tambahan';
 
     protected static ?string $slug = 'tambahan';
+
 
     public static function getPermissionPrefixes(): array
     {
@@ -94,27 +92,16 @@ class TambahanResource extends Resource implements HasShieldPermissions
                     ]),
                 Group::make()
                     ->schema([
-                        Cluster::make([
-                            Flatpickr::make('tgl_mulai')
+                        Group::make([
+                            DatePicker::make('tgl_mulai')
                                 ->label('Tanggal Mulai')
                                 ->hidden($authWilayah)
                                 ->placeholder('Pilih Tanggal Mulai')
-                                ->animate()
-                                ->enableSeconds(false) // Enable seconds in a time picker
-                                ->allowInput(true)
-                                ->clickOpens(true)
-                                ->theme(FlatpickrTheme::MATERIAL_BLUE)
-                                ->postfix('s/d')
                                 ->required(),
-                            Flatpickr::make('tgl_selesai')
+                            DatePicker::make('tgl_selesai')
                                 ->label('Tanggal Selesai')
                                 ->hidden($authWilayah)
                                 ->placeholder('Pilih Tanggal Selesai')
-                                ->animate()
-                                ->enableSeconds(false) // Enable seconds in a time picker
-                                ->allowInput(true)
-                                ->clickOpens(true)
-                                ->theme(FlatpickrTheme::MATERIAL_BLUE)
                                 ->required(),
                         ])->label('Tanggal Berlaku'),
                         ToggleButtons::make('status')

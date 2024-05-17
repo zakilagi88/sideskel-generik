@@ -62,7 +62,7 @@ class ListPenduduks extends ListRecords
             'Warga' => Tab::make()->modifyQueryUsing(fn (Builder $query) => ($query->where('status_dasar', 'HIDUP')))->badge($this->statuswarga[StatusDasarType::HIDUP->value] ?? '0')->icon('fas-children')->badgeColor('primary'),
             'Sementara' => Tab::make('Sementara')->modifyQueryUsing(fn (Builder $query) => ($query->where('status_penduduk', 'Sementara')))->badge($this->sementara['Sementara'] ?? '0')->icon('fas-people-group')->badgeColor('success'),
             'Pindah' => Tab::make()->modifyQueryUsing(function (Builder $query) {
-                $query->where('status_dasar', 'HIDUP')->whereHas('dinamikas', function ($query) {
+                $query->where('status_dasar', 'PINDAH')->whereHas('dinamikas', function ($query) {
                     $query->where('dinamika_type', Kepindahan::class);
                 });
             })

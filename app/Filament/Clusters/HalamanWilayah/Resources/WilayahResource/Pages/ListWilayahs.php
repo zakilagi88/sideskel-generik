@@ -14,7 +14,6 @@ use Filament\Actions;
 use Filament\Forms\Components\{Grid, Group, Hidden, Placeholder, Repeater, TextInput, ToggleButtons};
 use Filament\Forms\{Get, Set};
 use Filament\Notifications\Notification;
-use Guava\FilamentClusters\Forms\Cluster;
 use Illuminate\Database\Eloquent\Model;
 
 class ListWilayahs extends ListRecords
@@ -30,7 +29,7 @@ class ListWilayahs extends ListRecords
 
     public function mount(): void
     {
-        $this->deskel = DesaKelurahanProfile::with('dk.kec.kabkota.prov', 'dk.kec.kabkota', 'dk.kec', 'dk')->first() ?? new DesaKelurahanProfile();
+        $this->deskel = DesaKelurahanProfile::with('dk', 'prov', 'kec', 'kabkota')->first() ?? new DesaKelurahanProfile();
     }
 
     protected function getHeaderActions(): array
@@ -91,13 +90,12 @@ class ListWilayahs extends ListRecords
                         ->content(
                             function () {
                                 $dk = $this->deskel;
-                                $prov_nama = $dk->dk->kec->kabkota->prov->prov_nama ?? '';
-                                $kabkota_nama = $dk->dk->kec->kabkota->kabkota_nama ?? '';
-                                $kec_nama = $dk->dk->kec->kec_nama ?? '';
-                                $deskel_nama = $dk->dk->deskel_nama ?? '';
-                                $struktur = $dk->struktur ?? '';
+                                $prov_nama = $dk->prov?->prov_nama ?? '';
+                                $kabkota_nama = $dk->kabkota?->kabkota_nama ?? '';
+                                $kec_nama = $dk->kec?->kec_nama ?? '';
+                                $deskel_nama = $dk->dk?->deskel_nama ?? '';
 
-                                return view('filament.pages.components.info-wilayah', compact('prov_nama', 'kabkota_nama', 'kec_nama', 'deskel_nama', 'struktur'));
+                                return view('filament.pages.components.info-wilayah', compact('prov_nama', 'kabkota_nama', 'kec_nama', 'deskel_nama'));
                             }
                         ),
                     Hidden::make('deskel_id')
@@ -196,24 +194,28 @@ class ListWilayahs extends ListRecords
                                             ->minValue(1)
                                             ->live(onBlur: true),
 
-                                        Cluster::make([
+                                        Group::make([
                                             TextInput::make('Mulai')
                                                 ->label('Mulai dari RT')
+                                                ->hiddenLabel()
                                                 ->placeholder('Mulai dari ')
                                                 ->prefix(fn (Get $get): ?string => $get('../../nama_2') ?? null)
                                                 ->mask('999')
                                                 ->minValue(1)
                                                 ->live(onBlur: true)
                                                 ->numeric(),
-
                                             TextInput::make('Sampai')
+                                                ->label('Sampai dengan RT')
+                                                ->hiddenLabel()
                                                 ->placeholder('Sampai dengan ')
                                                 ->minValue(1)
                                                 ->prefix('-')
                                                 ->mask('999')
                                                 ->numeric(),
 
-                                        ])->hiddenLabel(),
+                                        ])->extraAttributes([
+                                            'class' => 'gap-10',
+                                        ])->columns(2)->hiddenLabel(),
                                     ])->grid(2)->columnSpanFull()
                                     ->itemLabel(fn (array $state, Get $get): ?string => $get('nama_1') . ' ' . str_pad($state['tingkat_1'], 2, '0', STR_PAD_LEFT) ?? null)
 
@@ -268,7 +270,7 @@ class ListWilayahs extends ListRecords
                                                     ->numeric()
                                                     ->reactive()
                                                     ->minValue(1),
-                                                Cluster::make([
+                                                Group::make([
                                                     TextInput::make('Mulai')
                                                         ->label('Mulai dari ')
                                                         ->placeholder('Mulai dari ')
@@ -283,8 +285,7 @@ class ListWilayahs extends ListRecords
                                                         ->prefix('-')
                                                         ->mask('999')
                                                         ->numeric(),
-
-                                                ])->hiddenLabel()
+                                                ])->columns(2)->hiddenLabel()
 
                                             ]),
                                     ])->grid(2)->columnSpanFull()

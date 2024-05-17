@@ -24,7 +24,7 @@ class SDMBarChart extends ApexChartWidget
     #[Reactive]
     public ?array $chartData;
 
-    public Model | int | string | null $record;
+    public ?Model $record = null;
 
     public ?string $filter = 'horizontal';
 
@@ -52,10 +52,9 @@ class SDMBarChart extends ApexChartWidget
 
     protected function getHeading(): ?string
     {
-        return 'Grafik Penduduk Menurut ' . ucFirst($this->chartKey);
+        return 'Grafik Penduduk Menurut ' . ucFirst($this->chartKey());
     }
 
-    #[Computed()]
     public function chartKey(): string
     {
         return $this->record instanceof StatSDM ? $this->record->key : $this->record->nama;
@@ -64,7 +63,7 @@ class SDMBarChart extends ApexChartWidget
     protected function getData(array $chartData): array
     {
         return [
-            $this->chartKey => array_column($chartData, $this->chartKey),
+            $this->chartKey() => array_column($chartData, $this->chartKey()),
             'lk' => array_column($chartData, 'laki_laki'),
             'pr' => array_column($chartData, 'perempuan'),
             'total' => array_column($chartData, 'total'),
@@ -93,7 +92,6 @@ class SDMBarChart extends ApexChartWidget
                 'loading..'
             ];
         }
-
 
         $key = $this->getData($this->chartData);
 
@@ -142,7 +140,7 @@ class SDMBarChart extends ApexChartWidget
                     ],
                 ],
                 'xaxis' => [
-                    'categories' => $key[$this->chartKey],
+                    'categories' => $key[$this->chartKey()],
                     'labels' => [
                         'rotate' => -90,
                         'offsetY' => 2,

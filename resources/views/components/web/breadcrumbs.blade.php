@@ -11,19 +11,18 @@
 
             <x-filament::icon icon="fas-chevron-right" class="size-3 text-gray-500 dark:text-gray-400" />
         </li>
-
         @foreach ($items as $item)
             @if (Route::has($item['routeName']))
                 <li class="inline-flex items-center space-x-2">
                     @if (str_contains($item['routeName'], 'show'))
                         <a href="{{ route($item['routeName'], ['record' => $item['routeParameter']]) }}" wire:navigate
                             class="text-gray-600 hover:text-primary-500">
-                            {{ ucwords($item['routeParameter']) }}
+                            {{ ucwords(strtolower($item['routeLabel'])) }}
                         </a>
                     @else
                         <a href="{{ route($item['routeName']) ?: '#' }}" wire:navigate
                             class="text-gray-600 hover:text-primary-500">
-                            {{ ucwords($item['routeParameter']) }}
+                            {{ ucwords(strtolower($item['routeParameter'])) }}
                         </a>
                     @endif
 

@@ -9,14 +9,13 @@ use App\Filament\Clusters\HalamanKependudukan\Resources\BantuanResource\Relation
 use App\Models\Bantuan;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
-use Filament\Forms\Components\{DatePicker, Select, Textarea, TextInput, ToggleButtons};
+use Filament\Forms\Components\{DatePicker, Group, Select, Textarea, TextInput, ToggleButtons};
 use Filament\Forms\Form;
 use Filament\Forms\FormsComponent;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
 use Filament\Tables\Table;
-use Guava\FilamentClusters\Forms\Cluster;
 use Illuminate\Support\Str;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -63,13 +62,13 @@ class BantuanResource extends Resource implements HasShieldPermissions
                 Textarea::make('bantuan_keterangan')
                     ->autosize()
                     ->required(),
-                Cluster::make([
+                Group::make([
                     DatePicker::make('bantuan_tgl_mulai')
                         ->required()
                         ->postfix('s/d'),
                     DatePicker::make('bantuan_tgl_selesai')
                         ->required(),
-                ])->label('Tanggal Bantuan'),
+                ])->columns(2)->label('Tanggal Bantuan'),
                 ToggleButtons::make('bantuan_status')
                     ->options([
                         '0' => 'Tidak Aktif',

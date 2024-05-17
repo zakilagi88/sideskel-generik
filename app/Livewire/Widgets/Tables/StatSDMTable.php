@@ -166,8 +166,8 @@ class StatSDMTable extends Component implements HasTable, HasForms
                 !empty($activeFilters),
                 function ($query) use ($activeFilters) {
                     $query->where(function ($subquery) use ($activeFilters) {
-                        $subquery->where('wilayah.wilayah_id', $activeFilters)
-                            ->orWhere('wilayah.parent_id', $activeFilters);
+                        $subquery->where('w.wilayah_id', $activeFilters)
+                            ->orWhere('w.parent_id', $activeFilters);
                     });
                 }
             )

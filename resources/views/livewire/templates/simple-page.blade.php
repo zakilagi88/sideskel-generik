@@ -1,5 +1,6 @@
 <div>
     <div class="mb-6">
+        @dd($this->getPageBreadcrumb(), $this->getShiftPageBreadcrumb(), $record)
         <x-web.breadcrumbs :items="[$this->getPageBreadcrumb(), $this->getShiftPageBreadcrumb()]" :heading="$this->getPageHeading()" />
     </div>
 

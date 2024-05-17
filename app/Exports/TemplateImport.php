@@ -12,7 +12,6 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use PhpOffice\PhpSpreadsheet\Shared\Date as SharedDate;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class TemplateImport implements FromCollection, WithHeadings, ShouldAutoSize, WithColumnFormatting, WithMapping
@@ -29,10 +28,6 @@ class TemplateImport implements FromCollection, WithHeadings, ShouldAutoSize, Wi
     protected function loadWilayah()
     {
         $this->wilayah = Wilayah::tree()->get();
-        // Cache data wilayah jika memungkinkan
-        // Misalnya: cache()->rememberForever('wilayah', function () {
-        //     return Wilayah::tree()->get();
-        // });
     }
 
     private function getFirstWordFromWilayah($depth)
@@ -253,7 +248,6 @@ class TemplateImport implements FromCollection, WithHeadings, ShouldAutoSize, Wi
 
     public function getWilayahColumns(): array
     {
-
         $columns = [];
         switch ($this->deskel->struktur) {
             case 'Khusus':

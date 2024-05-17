@@ -2,8 +2,10 @@
 
 namespace App\Models\Desa;
 
+use App\Models\DesaKelurahanProfile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PotensiSDA extends Model
 {
@@ -13,6 +15,7 @@ class PotensiSDA extends Model
 
     protected $fillable =
     [
+        'deskel_profil_id', // 'deskel_profil_id' is a foreign key from 'deskel_profils' table
         'jenis',
         'data'
     ];
@@ -22,7 +25,7 @@ class PotensiSDA extends Model
         'data' => 'array'
     ];
 
-    public function getLinkKey(): string
+    public function getLinkLabel(): string
     {
         return $this->jenis;
     }
@@ -30,5 +33,10 @@ class PotensiSDA extends Model
     public function getRouteKeyName()
     {
         return 'jenis';
+    }
+
+    public function deskelProfil(): BelongsTo
+    {
+        return $this->belongsTo(DesaKelurahanProfile::class, 'deskel_profil_id', 'id');
     }
 }

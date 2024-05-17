@@ -51,22 +51,22 @@ class SDMPieChart extends ApexChartWidget
      * @return array
      */
 
-    #[Computed()]
+
+
+    protected function getHeading(): ?string
+    {
+        return 'Grafik Penduduk Menurut ' . ucFirst($this->chartKey());
+    }
+
     public function chartKey(): string
     {
         return $this->record instanceof StatSDM ? $this->record->key : $this->record->nama;
     }
 
-    protected function getHeading(): ?string
-    {
-        return 'Grafik Penduduk Menurut ' . ucFirst($this->chartKey);
-    }
-
     protected function getData(array $chartData): array
     {
-
         return [
-            $this->chartKey => array_column($chartData, $this->record instanceof StatSDM ? $this->record->key : 'tambahanable_ket'),
+            $this->chartKey() => array_column($chartData, $this->chartKey()),
             'lk' => array_column($chartData, 'laki_laki'),
             'pr' => array_column($chartData, 'perempuan'),
             'total' => array_column($chartData, 'total'),
@@ -95,7 +95,7 @@ class SDMPieChart extends ApexChartWidget
                 'height' => 350,
             ],
             'series' => $key['total'],
-            'labels' => $key[$this->chartKey],
+            'labels' => $key[$this->chartKey()],
             'plotOptions' => [
                 'pie' => [
                     'startAngle' => -90,

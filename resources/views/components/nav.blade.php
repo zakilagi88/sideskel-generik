@@ -1,31 +1,29 @@
-    @props(['data'])
-
+    @props(['data', 'deskel'])
     <nav id="navbar"
         class="sticky shadow-md z-[24] mb-6 top-0 p-3 left-0  tracking-wide transition duration-200 ease-in-out right-0 bg-primary-400"
         x-data="{ mobileMenuOpen: false }">
-        <div class="flex items-center justify-evenly ">
+        <div class="flex flex-nowrap md:flex-wrap items-center justify-evenly md:gap-4 max-w-screen-2xl md:mx-auto">
             <div class="flex items-center">
-                <img src="{{ asset('storage/images/bjm.png') }}" alt="SIDeskel"
-                    class="size-12 lg:size-20 bg-transparent object-contain">
+                <img src="{{ $deskel->getLogo() }}" alt="SIDeskel"
+                    class="size-12 lg:size-20 bg-transparent object-contain rounded-xl">
                 <div class="flex flex-col ml-4 text-pretty">
                     <a id="nama" href="#"
                         class="text-xs lg:text-lg font-bold text-white dark:text-gray-400 tracking-wide whitespace-nowrap">
-                        Kelurahan
-                        Kuripan</a>
+                        {{ $data['sebutan_deskel'] . ' ' . ucwords(strtolower($deskel->dk->deskel_nama)) }}</a>
                     <a id="nama2" href="#"
-                        class="text-xs lg:text-lg font-normal text-white dark:text-gray-400 tracking-wide whitespace-nowrap">Kecamatan
-                        Banjarmasin Timur</a>
+                        class="text-xs lg:text-lg font-normal text-white dark:text-gray-400 tracking-wide whitespace-nowrap">
+                        {{ $data['sebutan_kec'] . ' ' . ucwords(strtolower($deskel->kec->kec_nama)) }}</a>
                 </div>
             </div>
-
-            <ul class="hidden md:flex space-x-1">
-                @foreach ($data as $m)
+            <ul class="hidden lg:flex space-x-1">
+                @foreach ($data['menus'] as $m)
                     @if (!empty($m['submenu']))
                         <li
-                            class="flex relative group hover:bg-white mt-2 px-4 pb-2 text-lg text-white hover:text-primary-400 rounded-t-lg ">
+                            class="flex relative group hover:bg-white mt-2 px-4 pb-2 text-sm xl:text-lg  text-white hover:text-primary-400 rounded-t-lg ">
                             <x-web.nav-link :items="$m" />
 
                             <x-filament::icon icon="fas-chevron-down" class="size-3 mt-2 ml-1 " />
+
                             <!-- Submenu starts -->
                             <ul
                                 class="absolute bg-white text-lg rounded-tr-lg rounded-b-lg  border-l-[6px] border-l-primary-400  p-3 -ml-4 w-56 top-9 transform scale-0 group-hover:scale-100 transition duration-150 hover:ease-in-out origin-top shadow-lg">
@@ -36,10 +34,12 @@
                                     </li>
                                 @endforeach
                             </ul>
+
                         </li>
                     @else
                         <!-- Submenu ends -->
-                        <li class=" hover:bg-white text-lg text-white hover:text-primary-400 rounded-lg my-2 px-4">
+                        <li
+                            class=" hover:bg-white text-sm xl:text-lg text-white hover:text-primary-400 rounded-lg my-2 px-4">
                             <x-web.nav-link :items="$m" />
                         </li>
                     @endif
@@ -47,12 +47,12 @@
             </ul>
 
             <div class="relative  w-full md:w-auto flex justify-end items-center mr-4">
-                <div class="block text-gray-600 cursor-pointer md:hidden">
+                <div class="block text-gray-600 cursor-pointer lg:hidden" text-sm xl:text-lg>
                     <x-filament::icon-button x-show="!mobileMenuOpen" @click="mobileMenuOpen = true" icon="fas-bars"
-                        label="New label" size="xs" class="text-white hover:text-white" />
+                        label="New label" class="text-white hover:text-white  text-xs xl:text-lg" />
                     <x-filament::icon-button x-show="mobileMenuOpen" @click="mobileMenuOpen = false" icon="fas-xmark"
-                        label="New label" size="xs"
-                        class="transition-full each-in-out transform duration-500 text-white hover:text-white" />
+                        label="New label"
+                        class="transition-full each-in-out transform duration-500 text-white hover:text-white  text-xs xl:text-lg" />
                 </div>
             </div>
         </div>
@@ -61,7 +61,7 @@
             class="relative w-full overflow-hidden transition-all duration-700 lg:hidden  max-h-0">
             <div class="flex flex-col my-3 space-y-2">
                 <ul class="leading-8 text-md font-semibold">
-                    @foreach ($data as $index => $m)
+                    @foreach ($data['menus'] as $index => $m)
                         <x-web.nav-accordion :items="$m" :key="$index" />
                     @endforeach
                 </ul>
@@ -93,42 +93,3 @@
             }))
         })
     </script>
-
-    {{-- <script>
-        const mobile_icon = document.getElementById('mobile-icon');
-        const mobile_menu = document.getElementById('mobile-menu');
-        const hamburger_icon = document.querySelector("#mobile-icon i");
-
-        function openCloseMenu() {
-            mobile_menu.classList.toggle('block');
-            mobile_menu.classList.toggle('active');
-        }
-
-        function changeIcon(icon) {
-            if (icon.classList.contains('fa-bars')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        }
-
-        mobile_icon.addEventListener('click', openCloseMenu);
-
-        const navbar = document.getElementById('navbar');
-        const threshold = 100;
-
-        function toggleNavbarBackground() {
-            if (window.scrollY > threshold) {
-                // navbar.classList.add('fixed');
-                // navbar.classList.add('mx-12');
-            } else {
-                // navbar.classList.remove('mx-12');
-                //navbar.classList.remove('fixed');
-                //navbar.classList.remove('sticky');
-            }
-        }
-
-        window.addEventListener('scroll', toggleNavbarBackground);
-    </script> --}}

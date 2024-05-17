@@ -25,10 +25,15 @@ class StatSDMDisplay extends SimplePage
 {
     protected static string $resource = StatSDMResource::class;
 
+    protected static $hasExtraResources = true;
+
+    public string $currentResource = '';
+
     protected static string $heading = 'Statistik Penduduk';
 
-    protected static string $parameter = 'stat';
+    protected static bool $isCluster = true; // apakah halaman ini adalah cluster
 
+    protected static string $parentSlug = 'stat'; // slug parent cluster jika bukan satu cluster
 
     public ?array $filters = [];
     public ?array $komponen = [];
@@ -42,17 +47,16 @@ class StatSDMDisplay extends SimplePage
         $bantuan = $req->routeIs('index.stat.bantuan.show');
 
         if ($tambahan) {
-            $this->extraResources()['tambahan'];
+            $this->currentResource = $this->extraResources()['tambahan'];
             $this->record = $this->resolveRecord($record, 'tambahan');
         } elseif ($bantuan) {
-            $this->extraResources()['bantuan'];
+            $this->currentResource = $this->extraResources()['bantuan'];
             $this->record = $this->resolveRecord($record, 'tambahan');
         } else {
             parent::mount($record, $req);
         }
     }
 
-    #[Computed()]
     public function extraResources(): array
     {
         return [
@@ -109,6 +113,11 @@ class StatSDMDisplay extends SimplePage
                         ]),
                 ]
             );
+    }
+
+    public function getSlug()
+    {
+        return 'stat';
     }
 
     public function sideBar(): array

@@ -6,6 +6,7 @@ use App\Facades\Deskel;
 use App\Livewire\Widgets\JadwalKegiatanWidget;
 use App\Livewire\Widgets\SistemPreparation;
 use App\Livewire\Widgets\StatsOverview;
+use App\Settings\GeneralSettings;
 use Filament\Facades\Filament;
 use Filament\Pages\Dashboard as BasePage;
 use Filament\Pages\Dashboard\Concerns\HasFiltersAction;
@@ -29,11 +30,13 @@ class Dashboard extends BasePage
 
     protected function getHeaderWidgets(): array
     {
-        $cek = (Deskel::getFacadeRoot()->status);
-        if ($cek == true) {
+        $settings = app(GeneralSettings::class)->toArray();
+
+        if ($settings['site_active'] == true) {
             return [
                 AccountWidget::class,
-                StatsOverview::class
+                StatsOverview::class,
+                JadwalKegiatanWidget::class,
             ];
         } else {
             return [
@@ -69,8 +72,8 @@ class Dashboard extends BasePage
     }
 
 
-    public function getMaxContentWidth(): ?string
-    {
-        return '8xl';
-    }
+    // public function getMaxContentWidth(): ?string
+    // {
+    //     return '8xl';
+    // }
 }

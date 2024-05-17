@@ -18,7 +18,9 @@ class KategoriBeritaResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = KategoriBerita::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'fas-list';
+
+    protected static ?string $navigationLabel = 'Kategori Berita';
 
     protected static ?string $slug = 'kategori-berita';
 

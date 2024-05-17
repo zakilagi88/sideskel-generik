@@ -23,13 +23,13 @@
             vertical-align: middle;
         }
     
-        .article-page h1 {
+        /* .article-page h1 {
             @apply text-danger-900;
         }
     
         .article-page a {
             @apply text-primary-900 underline;
-        }
+        } */
     
 
         .circles {

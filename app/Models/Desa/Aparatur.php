@@ -2,8 +2,11 @@
 
 namespace App\Models\Desa;
 
+use App\Models\Jabatan;
+use App\Models\Penduduk;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Aparatur extends Model
 {
@@ -13,12 +16,12 @@ class Aparatur extends Model
 
     protected $fillable = [
         'nama',
+        'slug',
         'niap',
         'nip',
         'foto',
-        'jabatan',
-        'pangkat',
-        'golongan',
+        'jabatan_id',
+        'pangkat_golongan',
         'jenis_kelamin',
         'tempat_lahir',
         'tanggal_lahir',
@@ -29,6 +32,29 @@ class Aparatur extends Model
         'no_kep_pemberhentian',
         'tgl_kep_pemberhentian',
         'status_pegawai',
+        'masa_jabatan',
         'keterangan',
     ];
+
+    protected $casts = [];
+
+    public function getFotoUrlAttribute()
+    {
+        return $this->foto ? asset('storage/' . $this->foto) : null;
+    }
+
+    public function jabatan(): BelongsTo
+    {
+        return $this->belongsTo(Jabatan::class, 'jabatan_id', 'id');
+    }
+
+    public function getLinkLabel(): string
+    {
+        return $this->nama;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 }

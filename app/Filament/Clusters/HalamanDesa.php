@@ -7,11 +7,11 @@ use Filament\Clusters\Cluster;
 class HalamanDesa extends Cluster
 {
 
-    protected static ?string $clusterBreadcrumb = 'Desa';
+    protected static ?string $clusterBreadcrumb = 'Desa Kelurahan';
 
     protected static ?string $navigationIcon = 'fas-folder-open';
 
-    protected static ?string $navigationLabel = 'Data Desa';
+    protected static ?string $navigationLabel = 'Data Desa Kelurahan';
 
-    protected static ?string $slug = 'desa';
+    protected static ?string $slug = 'deskel';
 }

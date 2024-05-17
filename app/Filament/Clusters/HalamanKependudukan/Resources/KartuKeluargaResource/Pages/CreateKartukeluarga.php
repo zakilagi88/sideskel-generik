@@ -7,6 +7,7 @@ use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource;
 use App\Models\{Bantuan, KartuKeluarga, Kelahiran, Pendatang, Penduduk, Wilayah};
 use Carbon\Carbon;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\{Group, Placeholder, Section, Select, Textarea, TextInput, ToggleButtons, Wizard, Wizard\Step};
 use Filament\Forms\{Form, Get, Set};
 use Filament\Resources\Pages\CreateRecord;
@@ -74,7 +75,12 @@ class CreateKartukeluarga extends CreateRecord
     }
     protected function getSteps(): array
     {
-        $wilayah = Wilayah::tree()->find(auth()->user()->wilayah_id);
+
+        /** @var \App\Models\User */
+        $authUser = Filament::auth()->user();
+        $descendants = ($authUser->hasRole('Monitor Wilayah')) ? Wilayah::tree()->find($authUser->wilayah_id)->descendants->pluck('wilayah_id') : null;
+
+        // $wilayah = Wilayah::tree()->find($authUser->wilayah_id);
 
         return [
             Step::make('KartuKeluarga')
@@ -115,35 +121,13 @@ class CreateKartukeluarga extends CreateRecord
                                 ->schema(
                                     fn (Get $get): array => match ($get('cek_kk')) {
                                         'Ya' => [
-                                            ToggleButtons::make('dalam_luar_wilayah')
-                                                ->label(
-                                                    fn (Get $get): ?string => 'Apakah Kartu Keluarga Dalam atau Luar Wilayah ' . $wilayah->wilayah_nama . '?'
-                                                )
-                                                ->inline()
-                                                ->hidden(fn () => (auth()->user()->hasRole('Admin')))
-                                                ->live(onBlur: true)
-                                                ->options([
-                                                    'Dalam' => 'Dalam',
-                                                    'Luar' => 'Luar',
-                                                ])
-                                                ->default('Dalam')
-                                                ->required()
-                                                ->columnSpanFull(),
                                             Select::make('kk_id')
                                                 ->label('Nama Kepala Keluarga')
                                                 ->required()
                                                 ->options(
                                                     fn (Get $get): Collection =>
-                                                    KartuKeluarga::with('kepalaKeluarga')
-                                                        ->when((auth()->user()->hasRole('Admin')), function ($query) {
-                                                            return $query->orderBy('wilayah_id', 'asc');
-                                                        })
-                                                        ->when($get('dalam_luar_wilayah') === 'Dalam' && !auth()->user()->hasRole('Admin'), function ($query) {
-                                                            return $query->where('wilayah_id', auth()->user()->wilayah_id)->orderBy('wilayah_id', 'asc');
-                                                        })
-                                                        ->when($get('dalam_luar_wilayah') === 'Luar' && !auth()->user()->hasRole('Admin'), function ($query) {
-                                                            return $query->where('wilayah_id', '!=', auth()->user()->wilayah_id)->orderBy('wilayah_id', 'asc');
-                                                        })
+                                                    KartuKeluarga::with(['kepalaKeluarga', 'wilayah'])
+                                                        ->byWilayah($authUser, $descendants)
                                                         ->get()
                                                         ->map(function ($item) {
                                                             return [
@@ -154,13 +138,6 @@ class CreateKartukeluarga extends CreateRecord
 
                                                 )
                                                 ->placeholder('Pilih Nama Kepala Keluarga')
-                                                ->helperText(
-
-                                                    fn (Get $get): ?HtmlString => $get('dalam_luar_wilayah') === 'Dalam' ? null : new HtmlString('<span style="color:red">Jika Kepala Keluarga berada di Luar Wilayah ' . $wilayah->wilayah_nama . ', data yang ditambahkan tidak akan ditampilkan di list data penduduk wilayah ini</span>')
-
-
-                                                )
-                                                ->allowHtml()
                                                 ->columnSpanFull(),
                                         ],
                                         'Tidak' => [
@@ -170,15 +147,11 @@ class CreateKartukeluarga extends CreateRecord
                                                 ->minLength(16)
                                                 ->unique(ignoreRecord: true)
                                                 ->numeric()
-                                                // ->disabled()
-                                                // ->default(fn () => (string) rand(1000000000000000, 9999999999999999))
                                                 ->placeholder('Masukkan nomor kartu keluarga')
                                                 ->dehydrated(
                                                     fn (?string $state): bool => filled($state)
                                                 )
                                                 ->required(fn (string $operation): bool => $operation === 'create'),
-
-
                                             Select::make('parent_id')
                                                 ->label('RW')
                                                 ->searchable()
@@ -217,7 +190,6 @@ class CreateKartukeluarga extends CreateRecord
                                 )
                                 ->columnSpanFull(),
                         ]),
-
                     Group::make()
                         ->extraAttributes(['class' => 'flex justify-center bg-primary-400 p-2 rounded-lg'])
                         ->hidden(
@@ -240,7 +212,6 @@ class CreateKartukeluarga extends CreateRecord
                         ->schema(PendudukResource::getPendudukFormSchema())->columnSpanFull(),
 
                 ]),
-
             Step::make('AnggotaKeluarga')
                 ->label('Anggota Keluarga')
                 ->schema([
@@ -406,9 +377,7 @@ class CreateKartukeluarga extends CreateRecord
         } else {
             $kartuKeluarga = $this->createKK($data);
             $kk_kepala = $this->addKepalaKK($data, $kartuKeluarga);
-
             $pendatang = $this->createPendatang($data, $kk_kepala);
-
             $kk_kepala->dinamikas()->create([
                 'dinamika_type' => Pendatang::class,
                 'dinamika_id' => $pendatang->id,

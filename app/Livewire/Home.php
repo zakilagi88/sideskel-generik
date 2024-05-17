@@ -3,26 +3,26 @@
 namespace App\Livewire;
 
 use App\Facades\Deskel;
+use App\Models\DesaKelurahanProfile;
+use App\Settings\GeneralSettings;
 use App\Settings\WebSettings;
 use Livewire\Component;
-use PhpOffice\PhpSpreadsheet\Calculation\Web;
 
 class Home extends Component
 {
     public $prov, $kabkota, $kec, $desa, $deskel;
 
+    public ?array $data = [];
+
     public function mount()
     {
-        $this->deskel = Deskel::getFacadeRoot();
-        $this->prov = $this->deskel->dk?->kec?->kabkota?->prov?->prov_nama ?? null;
-        $this->kabkota = $this->deskel->dk?->kec?->kabkota?->kabkota_nama ?? null;
-        $this->kec =  $this->deskel->dk?->kec?->kec_nama ?? null;
+        $this->deskel = DesaKelurahanProfile::with(['prov', 'kabkota', 'kec', 'dk'])->first();
+
+        $this->data = array_merge_recursive(app(GeneralSettings::class)->toArray(), app(WebSettings::class)->toArray());
     }
 
     public function render()
     {
-        return view('livewire.home');
+        return view('livewire.home', $this->data);
     }
-
-   
 }

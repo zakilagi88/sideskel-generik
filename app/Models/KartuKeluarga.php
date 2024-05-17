@@ -18,12 +18,17 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Traits\Dumpable;
 use OwenIt\Auditing\Contracts\Auditable;
 use Znck\Eloquent\Relations\BelongsToThrough;
+use Znck\Eloquent\Traits\BelongsToThrough as TraitsBelongsToThrough;
+
 
 class KartuKeluarga extends Model implements Auditable
 {
     use HasFactory, Dumpable;
 
     use \OwenIt\Auditing\Auditable;
+
+    use TraitsBelongsToThrough;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -138,13 +143,14 @@ class KartuKeluarga extends Model implements Auditable
             ->withTimestamps();
     }
 
-    public function deskelProfil(): BelongsToThrough
+    public function dk(): BelongsToThrough
     {
-        return $this->belongsToThrough(DesaKelurahanProfile::class, DesaKelurahan::class, 'deskel_id', 'deskel_id', 'deskel_id', 'deskel_id');
-    }
-
-    public function dk(): BelongsTo
-    {
-        return $this->belongsTo(DesaKelurahan::class, 'deskel_id', 'deskel_id');
+        return $this->belongsToThrough(
+            DesaKelurahan::class,
+            Wilayah::class,
+            null,
+            '',
+            [DesaKelurahan::class => 'deskel_id', Wilayah::class => 'wilayah_id'],
+        );
     }
 }

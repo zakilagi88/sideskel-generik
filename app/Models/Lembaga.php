@@ -34,9 +34,9 @@ class Lembaga extends Model
         return $this->logo_url ? Storage::url($this->logo_url) : 'https://ui-avatars.com/api/?name=' . urlencode($this->nama) . '&background=random';
     }
 
-    public function getLinkKey(): string
+    public function getLinkLabel(): string
     {
-        return $this->slug;
+        return $this->nama;
     }
 
     public function getRouteKeyName()

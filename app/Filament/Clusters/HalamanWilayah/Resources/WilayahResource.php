@@ -78,9 +78,9 @@ class WilayahResource extends Resource
                     ->relationship(
                         name: 'kepalaWilayah',
                         titleAttribute: 'nama_lengkap',
-                        modifyQueryUsing: fn (Builder $query) => $query->with('kartuKeluarga.wilayah')->orderBy('nama_lengkap')
+                        modifyQueryUsing: fn (Builder $query) => $query->with('wilayah')->orderBy('nama_lengkap')
                     )
-                    ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->nama_lengkap} - {$record->kartuKeluarga->wilayah->wilayah_nama}")
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) =>  "{$record->nama_lengkap} - {$record->wilayah?->wilayah_nama}")
                     ->searchable(['nama_lengkap', 'nik'])
             ])
             ->columns(1);
@@ -91,19 +91,28 @@ class WilayahResource extends Resource
         /** @var \App\Models\User */
         $auth = Filament::auth()->user();
 
+        $parentUser = Wilayah::find(1);
+        $parentAnak = Wilayah::find(18);
         return $table
             ->query(
-                static::$model::tree()->depthFirst()
+                static::$model::tree()->depthFirst()->withCount(['penduduks'])->with(['descendantsKks'])
             )
             ->columns([
                 Tables\Columns\TextColumn::make('No')
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('wilayah_nama')
                     ->label('Wilayah')
+                    ->placeholder('Wilayah Induk')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('kepalaWilayah.nama_lengkap')
                     ->label('Kepala Wilayah')
+                    ->placeholder('Belum ada Kepala Wilayah')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('wilayah_id')
+                    ->formatStateUsing(fn ($record) => ($record->tingkatan === '1') ? $record->descendantsKks->count() : $record->penduduks_count)
+                    ->placeholder('0')
+                    ->label('Jumlah Penduduk')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -148,9 +157,9 @@ class WilayahResource extends Resource
                             ->relationship(
                                 name: 'kepalaWilayah',
                                 titleAttribute: 'nama_lengkap',
-                                modifyQueryUsing: fn (Builder $query) => $query->with('kartuKeluarga.wilayah')->orderBy('nama_lengkap')
+                                modifyQueryUsing: fn (Builder $query) => $query->with('wilayah')->orderBy('nama_lengkap')
                             )
-                            ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->nama_lengkap} - {$record->kartuKeluarga->wilayah->wilayah_nama}")
+                            ->getOptionLabelFromRecordUsing(fn (Model $record) =>  "{$record->nama_lengkap} - {$record->wilayah?->wilayah_nama}")
                             ->searchable(['nama_lengkap', 'nik'])
                     ])
                     ->action(

@@ -84,8 +84,8 @@ class PengaturanUmum extends SettingsPage
                                 Forms\Components\Grid::make()
                                     ->schema([
                                         Forms\Components\TextInput::make('brand_name')
-                                            ->label(fn () => __('page.general_settings.fields.brand_name'))
-                                            ->hint(fn () => __('page.general_settings.fields.brand_name_hint'))
+                                            ->label(fn () => __('Nama Situs'))
+                                            ->hint(fn () => __('Judul situs yang akan ditampilkan di bagian atas halaman'))
                                             ->hintColor('primary')
                                             ->required(),
                                         Forms\Components\Select::make('site_active')
@@ -94,39 +94,33 @@ class PengaturanUmum extends SettingsPage
                                                 0 => "Not Active",
                                                 1 => "Active",
                                             ])
+                                            ->disabled()
                                             ->native(false)
-                                            ->hint(fn () => __('page.general_settings.fields.brand_name_hint'))
                                             ->hintColor('primary')
                                             ->required(),
                                     ]),
                                 Forms\Components\Grid::make()
                                     ->schema([
                                         Forms\Components\Grid::make()->schema([
-                                            Forms\Components\TextInput::make('brand_logoHeight')
-                                                ->label(fn () => __('page.general_settings.fields.brand_logoHeight'))
-                                                ->required()
-                                                ->columnSpan(2),
-                                            Forms\Components\FileUpload::make('brand_logo')
-                                                ->label(fn () => __('page.general_settings.fields.brand_logo'))
-                                                ->image()
-                                                ->directory('sites')
-                                                ->visibility('public')
-                                                ->moveFiles()
-                                                ->required()
-                                                ->columnSpan(2),
-                                        ])
-                                            ->columnSpan(2),
-                                        Forms\Components\FileUpload::make('site_favicon')
-                                            ->label(fn () => __('page.general_settings.fields.site_favicon'))
-                                            ->image()
-                                            ->directory('sites')
-                                            ->visibility('public')
-                                            ->moveFiles()
-                                            ->acceptedFileTypes(['image/x-icon', 'image/vnd.microsoft.icon'])
+                                            Group::make([
+                                                Forms\Components\TextInput::make('sebutan_deskel')->label('Sebutan Desa/Kelurahan'),
+                                                Forms\Components\TextInput::make('sebutan_prov')->label('Sebutan Provinsi'),
+                                                Forms\Components\TextInput::make('sebutan_kabkota')->label('Sebutan Kabupaten/Kota'),
+                                                Forms\Components\TextInput::make('sebutan_kec')->label('Sebutan Kecamatan'),
+                                            ]),
+                                            Group::make([
+                                                Forms\Components\TextInput::make('sebutan_kepala')->label('Sebutan Kepala Desa/Kelurahan'),
+                                                Forms\Components\TextInput::make('singkatan_prov')->label('Singkatan Provinsi'),
+                                                Forms\Components\TextInput::make('singkatan_kabkota')->label('Singkatan Kabupaten/Kota'),
+                                                Forms\Components\TextInput::make('singkatan_kec')->label('Singkatan Kecamatan'),
+                                            ]),
+                                        ])->inlineLabel()->columnSpanFull(),
+
                                     ]),
                             ]),
                         Forms\Components\Tabs\Tab::make('Web')
                             ->schema([
+
                                 Repeater::make('web_settings')
                                     ->hiddenLabel()
                                     ->extraAttributes([
@@ -138,6 +132,34 @@ class PengaturanUmum extends SettingsPage
                                     ->minItems(1)
                                     ->defaultItems(1)
                                     ->schema([
+                                        Forms\Components\TextInput::make('web_title')
+                                            ->inlineLabel()
+                                            ->label('Judul Website Publik'),
+                                        Forms\Components\FileUpload::make('web_gambar')
+                                            ->label('Gambar Untuk Beranda Website Publik')
+                                            ->inlineLabel()
+                                            ->image()
+                                            ->imageEditor()
+                                            ->preserveFilenames()
+                                            ->directory('web')
+                                            ->visibility('public')
+                                            ->moveFiles()
+                                            ->required(),
+                                        Forms\Components\FileUpload::make('kepala_gambar')
+                                            ->label('Gambar Untuk Beranda Website Publik')
+                                            ->inlineLabel()
+                                            ->preserveFilenames()
+                                            ->image()
+                                            ->directory('web')
+                                            ->visibility('public')
+                                            ->moveFiles()
+                                            ->required(),
+                                        Forms\Components\TextInput::make('kepala_judul')->label('Judul Sambutan Kepala Website Publik')->inlineLabel(),
+                                        Forms\Components\TextInput::make('kepala_nama')->label('Nama Kepala Website Publik')->hint('Isikan Dengan Gelar dan Nama Kepala Desa/Kelurahan')->inlineLabel(),
+                                        Forms\Components\Textarea::make('kepala_deskripsi')->label('Deskripsi Kepala Website Publik')->inlineLabel(),
+                                        Forms\Components\TextInput::make('berita_judul')->label('Judul Berita Website Publik')->inlineLabel(),
+                                        Forms\Components\Textarea::make('berita_deskripsi')->label('Deskripsi Berita Website Publik')->inlineLabel(),
+                                        Forms\Components\Textarea::make('footer_deskripsi')->label('Deskripsi Footer Website Publik')->inlineLabel(),
                                         TableRepeater::make('menus')
                                             ->label(__('Menu Navigasi Web'))
                                             ->columnSpanFull()
@@ -146,7 +168,7 @@ class PengaturanUmum extends SettingsPage
                                                     Header::make('menu1')->label('Nama Menu'),
                                                     Header::make('menu2')->label('Tipe Halaman'),
                                                     Header::make('menu3')->label('Halaman Parent'),
-                                                    Header::make('menu5')->label('Submenu Halaman'),
+                                                    Header::make('menu4')->label('Submenu Halaman'),
                                                 ]
                                             )
                                             ->schema(
@@ -160,11 +182,12 @@ class PengaturanUmum extends SettingsPage
                                                             'static' => 'Statis',
                                                             'dynamic' => 'Dinamis',
                                                         ])
+                                                        ->default('static')
                                                         ->live(onBlur: true)
                                                         ->required(),
                                                     Forms\Components\Select::make('link_name')
                                                         ->label(__('Link Parent'))
-                                                        ->options(fn (Get $get): array => $this->getRouteOptions($get('link_type')))
+                                                        ->options(fn (Get $get): array => ($this->getRouteOptions($get('link_type'))))
                                                         ->live(onBlur: true),
                                                     TableRepeater::make('submenu')
                                                         ->label(__('Submenu'))
@@ -199,11 +222,9 @@ class PengaturanUmum extends SettingsPage
                                                 ]
                                             ),
                                     ]),
-
-                            ]),
+                            ])->columnSpanFull(),
 
                     ])->columnSpanFull(),
-
                 Forms\Components\Tabs::make('Tabs')
                     ->tabs([
                         Forms\Components\Tabs\Tab::make('Color Palette')
@@ -257,7 +278,7 @@ class PengaturanUmum extends SettingsPage
             $webData = $data['web_settings'][0];
             foreach ($webData['menus'] as &$menu) {
                 $menu['submenu'] = array_filter($menu['submenu'], function ($submenu) {
-                    return !empty($submenu['sub_name']) && !empty($submenu['sub_link_name']) && !empty($submenu['sub_link_options']);
+                    return !empty($submenu['sub_name']) && !empty($submenu['sub_link_name']);
                 });
             }
             $webSettings = app(static::getWebSettings());
@@ -283,9 +304,7 @@ class PengaturanUmum extends SettingsPage
     protected function registerRouteOptions(): array
     {
 
-        $routes = collect(
-            Route::getRoutes()
-        )
+        $routes = collect(Route::getRoutes())
             ->map(function (RoutingRoute $route) {
                 $data = $route->getAction('linkKeyRoute');
 
@@ -312,10 +331,10 @@ class PengaturanUmum extends SettingsPage
     {
         return collect($this->routes)
             ->when($linkType === 'static', function ($collection) {
-                return $collection->filter(fn ($route) => $route['parameterOptions'] == null);
+                return $collection->filter(fn ($route) => $route['parameterOptions'] == null && !str_contains($route['routeName'], 'show'));
             })
             ->when($linkType === 'dynamic', function ($collection) {
-                return $collection->filter(fn ($route) => $route['parameterOptions'] != null);
+                return $collection->filter(fn ($route) => $route['parameterOptions'] != null && str_contains($route['routeName'], 'show'));
             })
             ->mapWithKeys(function ($route) {
                 return [$route['routeName'] => $route['label']];
@@ -385,8 +404,8 @@ class PengaturanUmum extends SettingsPage
     {
         $label = null;
 
-        if (method_exists($model, 'getLinkKey')) {
-            $label = $model->getLinkKey();
+        if (method_exists($model, 'getLinkLabel')) {
+            $label = $model->getLinkLabel();
         } elseif (property_exists($model, 'linkKey')) {
             $label = $model->{$model->linkKey};
         } else {
@@ -398,7 +417,7 @@ class PengaturanUmum extends SettingsPage
             throw new \Exception("Could not automatically determine a label for the model [{$modelClass}]. Please implement the HasLinkPickerOptions interface on your model or provide a custom parameterOptions array on the route itself.");
         }
 
-        return $model->$modelLabel;
+        return $label;
     }
 
 

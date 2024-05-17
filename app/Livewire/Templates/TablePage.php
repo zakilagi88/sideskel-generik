@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Templates;
 
-use App\Filament\Clusters\HalamanDesa\Resources\KeputusanResource;
+use App\Filament\Clusters\HalamanArsip\Resources\KeputusanResource;
 use App\Models\Desa\Keputusan;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -32,6 +32,8 @@ class TablePage extends Component implements HasForms, HasTable
     protected static string $resource;
 
     protected static string $heading;
+
+    protected static bool $isClusterParent = false;
 
     public function infolist(Infolist $infolist): Infolist
     {
@@ -67,7 +69,7 @@ class TablePage extends Component implements HasForms, HasTable
         return $this->record->slug ?? null;
     }
 
-    public static function getPageBreadcrumb(): array
+    public function getPageBreadcrumb(): array
     {
         if (!static::$routes) {
             static::$routes = Route::getRoutes();
@@ -79,11 +81,15 @@ class TablePage extends Component implements HasForms, HasTable
         return [
             'routeName' => $routeName,
             'routeParameter' => $routeParameter,
+
         ];
     }
 
     protected static function getRouteName(): string
     {
+        if (static::$isClusterParent) {
+            return 'index.' . static::getResource()::getCluster()::getSlug();
+        }
         return 'index.' . static::getResource()::getSlug();
     }
 
@@ -98,8 +104,8 @@ class TablePage extends Component implements HasForms, HasTable
     {
         $label = null;
 
-        if (method_exists($model, 'getLinkKey')) {
-            $label = $model->getLinkKey();
+        if (method_exists($model, 'getLinkLabel')) {
+            $label = $model->getLinkLabel();
         } elseif (property_exists($model, 'linkKey')) {
             $label = $model->{$model->linkKey};
         } else {
@@ -111,6 +117,6 @@ class TablePage extends Component implements HasForms, HasTable
             throw new \Exception("Could not automatically determine a label for the model [{$modelClass}]. Please implement the HasLinkPickerOptions interface on your model or provide a custom parameterOptions array on the route itself.");
         }
 
-        return $model->$modelLabel;
+        return $label;
     }
 }

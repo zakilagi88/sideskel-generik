@@ -10,8 +10,10 @@ use App\Filament\Clusters\HalamanKependudukan;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\Pages;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\RelationManagers\PenduduksRelationManager;
 use App\Models\{DesaKelurahan, DesaKelurahanProfile, DeskelProfil, Dusun, KabKota, KartuKeluarga, Kecamatan, Kelurahan, Penduduk, Provinsi, RT, RW, Wilayah};
+use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Carbon\Carbon;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\{Form, Get, Set};
 use Filament\Forms\Components\{Component, Group, Repeater, Section, Select, Textarea, TextInput, Wizard};
@@ -68,8 +70,8 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
 
     public static function shouldRegisterNavigation(): bool
     {
-        $cek = Deskel::getFacadeRoot()->status;
-        if ($cek == true) {
+        $settings = app(GeneralSettings::class)->toArray();
+        if ($settings['site_active'] == true) {
             return false;
         } else {
             return true;
@@ -120,6 +122,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                     ->schema([
                                         Select::make('deskel_id')
                                             ->label('Kelurahan')
+                                            ->relationship('dk', 'deskel_nama')
                                             ->disabled()
                                             ->searchable()
                                             ->options(
@@ -127,35 +130,17 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                                 DesaKelurahanProfile::with('dk')->get()->pluck('dk.deskel_nama', 'dk.deskel_id')
                                             )
                                             ->dehydrated(),
-                                        Select::make('dusun_id')
-                                            ->label('Dusun')
+                                        Select::make('wilayah_id')
+                                            ->label('Kelurahan')
+                                            ->relationship('wilayah', 'wilayah_nama')
                                             ->disabled()
                                             ->searchable()
                                             ->options(
                                                 fn (Get $get): Collection =>
-                                                Dusun::where('deskel_id', $get('deskel_id'))->pluck(
-                                                    'dusun_nama',
-                                                    'dusun_id'
-                                                )
+
+                                                Wilayah::pluck('wilayah.wilayah_nama', 'wilayah_id')
                                             )
-                                            ->dehydrated(),
-                                        Select::make('rw_id')
-                                            ->label('RW')
-                                            ->disabled()
-                                            ->searchable()
-                                            ->options(
-                                                fn (Get $get): Collection =>
-                                                RW::where('dusun_id', $get('dusun_id'))->orWhere->where('deskel_id', $get('deskel_id'))->pluck('rw_nama', 'rw_id')
-                                            )
-                                            ->dehydrated(),
-                                        Select::make('rt_id')
-                                            ->label('RW/RT')
-                                            ->searchable()
-                                            ->options(
-                                                fn (Get $get): Collection => RT::pluck('rt_nama', 'rt_id')
-                                            )
-                                            ->dehydrated()
-                                            ->preload(),
+
                                     ])->columns(2)->columnSpanFull(),
                             ])
                             ->columnStart(1),
@@ -180,6 +165,8 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                 TextColumn::make('kepalaKeluarga.nama_lengkap')
                     ->label('Kepala Keluarga')
                     ->copyable()
+                    ->searchable()
+
                     ->copyMessage('Telah Disalin!')
                     ->copyMessageDuration(500),
 
@@ -194,6 +181,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                 TextColumn::make('kk_alamat')
                     ->label('Alamat KK')
                     ->searchable()
+
                     ->copyable()
                     ->copyMessage('Telah Disalin!')
                     ->copyMessageDuration(500)
@@ -391,7 +379,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                                             ->where('nik', $get('kk_kepala'))
                                                             ->pluck('nama_lengkap', 'nik');
                                                     } else {
-                                                        return Penduduk::query()->whereDoesntHave('kartuKeluarga')
+                                                        return Penduduk::query()->whereDoesntHave('kartuKeluargas')
                                                             ->pluck('nama_lengkap', 'nik');
                                                     }
                                                 }
@@ -470,21 +458,20 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
         ];
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        /** @var \App\Models\User */
+        $authUser = Filament::auth()->user();
+        $descendants = ($authUser->hasRole('Monitor Wilayah')) ? Wilayah::tree()->find($authUser->wilayah_id)->descendants->pluck('wilayah_id') : null;
+
+        return parent::getEloquentQuery()->byWilayah($authUser, $descendants);
+    }
+
+
 
     public static function getRecordTitle(?Model $record): Htmlable | string
     {
-        $kk_id = Arr::get(request()->route()->parameters, 'record');
 
-        $kepalaKeluarga = Kartukeluarga::with('penduduks')->find($kk_id);
-
-        if (!$kepalaKeluarga) {
-            return $record->nama_lengkap . ' - ' . $record->kk_id;
-        }
-
-        if ($kepalaKeluarga->nama_lengkap != $record->nama_lengkap) {
-            return $kepalaKeluarga->nama_lengkap . ' - ' . $kepalaKeluarga->kk_id;
-        }
-
-        return $kepalaKeluarga->nama_lengkap . ' - ' . $kepalaKeluarga->kk_id;
+        return $record->kepalaKeluarga->nama_lengkap . ' - ' . $record->kk_id;
     }
 }

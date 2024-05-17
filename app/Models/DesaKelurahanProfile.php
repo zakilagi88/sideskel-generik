@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 use Znck\Eloquent\Relations\BelongsToThrough;
 use Znck\Eloquent\Traits\BelongsToThrough as TraitsBelongsToThrough;
 
@@ -28,7 +29,7 @@ class DesaKelurahanProfile extends Model
         'kodepos',
         'thn_bentuk',
         'dasar_hukum_bentuk',
-        'kepala',
+        'aparatur_id',
         'tipologi',
         'klasifikasi',
         'kategori',
@@ -43,14 +44,6 @@ class DesaKelurahanProfile extends Model
         'bts_timur',
         'bts_selatan',
         'bts_barat',
-        'kantor',
-        'prasarana_pendidikan',
-        'prasarana_kesehatan',
-        'prasarana_ibadah',
-        'prasarana_umum',
-        'prasarana_transportasi',
-        'prasarana_air_bersih',
-        'prasarana_sanitasi_irigasi',
         'visi',
         'misi',
         'sejarah',
@@ -68,19 +61,59 @@ class DesaKelurahanProfile extends Model
         'jmlh_pdd' => 'integer',
         'status' => 'boolean',
         'tanah_kas' => 'double',
-        'prasarana_pendidikan' => 'array',
-        'prasarana_kesehatan' => 'array',
-        'prasarana_ibadah' => 'array',
-        'prasarana_umum' => 'array',
-        'prasarana_transportasi' => 'array',
-        'prasarana_air_bersih' => 'array',
-        'prasarana_sanitasi_irigasi' => 'array',
-
     ];
+
+    public function getLogo(): string
+    {
+        return $this->logo ? Storage::url($this->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($this->dk->deskel_nama) . '&background=random&size=512';
+    }
 
 
     public function dk(): BelongsTo
     {
         return $this->belongsTo(DesaKelurahan::class, 'deskel_id', 'deskel_id');
+    }
+
+    public function kec(): BelongsToThrough
+    {
+        return $this->belongsToThrough(
+            Kecamatan::class,
+            DesaKelurahan::class,
+            null,
+            '',
+            [Kecamatan::class => 'kec_id', DesaKelurahan::class => 'deskel_id'],
+        );
+    }
+
+    public function kabkota(): BelongsToThrough
+    {
+        return $this->belongsToThrough(
+            KabKota::class,
+            [Kecamatan::class, DesaKelurahan::class],
+            null,
+            '',
+            [KabKota::class => 'kabkota_id', Kecamatan::class => 'kec_id', DesaKelurahan::class => 'deskel_id']
+        );
+    }
+
+    public function prov(): BelongsToThrough
+    {
+        return $this->belongsToThrough(
+            Provinsi::class,
+            [Kabkota::class, Kecamatan::class, DesaKelurahan::class],
+            null,
+            '',
+            [Provinsi::class => 'prov_id', KabKota::class => 'kabkota_id', Kecamatan::class => 'kec_id', DesaKelurahan::class => 'deskel_id']
+        );
+    }
+
+    public function getLinkLabel(): string
+    {
+        return $this->id . ' - ' . $this->dk?->deskel_nama;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'id';
     }
 }

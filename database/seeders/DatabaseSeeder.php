@@ -1,26 +1,14 @@
 <?php
 
-use App\Models\AnggotaKeluarga;
-use App\Models\KartuKeluarga;
-use App\Models\Penduduk;
-use App\Models\RT;
-use App\Models\RW;
-use App\Models\SLS;
 use Illuminate\Database\Seeder;
-use App\Models\User;
-use Database\Seeders\AnggotaKeluargaSeeder;
-use Database\Seeders\KabKotaSeeder;
-use Database\Seeders\KartuKeluargaSeeder;
-use Database\Seeders\KecamatanSeeder;
-use Database\Seeders\KelurahanSeeder;
-use Database\Seeders\PendudukSeeder;
-use Database\Seeders\ProvinsiSeeder;
-use Database\Seeders\RukunTetanggaSeeder;
-use Database\Seeders\RukunWargaSeeder;
-use Database\Seeders\ShieldSeeder;
-use Database\Seeders\SLSSeeder;
+use Database\Seeders\JabatanSeeder;
+use Database\Seeders\KeamananLingkunganSeeder;
+use Database\Seeders\LembagaSeeder;
+use Database\Seeders\PotensiSDASeeder;
+use Database\Seeders\SaranaPrasaranaSeeder;
+use Database\Seeders\StatKategorisSeeder;
+use Database\Seeders\StatSDMSeeder;
 use Database\Seeders\UserSeeder;
-use Database\Seeders\UserWilayahRolesSeeder;
 use Illuminate\Support\Arr;
 use Spatie\Permission\Models\Role;
 
@@ -33,8 +21,13 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            // ShieldSeeder::class,
-
+            JabatanSeeder::class,
+            StatKategorisSeeder::class,
+            StatSDMSeeder::class,
+            SaranaPrasaranaSeeder::class,
+            PotensiSDASeeder::class,
+            KeamananLingkunganSeeder::class,
+            LembagaSeeder::class,
         ]);
     }
 }

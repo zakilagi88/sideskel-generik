@@ -30,7 +30,9 @@ class BeritaResource extends Resource implements HasShieldPermissions
 
     protected static ?string $cluster = HalamanBerita::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'fas-newspaper';
+
+    protected static ?string $navigationLabel = 'Berita';
 
     protected static ?string $slug = 'berita';
 

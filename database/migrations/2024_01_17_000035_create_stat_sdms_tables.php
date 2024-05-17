@@ -24,21 +24,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        $default_tables = config('app_data.default_tables');
-
-        foreach ($default_tables['stats'] as $key => $value) {
-            StatSDM::updateOrCreate(
-                ['id' => $key],
-                [
-                    'stat_kategori_id' => $value['stat_kategori_id'],
-                    'key' => $value['key'],
-                    'nama' => $value['nama'],
-                    'slug' => $value['slug'],
-                    'deskripsi' => $value['deskripsi'],
-                    'status' => $value['status'],
-                ]
-            );
-        }
+       
     }
 
     /**

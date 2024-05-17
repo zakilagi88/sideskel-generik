@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Pages;
 
-use App\Filament\Clusters\HalamanDesa\Resources\KeputusanResource;
+use App\Filament\Clusters\HalamanArsip\Resources\KeputusanResource;
 use App\Livewire\Templates\TablePage;
 use Filament\Tables\Table;
 use Filament\Tables;

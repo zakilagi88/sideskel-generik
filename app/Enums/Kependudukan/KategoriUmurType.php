@@ -6,8 +6,8 @@ use Filament\Support\Contracts\HasLabel;
 
 enum KategoriUmurType: string implements HasLabel
 {
-    case BADUTA = '2';
-    case BALITA = '5';
+    case BADUTA = 'Baduta';
+    case BALITA = 'Balita';
     case ANAK_ANAK = 'ANAK-ANAK';
     case REMAJA = 'REMAJA';
     case DEWASA = 'DEWASA';

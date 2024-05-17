@@ -22,6 +22,10 @@ class RoleResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static ?string $navigationIcon = 'fas-user-shield';
+
+    protected static ?string $navigationLabel = 'Pengaturan Peran Pengguna';
+
     protected static ?string $slug = 'peran';
 
     protected static $permissionsCollection;

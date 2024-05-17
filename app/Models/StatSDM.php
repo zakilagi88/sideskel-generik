@@ -25,9 +25,9 @@ class StatSDM extends Model
 
     protected $casts = [];
 
-    public function getLinkKey(): string
+    public function getLinkLabel(): string
     {
-        return $this->slug;
+        return $this->nama;
     }
 
     public function getRouteKeyName()
@@ -40,7 +40,7 @@ class StatSDM extends Model
         return $this->belongsTo(StatKategori::class, 'stat_kategori_id');
     }
 
-    
+
 
     public function scopeAktif($query)
     {

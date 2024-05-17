@@ -33,9 +33,9 @@ class Tambahan extends Model
         'kategori' => 'array',
     ];
 
-    public function getLinkKey(): string
+    public function getLinkLabel(): string
     {
-        return $this->slug;
+        return $this->nama;
     }
 
     public function getRouteKeyName()

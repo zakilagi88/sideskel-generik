@@ -70,7 +70,7 @@ class DinamikaResource extends Resource implements HasShieldPermissions
                 TextColumn::make('penduduk.nama_lengkap')
                     ->label('Nama Lengkap')
                     ->sortable(),
-                TextColumn::make('penduduk.kartuKeluarga.kk_id')
+                TextColumn::make('penduduk.kartuKeluargas.kk_id')
                     ->label(
                         fn () => new HtmlString(
                             '<p class="text-sm text-left">No. KK</p> <p class="text-sm text-gray-500 text-left">Kepala Keluarga</p>'
@@ -80,9 +80,9 @@ class DinamikaResource extends Resource implements HasShieldPermissions
                     ->html()
                     ->color('primary')
                     ->description(
-                        fn ($record) => $record->penduduk->kartuKeluarga->kepalaKeluarga->nama_lengkap
+                        fn ($record) => $record->penduduk->kartuKeluargas->kepalaKeluarga->nama_lengkap
                     )
-                    ->url(fn ($record) => KartuKeluargaResource::getUrl('edit', ['record' => $record->penduduk->kartuKeluarga->kk_id]))
+                    ->url(fn ($record) => KartuKeluargaResource::getUrl('edit', ['record' => $record->penduduk->kartuKeluargas->kk_id]))
                     ->openUrlInNewTab()
                     ->sortable(),
                 TextColumn::make('jenis_dinamika')
@@ -107,7 +107,7 @@ class DinamikaResource extends Resource implements HasShieldPermissions
             ])
             ->actions(
                 [
-                    Tables\Actions\EditAction::make(),
+                    // Tables\Actions\EditAction::make(),
                 ],
                 position: ActionsPosition::BeforeColumns
             )

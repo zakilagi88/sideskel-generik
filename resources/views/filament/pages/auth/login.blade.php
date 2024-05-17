@@ -32,7 +32,7 @@
         </div>
 
 
-        <div class="relative col-span-2 hidden sm:col-span-2 sm:flex bg-primary-400 text-center rounded-r-xl px-10">
+        <div class="relative col-span-2 hidden sm:col-span-2 sm:flex bg-primary-400  text-center rounded-r-xl px-10">
             <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" width="869.99994" height="520.13854"
                 viewBox="0 0 869.99994 520.13854" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <path
@@ -102,16 +102,7 @@
                 <p class="font-semibold">Sideskel Generik</p>
             </div>
         </div>
-        {{-- <div class="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-            style="background-image: url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg');">
-        </div> --}}
-        {{-- <div class=" col-span-2 sm:col-span-0 hidden sm:block">
 
-            <!-- Right section content goes here -->
-            @if (!$this instanceof \Filament\Tables\Contracts\HasTable)
-                <x-filament-actions::modals />
-            @endif
-        </div> --}}
     </section>
 
 

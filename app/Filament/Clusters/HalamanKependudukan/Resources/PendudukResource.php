@@ -7,10 +7,9 @@ use App\Facades\Deskel;
 use App\Filament\Clusters\HalamanKependudukan;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\Pages;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\Widgets\PendudukOverview;
-use App\Models\{Bantuan, Kepindahan, Kematian, Penduduk, Dinamika};
+use App\Models\{Bantuan, Kepindahan, Kematian, Penduduk, Dinamika, Wilayah};
+use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use Coolsam\FilamentFlatpickr\Enums\FlatpickrTheme;
-use Coolsam\FilamentFlatpickr\Forms\Components\Flatpickr;
 use Filament\Facades\Filament;
 use Filament\Forms\Form;
 use Filament\Forms\Components\{Actions\Action as FormsAction, Checkbox, Component, Group, Section, Select, TextInput, DatePicker, DateTimePicker, Fieldset, FileUpload, Grid as FormsGrid, Hidden, Placeholder, Split as ComponentsSplit, Textarea, TimePicker, Wizard};
@@ -29,6 +28,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Actions\{Action as ActionsAction, ActionGroup, BulkAction};
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
@@ -69,8 +69,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
 
     public static function shouldRegisterNavigation(): bool
     {
-        $cek = Deskel::getFacadeRoot()->status;
-        if ($cek == true) {
+        $settings = app(GeneralSettings::class)->toArray();
+        if ($settings['site_active'] == true) {
             return false;
         } else {
             return true;
@@ -93,9 +93,9 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                         ->label('NIK')
                                         ->unique(ignoreRecord: true)
                                         ->live()
-                                        ->afterStateUpdated(function (HasForms $livewire, TextInput $component) {
-                                            $livewire->validateOnly($component->getStatePath());
-                                        })
+                                        // ->afterStateUpdated(function (HasForms $livewire, TextInput $component) {
+                                        //     $livewire->validateOnly($component->getStatePath());
+                                        // })
                                         ->required(),
                                     TextInput::make('nama_lengkap')
                                         ->label('Nama Lengkap')
@@ -211,6 +211,9 @@ class PendudukResource extends Resource implements HasShieldPermissions
             'style' => 'position: sticky; left: 0;',
             'class' => ''
         ];
+
+        /** @var \App\Models\User */
+        $auth = Filament::auth()->user();
         return $table
             ->columns([
                 TextColumn::make('nik')
@@ -246,6 +249,10 @@ class PendudukResource extends Resource implements HasShieldPermissions
                 TextColumn::make('status_perkawinan')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('status_hubungan')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ->sortable(),
                 TextColumn::make('pekerjaan')
                     ->searchable()
@@ -342,15 +349,9 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                             TextInput::make('tempat_kematian')
                                                 ->label('Tempat Meninggal')
                                                 ->required(),
-                                            Flatpickr::make('waktu_kematian')
+                                            TimePicker::make('waktu_kematian')
                                                 ->label('Waktu Meninggal')
-                                                ->time()
-                                                ->animate()
-                                                ->allowInput(true)
-                                                ->enableSeconds(true)
-                                                ->use24hr(true)
-                                                ->clickOpens(true)
-                                                ->theme(FlatpickrTheme::MATERIAL_BLUE),
+                                                ->required(),
                                             Select::make('penyebab_kematian')
                                                 ->label('Penyebab Meninggal')
                                                 ->options([
@@ -542,8 +543,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             }
                         )
                         ->visible(
-                            function () {
-                                if (Filament::auth()->user()->hasRole('Admin')) {
+                            function () use ($auth) {
+                                if ($auth->hasRole('Admin')) {
                                     return true;
                                 } else {
                                     return false;
@@ -852,40 +853,19 @@ class PendudukResource extends Resource implements HasShieldPermissions
     public function getTableBulkActions()
     {
         return  [
-            ExportBulkAction::make(),
+            // ExportBulkAction::make(),
 
         ];
     }
 
-    // public static function getEloquentQuery(): Builder
-    // {
+    public static function getEloquentQuery(): Builder
+    {
+        /** @var \App\Models\User */
+        $authUser = Filament::auth()->user();
+        $descendants = ($authUser->hasRole('Monitor Wilayah')) ? Wilayah::tree()->find($authUser->wilayah_id)->descendants->pluck('wilayah_id') : null;
 
-    //     $wilayah = auth()->user()->wilayah_id;
-
-    //     if (empty($wilayah)) {
-    //         return parent::getEloquentQuery();
-    //     } else {
-    //         return parent::getEloquentQuery()->byWilayah($wilayah);
-    //     }
-
-    //     ($roles = auth()->user()->roles->pluck('name'));
-
-    //     if ($roles->contains('RT')) {
-    //         $wilayahId = auth()->user()->wilayahRoles->pluck('wilayah.wilayah_id')->first();
-    //         $queryRT = parent::getEloquentQuery()->whereHas('kartuKeluarga', function ($query) use ($wilayahId) {
-    //             $query->where('wilayah_id', $wilayahId);
-    //         });
-    //     } elseif ($roles->contains('RW')) {
-    //         $wilayahId = auth()->user()->wilayahRoles->pluck('wilayah.wilayah_id');
-    //         $queryRW = parent::getEloquentQuery()->whereHas('kartuKeluarga', function ($query) use ($wilayahId) {
-    //             $query->whereIn('wilayah_id', $wilayahId);
-    //         });
-    //     } else {
-    //         $queryAdmin = parent::getEloquentQuery();
-    //     }
-
-    //     return $queryRT ?? $queryRW ?? $queryAdmin;
-    // }
+        return parent::getEloquentQuery()->byWilayah($authUser, $descendants);
+    }
 
     public static function getWidgets(): array
     {
@@ -1067,13 +1047,9 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             ->label('Tempat Lahir')
                             ->placeholder('Masukkan Tempat Lahir')
                             ->required(),
-                        Flatpickr::make('tanggal_lahir')
+                        DatePicker::make('tanggal_lahir')
                             ->label('Tanggal Lahir')
                             ->placeholder('Pilih Tanggal Lahir')
-                            ->animate()
-                            ->allowInput(true)
-                            ->clickOpens(true)
-                            ->theme(FlatpickrTheme::MATERIAL_BLUE)
                             ->required(),
                         Select::make('jenis_kelamin')
                             ->label('Jenis Kelamin')
@@ -1150,22 +1126,18 @@ class PendudukResource extends Resource implements HasShieldPermissions
                         FormsGrid::make(1)
                             ->schema(fn (Get $get): array => match ($get('status_perkawinan')) {
                                 'KAWIN', 'KAWIN TERCATAT', 'KAWIN BELUM TERCATAT' => [
-                                    Flatpickr::make('tgl_perkawinan')
+                                    DatePicker::make('tgl_perkawinan')
                                         ->label('Tanggal Perkawinan')
                                         ->placeholder('Pilih Tanggal Perkawinan')
-                                        ->animate()
-                                        ->allowInput(true)
-                                        ->clickOpens(true)
-                                        ->theme(FlatpickrTheme::MATERIAL_BLUE),
+                                        ->required()
+                                        ->native(false)
                                 ],
                                 'CERAI', 'CERAI BELUM TERCATAT', 'CERAI HIDUP', 'CERAI HIDUP BELUM TERCATAT', 'CERAI HIDUP TERCATAT', 'CERAI MATI', 'CERAI TERCATAT' => [
-                                    Flatpickr::make('tgl_perceraian')
+                                    DatePicker::make('tgl_perceraian')
                                         ->placeholder('Pilih Tanggal Perceraian')
                                         ->label('Tanggal Perceraian')
-                                        ->animate()
-                                        ->allowInput(true)
-                                        ->clickOpens(true)
-                                        ->theme(FlatpickrTheme::MATERIAL_BLUE),
+                                        ->required()
+                                        ->native(false)
                                 ],
                                 default => [],
                             })
@@ -1288,24 +1260,16 @@ class PendudukResource extends Resource implements HasShieldPermissions
                         'class' => 'bg-white dark:bg-gray-900'
                     ])
                     ->schema([
-                        Flatpickr::make('tanggal_dinamika')
+                        DatePicker::make('tanggal_dinamika')
                             ->label('Tanggal Dinamika')
                             ->placeholder('Pilih Tanggal Dinamika')
-                            ->hint('( Tanggal Dinamika Pindah Masuk/Kelahiran )')
-                            ->animate()
-                            ->allowInput(true)
-                            ->clickOpens(true)
-                            ->required()
-                            ->theme(FlatpickrTheme::MATERIAL_BLUE),
-                        Flatpickr::make('tanggal_lapor')
+                            ->hint('( Tanggal Dinamika Masuk/Kelahiran )')
+                            ->required(),
+                        DatePicker::make('tanggal_lapor')
                             ->label('Tanggal Lapor')
                             ->placeholder('Pilih Tanggal Lapor')
                             ->hint('( Tanggal Dinamika Lapor Masuk/Kelahiran )')
-                            ->animate()
-                            ->allowInput(true)
-                            ->clickOpens(true)
-                            ->required()
-                            ->theme(FlatpickrTheme::MATERIAL_BLUE),
+                            ->required(),
                         Textarea::make('catatan_dinamika')
                             ->label('Catatan Dinamika')
                             ->autosize()

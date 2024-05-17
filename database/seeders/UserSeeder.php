@@ -20,16 +20,16 @@ class UserSeeder extends Seeder
             'password' => Hash::make('admin'),
         ]);
 
-        $admin_desa = User::factory()->create([
-            'name' => 'Admin Desa',
-            'username' => 'admin_desa',
+        $admin_web = User::factory()->create([
+            'name' => 'Admin Web',
+            'username' => 'admin_web',
             'email' => null,
-            'password' => Hash::make('admin_desa'),
+            'password' => Hash::make('admin_web'),
         ]);
 
         $this->call(ShieldSeeder::class);
 
         $admin->assignRole('Admin');
-        $admin_desa->assignRole('Admin Desa');
+        $admin_web->assignRole('Admin Web');
     }
 }

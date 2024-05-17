@@ -30,11 +30,14 @@ class SaranaPrasaranaResource extends Resource
 {
     protected static ?string $model = SaranaPrasarana::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'fas-list-check';
 
     protected static ?string $cluster = HalamanDesa::class;
 
     protected static ?string $slug = 'sarana-prasarana';
+
+    protected static ?int $navigationSort = 3;
+
 
 
     public static function form(Form $form): Form

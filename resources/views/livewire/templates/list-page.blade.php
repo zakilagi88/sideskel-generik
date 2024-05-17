@@ -4,10 +4,24 @@
     </div>
     <div class="col-span-2 bg-white rounded-xl">
         <div id="posts" class=" px-3 lg:px-7 ">
-            <div>
+            <div class="m-4">
                 @if ($search)
                     <h3 class="text-lg font-semibold text-gray-600 mb-3">Sedang Mencari ... "{{ $search }}"</h3>
                 @endif
+
+                @if ($kategori)
+                    <h3 class="text-lg font-semibold text-gray-600 mb-3">Kategori Berita: {{ $kategori }}</h3>
+                @endif
+
+                @if ($search || $kategori)
+                    <div class="flex items-end space-x-4 font-light ">
+                        <x-filament::button wire:navigate href="{{ route('index.berita') }}" icon="fas-xmark"
+                            icon-position="after" tag="a">
+                            Reset Pencarian
+                        </x-filament::button>
+                    </div>
+                @endif
+
             </div>
             <div class="flex justify-between items-center border-b border-gray-100">
                 <div class="flex items-center space-x-4 font-light ">
@@ -60,10 +74,14 @@
             </div>
         </div>
         <div id="recommended-topics-box">
-            <h3 class="text-lg font-semibold text-gray-900 mb-3">Recommended Topics</h3>
-            <div class="topics flex flex-wrap justify-start">
-                <a href="#" class="bg-red-600 text-white rounded-xl px-3 py-1 text-base">
-                    Tailwind</a>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Kategori Berita</h3>
+            <div class="topics flex flex-wrap gap-4 justify-start">
+                @foreach ($this->kategoris as $k)
+                    <x-filament::button wire:navigate href="{{ route('index.berita', ['kategori' => $k->slug]) }}"
+                        tag="a">
+                        {{ $k->name }}
+                    </x-filament::button>
+                @endforeach
             </div>
         </div>
     </div>

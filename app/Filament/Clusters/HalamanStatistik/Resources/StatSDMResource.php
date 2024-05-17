@@ -4,16 +4,27 @@ namespace App\Filament\Clusters\HalamanStatistik\Resources;
 
 use App\Filament\Clusters\HalamanStatistik;
 use App\Filament\Clusters\HalamanStatistik\Resources\StatSDMResource\Pages;
+use App\Livewire\Widgets\Charts\Stat\SDMBarChart;
+use App\Livewire\Widgets\Charts\Stat\SDMPieChart;
+use App\Models\Penduduk\PendudukView;
 use App\Models\StatSDM;
+use App\Models\Wilayah;
 use App\Services\GenerateEnumUnionQuery;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Forms\Components\Livewire;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Livewire\Attributes\On;
 
 class StatSDMResource extends Resource implements HasShieldPermissions
 {
@@ -33,6 +44,13 @@ class StatSDMResource extends Resource implements HasShieldPermissions
 
     protected static bool $shouldRegisterNavigation = false;
 
+    public array $data = [];
+
+    public function mount($record): void
+    {
+        $this->data = $this->getPendudukViewQuery($record);
+    }
+
 
     public static function getPermissionPrefixes(): array
     {
@@ -48,6 +66,7 @@ class StatSDMResource extends Resource implements HasShieldPermissions
 
     public static function form(Form $form): Form
     {
+        $key = $form->getRecord();
         return $form
             ->schema([
                 Forms\Components\TextInput::make('nama')
@@ -69,6 +88,22 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                     ->maxLength(255),
                 Forms\Components\Toggle::make('status')
                     ->required(),
+                Tabs::make('grafik')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make('Grafik Bar')
+                            ->schema([
+                                Livewire::make(SDMBarChart::class, ['chartData' => self::getPendudukViewQuery($key)])
+                                    ->label('Grafik Bar Statistik'),
+                            ]),
+                        Tab::make('Grafik Pie')
+                            ->schema([
+                                Livewire::make(SDMPieChart::class, ['chartData' => self::getPendudukViewQuery($key)])
+                                    ->label('Grafik Pie Statistik'),
+                            ]),
+                    ])
+
+
             ]);
     }
 
@@ -114,5 +149,24 @@ class StatSDMResource extends Resource implements HasShieldPermissions
             'index' => Pages\ListStatSDMs::route('/'),
             'edit' => Pages\EditStatSDM::route('/{record}'),
         ];
+    }
+
+    protected static function getPendudukViewQuery($record): array
+    {
+        /** @var \App\Models\User */
+        $authUser = Filament::auth()->user();
+
+        $descendants = ($authUser->hasRole('Monitor Wilayah')) ? Wilayah::tree()->find($authUser->wilayah_id)->descendants->pluck('wilayah_id') : null;
+
+        $wilayah = $authUser->hasRole('Admin') ? null : $descendants;
+
+        $query = PendudukView::getView(key: $record->key, wilayahId: $wilayah);
+
+
+        if ($record->key === 'rentang_umur') {
+            $query->orderByRaw("CAST(SUBSTRING_INDEX(rentang_umur, '-', 1) AS UNSIGNED)");
+        }
+
+        return $query->get()->toArray();
     }
 }

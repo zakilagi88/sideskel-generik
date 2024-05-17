@@ -17,17 +17,6 @@ return new class extends Migration
             $table->string('nama');
             $table->timestamps();
         });
-
-        $default_tables = config('app_data.default_tables');
-
-        foreach ($default_tables['stat_kategoris'] as $key => $value) {
-            StatKategori::updateOrCreate(
-                ['id' => $key],
-                [
-                    'nama' => $value['nama'],
-                ]
-            );
-        }
     }
 
     /**

@@ -13,8 +13,6 @@ class EditStatSDM extends EditRecord
 
     protected static string $resource = StatSDMResource::class;
 
-    protected static string $view = 'filament.clusters.stat.sdm.page';
-
     public $kategori, $activeTab;
 
     public function mount(int|string $record): void

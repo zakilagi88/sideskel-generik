@@ -10,17 +10,15 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class StatsOverview extends BaseWidget
 {
 
-    protected int | string | array $columnSpan = 8;
+    protected int | string | array $columnSpan = 2;
 
     protected function getStats(): array
     {
         return [
             Stat::make('Aparatur Desa', Aparatur::count())
-                ->icon('heroicon-o-user-group')
+                ->icon('fas-user-tie')
                 ->description('Jumlah Aparatur Desa')
-                // ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->chartColor('primary')
-
                 ->color('primary')
                 ->chart([
                     20, 10, 3, 12, 1, 14, 10, 1, 4, 20
@@ -28,27 +26,11 @@ class StatsOverview extends BaseWidget
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
-            Stat::make('Kartu Keluarga', KartuKeluarga::count())
-                ->icon('heroicon-o-user-group')
-                ->description('Kepala Keluarga')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->chartColor('success')
-
-                ->color('success')
-                ->chart([
-                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
-                ])
-                ->extraAttributes([
-                    'class' => 'cursor-pointer',
-                ]),
-            Stat::make('Penduduk', Penduduk::count())
-                ->icon('heroicon-o-user-group')
-                ->description('Jumlah Penduduk')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->descriptionColor('info')
-                ->chartColor('info')
-
-                ->color('info')
+            Stat::make('Lembaga Desa', Aparatur::count())
+                ->icon('fas-users')
+                ->description('Jumlah Lembaga Desa')
+                ->chartColor('primary')
+                ->color('primary')
                 ->chart([
                     20, 10, 3, 12, 1, 14, 10, 1, 4, 20
                 ])
@@ -69,6 +51,33 @@ class StatsOverview extends BaseWidget
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
+
+            Stat::make('Kartu Keluarga', KartuKeluarga::query()->whereHas('kepalaKeluarga', fn ($query) => $query->where('status_dasar', 'HIDUP'))->count())
+                ->icon('fas-people-roof')
+                ->description('Kepala Keluarga')
+                ->chartColor('success')
+                ->color('success')
+                ->chart([
+                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
+                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                ]),
+            Stat::make('Penduduk', Penduduk::where('status_dasar', 'HIDUP')->count())
+                ->icon('fas-person')
+                ->description('Jumlah Penduduk')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
+                ->descriptionColor('info')
+                ->chartColor('info')
+
+                ->color('info')
+                ->chart([
+                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
+                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                ]),
+
             Stat::make('Penduduk Masuk', Dinamika::where('dinamika_type', Pendatang::class)->count())
                 ->icon('fas-person-circle-plus')
                 ->description('Penduduk Masuk')

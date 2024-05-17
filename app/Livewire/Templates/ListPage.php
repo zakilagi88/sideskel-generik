@@ -3,6 +3,7 @@
 namespace App\Livewire\Templates;
 
 use App\Filament\Clusters\HalamanBerita\Resources\BeritaResource;
+use App\Models\KategoriBerita;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -23,11 +24,15 @@ class ListPage extends Component
     #[Url()]
     public $search = '';
 
+    #[Url()]
+    public $kategori = '';
+
     protected static $routes;
 
     protected static string $resource;
 
     protected static string $heading;
+
 
     protected static string $view = 'livewire.templates.list-page';
 
@@ -57,7 +62,12 @@ class ListPage extends Component
     {
         return static::getPageModel()::published()
             ->orderBy('published_at', $this->sort)
-            ->where('title', 'like', '%' . $this->search . '%')
+            ->whereAny([
+                'title', 'body'
+            ], 'LIKE', '%' . $this->search . '%')
+            ->when(KategoriBerita::where('slug', $this->kategori)->first(), function ($query) {
+                return $query->kategoriBerita($this->kategori);
+            })
             ->paginate(5);
     }
     public function getViewData()

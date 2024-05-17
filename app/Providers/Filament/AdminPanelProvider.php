@@ -3,9 +3,14 @@
 namespace App\Providers\Filament;
 
 use App\Facades\Deskel;
-use App\Filament\Clusters\{HalamanBerita, HalamanKesehatan, HalamanStatistik, HalamanWilayah};
+use App\Filament\Clusters\{HalamanArsip, HalamanBerita, HalamanKesehatan, HalamanStatistik, HalamanWilayah};
 use App\Filament\Clusters\HalamanDesa;
 use App\Filament\Clusters\HalamanDesa\Resources\AparaturResource;
+use App\Filament\Clusters\HalamanDesa\Resources\DeskelProfileResource;
+use App\Filament\Clusters\HalamanDesa\Resources\JadwalKegiatanResource;
+use App\Filament\Clusters\HalamanDesa\Resources\KeamananDanLingkunganResource;
+use App\Filament\Clusters\HalamanDesa\Resources\LembagaResource;
+use App\Filament\Clusters\HalamanDesa\Resources\PeraturanResource;
 use App\Filament\Clusters\HalamanDesa\Resources\SaranaPrasaranaResource;
 use App\Filament\Pages\{DeskelProfile, Dashboard, Auth\AuthLogin, Auth\AuthProfile};
 use App\Filament\Clusters\HalamanKependudukan\Resources\{KartuKeluargaResource, PendudukResource, DinamikaResource, BantuanResource, TambahanResource};
@@ -14,6 +19,7 @@ use App\Filament\Clusters\HalamanStatistik\Resources\StatSDMResource;
 use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource;
 use App\Filament\Pages\Settings\PengaturanUmum;
 use App\Filament\Resources\Shield\{RoleResource, UserResource};
+use App\Models\Desa\Peraturan;
 use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Forms\Components\FileUpload;
@@ -88,23 +94,25 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
 
-                $deskel = Deskel::getFacadeRoot();
-                $sebutan = $deskel->sebutan;
-                $cek = $deskel->status;
-
+                $settings = app(GeneralSettings::class)->toArray();
+                $cek = $settings['site_active'];
                 /** @var \App\Models\User */
                 $auth = Filament::auth()->user();
-
 
                 $persiapan =
                     NavigationGroup::make('Persiapan Sistem')
                     ->items([
-                        NavigationItem::make(fn (): string => 'Profil ' . $sebutan)
+                        NavigationItem::make('Pengaturan Aplikasi')
+                            ->icon('fas-cogs')
+                            ->visible(fn (): bool => $auth->can('page_PengaturanUmum') && $cek == false)
+                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.pengaturan-umum'))
+                            ->url(fn (): string => PengaturanUmum::getUrl()),
+                        NavigationItem::make(fn (): string => 'Profil ' . $settings['sebutan_deskel'])
                             ->icon('fas-city')
                             ->visible(fn (): bool => $auth->can('page_DeskelProfile') && $cek == false)
-                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.deskel-profile'))
-                            ->url(fn (): string => DeskelProfile::getUrl()),
-                        NavigationItem::make(fn (): string => 'Wilayah ' . $sebutan)
+                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.deskel.resources.profil.edit', ['record' => Deskel::getFacadeRoot()->first()]))
+                            ->url(fn (): string => DeskelProfileResource::getUrl()),
+                        NavigationItem::make(fn (): string => 'Wilayah ' . $settings['sebutan_deskel'])
                             ->icon('fas-map-marked-alt')
                             ->visible(fn (): bool => $auth->can('page_HalamanWilayah') && $cek == false)
                             ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.wilayah.resources.wilayahs.index'))
@@ -136,42 +144,42 @@ class AdminPanelProvider extends PanelProvider
                         ]),
                     $persiapan,
                     NavigationGroup::make('DataPokok')
-                        ->label('Data Pokok ' . $sebutan)
-                        ->icon('heroicon-o-cog-6-tooth')
+                        ->label('Data Pokok ' . $settings['sebutan_deskel'])
+                        ->icon('fas-layer-group')
                         ->collapsible()
                         ->items([
-                            NavigationItem::make(fn (): string => 'Data Umum ' . $sebutan)
-                                ->label('Data Umum ' . $sebutan)
+                            NavigationItem::make(fn (): string => 'Data Umum ' . $settings['sebutan_deskel'])
+                                ->label('Data Umum ' . $settings['sebutan_deskel'])
                                 ->icon('fas-city')
-                                ->visible(fn (): bool => $auth->can('page_DeskelProfile') && $cek == true)
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.deskel-profile'))
-                                ->url(fn (): string => DeskelProfile::getUrl()),
-                            NavigationItem::make(fn (): string => 'Aparat Pemerintah ' . $sebutan)
-                                ->label('Aparat Pemerintah ' . $sebutan)
+                                ->visible(fn (): bool => $auth->can('page_HalamanDesa') && $cek == true)
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.deskel.resources.profil.index'))
+                                ->url(fn (): string => DeskelProfileResource::getUrl()),
+                            NavigationItem::make(fn (): string => 'Aparat Pemerintah ' . $settings['sebutan_deskel'])
+                                ->label('Aparat Pemerintah ' . $settings['sebutan_deskel'])
                                 ->icon('fas-user-tie')
                                 ->visible(fn (): bool => $auth->can('page_HalamanDesa') && $cek == true)
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.aparatur.index'))
                                 ->url(fn (): string => AparaturResource::getUrl()),
-                            NavigationItem::make(fn (): string => 'Sarana Prasarana ' . $sebutan)
-                                ->label('Sarana Prasarana ' . $sebutan)
-                                ->icon('fas-map-marked-alt')
-                                ->visible(fn (): bool => $auth->can('page_HalamanWilayah') && $cek == true)
+                            NavigationItem::make(fn (): string => 'Sarana Prasarana ' . $settings['sebutan_deskel'])
+                                ->label('Sarana Prasarana ' . $settings['sebutan_deskel'])
+                                ->icon('fas-list-check')
+                                ->visible(fn (): bool => $auth->can('page_HalamanDesa') && $cek == true)
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.desa.resource.sarana-prasarana.index'))
                                 ->url(fn (): string => SaranaPrasaranaResource::getUrl()),
-                            NavigationItem::make(fn (): string => 'Kelembagaan ' . $sebutan)
-                                ->label('Wilayah ' . $sebutan)
-                                ->icon('fas-map-marked-alt')
+                            NavigationItem::make(fn (): string => 'Kelembagaan ' . $settings['sebutan_deskel'])
+                                ->label('Kelembagaan ' . $settings['sebutan_deskel'])
+                                ->icon('fas-users-line')
                                 ->visible(fn (): bool => $auth->can('page_HalamanDesa') && $cek == true)
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.desa.resources.lembaga.index'))
-                                ->url(fn (): string => HalamanWilayah::getUrl()),
-                            NavigationItem::make(fn (): string => 'Keamanan dan Ketertiban ' . $sebutan)
-                                ->label('Keamanan dan Ketertiban ' . $sebutan)
-                                ->icon('fas-box-archive')
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.deskel.resources.lembaga.index'))
+                                ->url(fn (): string => LembagaResource::getUrl()),
+                            NavigationItem::make(fn (): string => 'Keamanan dan Ketertiban ' . $settings['sebutan_deskel'])
+                                ->label('Keamanan dan Lingkungan ' . $settings['sebutan_deskel'])
+                                ->icon('fas-shield-halved')
                                 ->visible(fn (): bool => $auth->can('page_HalamanDesa') && $cek == true)
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.desa'))
-                                ->url(fn (): string => HalamanDesa::getUrl()),
-                            NavigationItem::make(fn (): string => 'Wilayah ' . $sebutan)
-                                ->label('Wilayah ' . $sebutan)
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.deskel.resources.keamanan-dan-lingkungan.index'))
+                                ->url(fn (): string => KeamananDanLingkunganResource::getUrl()),
+                            NavigationItem::make(fn (): string => 'Wilayah ' . $settings['sebutan_deskel'])
+                                ->label('Wilayah ' . $settings['sebutan_deskel'])
                                 ->icon('fas-map-marked-alt')
                                 ->visible(fn (): bool => $auth->can('page_HalamanWilayah') && $cek == true)
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.index.resources.wilayah.index'))
@@ -180,7 +188,7 @@ class AdminPanelProvider extends PanelProvider
                         ]),
                     NavigationGroup::make('DataDasar')
                         ->label('Data Dasar Keluarga')
-                        ->icon('heroicon-o-cog-6-tooth')
+                        ->icon('fas-house-user')
                         ->collapsible()
                         ->items([
                             NavigationItem::make('Keluarga')
@@ -215,7 +223,8 @@ class AdminPanelProvider extends PanelProvider
                                 ->url(fn (): string => TambahanResource::getUrl()),
                         ]),
                     NavigationGroup::make('Potensi')
-                        ->label('Potensi ' . $sebutan)
+                        ->label('Potensi ' . $settings['sebutan_deskel'])
+                        ->icon('fas-chart-line')
                         ->items([
                             NavigationItem::make('Potensi Sumber Daya Alam')
                                 ->icon('fas-chart-column')
@@ -224,7 +233,8 @@ class AdminPanelProvider extends PanelProvider
                                 ->url(fn (): string => PotensiSDAResource::getUrl()),
                         ]),
                     NavigationGroup::make('Statistik')
-                        ->label('Statistik ' . $sebutan)
+                        ->label('Statistik ' . $settings['sebutan_deskel'])
+                        ->icon('fas-chart-bar')
                         ->items([
                             NavigationItem::make('Statistik Kependudukan')
                                 ->icon('fas-chart-column')
@@ -233,48 +243,46 @@ class AdminPanelProvider extends PanelProvider
                                 ->url(fn (): string => HalamanStatistik::getUrl()),
                         ]),
                     NavigationGroup::make('Informasi')
-                        ->label('Informasi Publik ' . $sebutan)
+                        ->label('Informasi Publik Lainnya')
+                        ->icon('fas-info-circle')
                         ->items([
                             NavigationItem::make('Jadwal Kegiatan')
                                 ->icon('fas-calendar-days')
                                 ->visible(fn (): bool =>  $cek == true)
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.web.web-jadwal-kegiatan.index')),
-                            // ->url(fn (): string => StatSDMResource::getUrl()),
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.web.web-jadwal-kegiatan.index'))
+                                ->url(fn (): string => JadwalKegiatanResource::getUrl()),
                             NavigationItem::make('Berita')
                                 ->icon('fas-newspaper')
                                 ->visible(fn (): bool => $auth->can('page_HalamanBerita') && $cek == true)
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.berita'))
                                 ->url(fn (): string => HalamanBerita::getUrl()),
-                            NavigationItem::make(fn (): string => 'Arsip ' . $sebutan)
-                                ->label('Arsip ' . $sebutan)
+                            NavigationItem::make(fn (): string => 'Arsip ' . $settings['sebutan_deskel'])
+                                ->label('Arsip ' . $settings['sebutan_deskel'])
                                 ->icon('fas-box-archive')
-                                ->visible(fn (): bool => $auth->can('page_HalamanDesa') && $cek == true)
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.desa'))
-                                ->url(fn (): string => HalamanDesa::getUrl()),
+                                ->visible(fn (): bool => $auth->can('page_HalamanArsip') && $cek == true)
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resource.peraturan.index'))
+                                ->url(fn (): string => HalamanArsip::getUrl()),
+
                         ]),
                     NavigationGroup::make('Pengaturan')
+                        ->label('Pengaturan')
+                        ->icon('fas-cogs')
                         ->items([
                             NavigationItem::make('Pengaturan Peran')
-                                ->icon('fas-user-tag')
+                                ->icon('fas-user-shield')
                                 ->visible(fn (): bool => $auth->can('view_shield::role') && $cek == true)
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.shield.roles.index'))
                                 ->url(fn (): string => RoleResource::getUrl()),
                             NavigationItem::make('Pengaturan Pengguna')
-                                ->icon('fas-users')
+                                ->icon('fas-user-gear')
                                 ->visible(fn (): bool => $auth->can('view_shield::user') && $cek == true)
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.shield.users.index'))
                                 ->url(fn (): string => UserResource::getUrl()),
                             NavigationItem::make('Pengaturan Aplikasi')
-                                ->icon('fas-cogs')
+                                ->icon('fas-gear')
                                 ->visible(fn (): bool => $auth->can('page_PengaturanUmum') && $cek == true)
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.pengaturan-umum'))
                                 ->url(fn (): string => PengaturanUmum::getUrl()),
-                            // NavigationItem::make('Autentikasi Log')
-                            //     ->icon('fas-user-lock')
-                            //     ->visible(fn (): bool => $auth->can('view_shield::autentikasi::log') && $cek == true)
-                            //     ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.authentication-logs.index'))
-                            //     ->url(fn (): string => AutentikasiLogResource::getUrl()),
-
                         ])
                 ]);
             })
@@ -285,9 +293,10 @@ class AdminPanelProvider extends PanelProvider
             )
             ->plugins([
                 FilamentFullCalendarPlugin::make()
-                    ->selectable()
-                    ->editable()
+                    // ->selectable()
+                    // ->editable()
                     ->plugins(['dayGrid', 'timeGrid'])
+                    ->locale('id')
                     ->config([]),
                 FilamentApexChartsPlugin::make(),
                 FilamentShieldPlugin::make(),

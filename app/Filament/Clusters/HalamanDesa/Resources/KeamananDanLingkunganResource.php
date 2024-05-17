@@ -32,9 +32,14 @@ class KeamananDanLingkunganResource extends Resource
 {
     protected static ?string $model = KeamananDanLingkungan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'fas-shield-halved';
 
     protected static ?string $cluster = HalamanDesa::class;
+
+    protected static ?string $slug = 'keamanan-dan-lingkungan';
+
+    protected static ?int $navigationSort = 5;
+
 
     public static function form(Form $form): Form
     {
@@ -74,7 +79,7 @@ class KeamananDanLingkunganResource extends Resource
                     ->extraAttributes([
                         'class' => 'fi-repeater-no-container',
                     ])
-                    ->addable(false)
+                    ->addable(fn (Model $record) => empty($record->data) ? true : false)
                     ->deletable(false)
                     ->reorderable(false)
                     ->schema([
@@ -130,7 +135,7 @@ class KeamananDanLingkunganResource extends Resource
                     ->extraAttributes([
                         'class' => 'fi-repeater-no-container',
                     ])
-                    ->addable(false)
+                    ->addable(fn (Model $record) => empty($record->data) ? true : false)
                     ->deletable(false)
                     ->reorderable(false)
                     ->schema([
@@ -217,19 +222,20 @@ class KeamananDanLingkunganResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->using(
-                    function (Model $record, array $data) {
-                        $formFieldKeys = static::getFormFieldKeys();
-                        $data['data'] = array_map(function ($item) use ($formFieldKeys, $record) {
-                            $item = array_filter($item, function ($value, $key) use ($formFieldKeys, $record) {
-                                return in_array($key, $formFieldKeys[$record->jenis]);
-                            }, ARRAY_FILTER_USE_BOTH);
-                            return $item;
-                        }, $data['data']);
+                Tables\Actions\EditAction::make()
+                    ->using(
+                        function (Model $record, array $data) {
+                            $formFieldKeys = static::getFormFieldKeys();
+                            $data['data'] = array_map(function ($item) use ($formFieldKeys, $record) {
+                                $item = array_filter($item, function ($value, $key) use ($formFieldKeys, $record) {
+                                    return in_array($key, $formFieldKeys[$record->jenis]);
+                                }, ARRAY_FILTER_USE_BOTH);
+                                return $item;
+                            }, $data['data']);
 
-                        return $record->update($data);
-                    }
-                ),
+                            return $record->update($data);
+                        }
+                    ),
 
 
                 //

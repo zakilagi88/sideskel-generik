@@ -28,24 +28,16 @@
 </head>
 
 <body class="antialiased bg-secondary-100">
-    <header class="flex flex-row justify-start items-center gap-2 p-2">
-        <div class="flex items-center space-x-2">
-            <x-filament::icon icon="fas-envelope" class="h-5 w-5 text-primary-400 dark:text-gray-400" />
-            <p class="text-primary-400 text-sm">Sesuatu@gmail.com</p>
-        </div>
-        <div class="flex items-center space-x-2">
-            <x-filament::icon icon="fas-phone" class="h-5 w-5 text-primary-400 dark:text-gray-400" />
-            <p class="text-primary-400 text-sm ">+628110213981892</p>
-        </div>
-    </header>
 
-    @livewire('components.header')
-
+    <x-header />
+   
     <main class="container">
 
         {{ $slot }}
 
     </main>
+
+    @livewire('components.footer')
 
     @filamentScripts
     @vite('resources/js/app.js')

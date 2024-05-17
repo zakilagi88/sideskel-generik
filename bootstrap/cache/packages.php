@@ -49,17 +49,6 @@
       0 => 'BladeUI\\Icons\\BladeIconsServiceProvider',
     ),
   ),
-  'coolsam/flatpickr' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Coolsam\\FilamentFlatpickr\\FilamentFlatpickrServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'FilamentFlatpickr' => 'Coolsam\\FilamentFlatpickr\\Facades\\FilamentFlatpickr',
-    ),
-  ),
   'filament/actions' => 
   array (
     'providers' => 
@@ -125,13 +114,6 @@
     'aliases' => 
     array (
       'Trend' => 'Flowframe\\Trend\\TrendFacade',
-    ),
-  ),
-  'guava/filament-clusters' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Guava\\FilamentClusters\\FilamentClustersServiceProvider',
     ),
   ),
   'kirschbaum-development/eloquent-power-joins' => 
@@ -331,6 +313,13 @@
     'providers' => 
     array (
       0 => 'Staudenmeir\\BelongsToThrough\\IdeHelperServiceProvider',
+    ),
+  ),
+  'staudenmeir/eloquent-has-many-deep' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Staudenmeir\\EloquentHasManyDeep\\IdeHelperServiceProvider',
     ),
   ),
   'staudenmeir/laravel-adjacency-list' => 

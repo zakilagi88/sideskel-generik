@@ -1,6 +1,6 @@
 @php
-    $relationManagers = $this->getRelationManagers();
-    $hasCombinedRelationManagerTabsWithContent = $this->hasCombinedRelationManagerTabsWithContent();
+    $relationManagers = $this->getRelationManagers() ?? [];
+    $hasCombinedRelationManagerTabsWithContent = $this->hasCombinedRelationManagerTabsWithContent() ?? false;
 @endphp
 
 <div class="space-y-6">

@@ -155,23 +155,23 @@ class Penduduk extends Model implements Auditable
     {
         switch (true) {
             case $user->hasRole('Admin') || $user->hasRole('Admin Web'):
-                return $query->with(['wilayah', 'kartuKeluarga']);
+                return $query->with(['wilayah', 'kartuKeluargas']);
                 break;
 
             case $user->hasRole('Monitor Wilayah'):
                 return $query
-                    ->with(['wilayah', 'kartuKeluarga'])
+                    ->with(['wilayah', 'kartuKeluargas'])
                     ->whereHas(
-                        'kartuKeluarga',
+                        'kartuKeluargas',
                         fn ($query) => $query->whereIn('wilayah_id', $descendants)
                     );
                 break;
 
             case $user->hasRole('Operator Wilayah'):
                 return $query
-                    ->with(['wilayah', 'kartuKeluarga'])
+                    ->with(['wilayah', 'kartuKeluargas'])
                     ->whereHas(
-                        'kartuKeluarga',
+                        'kartuKeluargas',
                         fn ($query) => $query->where('wilayah_id', $user->wilayah_id)
                     );
                 break;
@@ -189,10 +189,6 @@ class Penduduk extends Model implements Auditable
         );
     }
 
-    public function kepalaWilayah(): HasMany
-    {
-        return $this->hasMany(KepalaWilayah::class, 'kepala_nik', 'nik');
-    }
 
     // public function scopeByWilayah($query, $wilayah_id): Builder
     // {
@@ -200,7 +196,7 @@ class Penduduk extends Model implements Auditable
 
     //     switch ($struktur->struktur) {
     //         case 'Khusus':
-    //             return $query->whereHas('kartuKeluarga', function ($query) use ($wilayah_id) {
+    //             return $query->whereHas('kartuKeluargas', function ($query) use ($wilayah_id) {
     //                 $query->where('wilayah_id', $wilayah_id);
     //             });
     //             break;
@@ -210,11 +206,11 @@ class Penduduk extends Model implements Auditable
 
     //             if ($level->depth == 0) {
     //                 $descendants = $level->descendants->pluck('wilayah_id');
-    //                 return $query->whereHas('kartuKeluarga', function ($query) use ($descendants) {
+    //                 return $query->whereHas('kartuKeluargas', function ($query) use ($descendants) {
     //                     $query->whereIn('wilayah_id', $descendants);
     //                 });
     //             } else {
-    //                 return $query->whereHas('kartuKeluarga', function ($query) use ($wilayah_id) {
+    //                 return $query->whereHas('kartuKeluargas', function ($query) use ($wilayah_id) {
     //                     $query->where('wilayah_id', $wilayah_id);
     //                 });
     //             }
@@ -227,11 +223,11 @@ class Penduduk extends Model implements Auditable
     //             } elseif ($level->depth == 1) {
     //                 $descendants = $level->descendants->pluck('wilayah_id');
     //             } else {
-    //                 return $query->whereHas('kartuKeluarga', function ($query) use ($wilayah_id) {
+    //                 return $query->whereHas('kartuKeluargas', function ($query) use ($wilayah_id) {
     //                     $query->where('wilayah_id', $wilayah_id);
     //                 });
     //             }
-    //             return $query->whereHas('kartuKeluarga', function ($query) use ($descendants) {
+    //             return $query->whereHas('kartuKeluargas', function ($query) use ($descendants) {
     //                 $query->whereIn('wilayah_id', $descendants);
     //             });
     //             break;
@@ -259,17 +255,8 @@ class Penduduk extends Model implements Auditable
         return $this->hasMany(Kelahiran::class, 'nik', 'nik');
     }
 
-    public function kesehatan(): BelongsToMany
-    {
-        return $this->belongsToMany(Kesehatan::class, 'penduduk_kesehatan', 'nik', 'kes_id')->withTimestamps()->withPivot('kes_cacat_mental_fisik', 'kes_penyakit_menahun', 'kes_penyakit_lain', 'kes_akseptor_kb');
-    }
 
-    public function asuransiKesehatan(): BelongsToMany
-    {
-        return $this->belongsToMany(AsuransiKesehatan::class, 'penduduk_kesehatan', 'nik', 'as_kes_id')->withTimestamps();
-    }
-
-    public function kartuKeluarga(): BelongsTo
+    public function kartuKeluargas(): BelongsTo
     {
         return $this->belongsTo(KartuKeluarga::class, 'kk_id', 'kk_id');
     }
