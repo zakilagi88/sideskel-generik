@@ -64,11 +64,11 @@ class EditPenduduk extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         //cek apakah data telah huruf besar semua jika belum maka ubah ke huruf besar semua
-        if (ctype_upper($data['nama_lengkap']) && ctype_upper($data['alamat']) && ctype_upper($data['tempat_lahir'])) {
+        if (ctype_upper($data['nama_lengkap']) && ctype_upper($data['alamat_sekarang']) && ctype_upper($data['tempat_lahir'])) {
             return $data;
         } else {
             $data['nama_lengkap'] = strtoupper($data['nama_lengkap']);
-            $data['alamat'] = strtoupper($data['alamat']);
+            $data['alamat_sekarang'] = strtoupper($data['alamat_sekarang']);
             $data['tempat_lahir'] = strtoupper($data['tempat_lahir']);
             return $data;
         }

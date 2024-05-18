@@ -114,15 +114,17 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
 
             $penduduk->push([
                 'nik' => (string) $row['nik'],
+                'is_nik_sementara' => (empty($row['nik_sementara']) || $row['nik_sementara'] == '-') ? false : true,
+                'jenis_identitas' => $row['jenis_identitas'] ?? 'KTP',
                 'kk_id' => (string) $row['nomor_kk'],
                 'nama_lengkap' => $row['nama_lengkap'],
-                'jenis_kelamin' => $row['jenis_kelamin'],
-                'tempat_lahir' => $row['tempat_lahir'],
-                'tanggal_lahir' => self::formatTanggal($row['tanggal_lahir']),
+                'jenis_kelamin' => $row['jenis_kelamin'] ?? null,
+                'tempat_lahir' => $row['tempat_lahir'] ?? null,
+                'tanggal_lahir' => self::formatTanggal($row['tanggal_lahir']) ?? null,
                 'umur' => Carbon::parse(self::formatTanggal($row['tanggal_lahir']))->age ?: null,
-                'agama' => $row['agama'],
-                'pendidikan' => $row['pendidikan'],
-                'pekerjaan' => $row['pekerjaan'],
+                'agama' => $row['agama'] ?? null,
+                'pendidikan' => $row['pendidikan'] ?? null,
+                'pekerjaan' => $row['pekerjaan'] ?? null,
                 'kewarganegaraan' => $row['kewarganegaraan'] ?? 'WNI',
                 'nama_ayah' => $row['nama_ayah'] ?? null,
                 'nama_ibu' => $row['nama_ibu'] ?? null,
@@ -133,18 +135,15 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
                 'status_penduduk' => $row['status_penduduk'] ?? 'TETAP',
                 'status_dasar' => $row['status_dasar'] ?? 'HIDUP',
                 'status_perkawinan' => $row['status_perkawinan'],
-                // 'status_tempat_tinggal' => $row['status_tempat_tinggal'] ?? null,
                 'status_hubungan' => $row['status_hubungan'],
                 'alamat_sekarang' => $row['alamat_sekarang'],
                 'alamat_sebelumnya' => $row['alamat_sebelumnya'] ?? null,
-                // 'alamatKK' => ($row['alamat_sesuai_kk'] === $row['alamat_sekarang']) ? true : false,
                 'telepon' => $row['telepon'] ?? null,
                 'email' => $row['email'] ?? null,
                 'created_at' => self::formatTanggal($row['tanggal_update_data']),
                 'updated_at' => self::formatTanggal($row['tanggal_update_data']),
             ]);
         }
-
 
         try {
             DB::beginTransaction();

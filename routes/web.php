@@ -22,6 +22,7 @@ use App\Settings\WebSettings;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,10 +34,6 @@ use Illuminate\Support\Facades\Http;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::get('/downloadtemplate', function () {
-    return Excel::download(new TemplateImport, 'template_imports.xlsx');
-})->name('downloadtemplate');
 
 Route::get('/preview-pdf', function () {
     return view('preview_pdf');

@@ -37,6 +37,9 @@ class Penduduk extends Model implements Auditable
     protected $fillable = [
         'nik',
         'kk_id',
+        'status_identitas',
+        'jenis_identitas',
+        'status_rekam_identitas',
         'nama_lengkap',
         'foto',
         'jenis_kelamin',
@@ -66,6 +69,8 @@ class Penduduk extends Model implements Auditable
         'alamatKK',
         'telepon',
         'email',
+        'is_nik_sementara',
+
     ];
 
     protected $casts =
@@ -260,6 +265,7 @@ class Penduduk extends Model implements Auditable
     {
         return $this->belongsTo(KartuKeluarga::class, 'kk_id', 'kk_id');
     }
+
 
     public function scopeKepalaKeluarga($query)
     {

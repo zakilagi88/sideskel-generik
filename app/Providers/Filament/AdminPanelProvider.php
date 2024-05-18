@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Exports\TemplateImport;
 use App\Facades\Deskel;
 use App\Filament\Clusters\{HalamanArsip, HalamanBerita, HalamanKesehatan, HalamanStatistik, HalamanWilayah};
 use App\Filament\Clusters\HalamanDesa;
@@ -36,11 +37,13 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\{AuthenticateSession, StartSession};
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
+use Maatwebsite\Excel\Facades\Excel;
 use phpDocumentor\Reflection\PseudoTypes\False_;
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 use Tapp\FilamentAuthenticationLog\{FilamentAuthenticationLogPlugin, Resources\AuthenticationLogResource};
@@ -72,6 +75,11 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearchKeyBindings([
                 'command+f', 'ctrl+f'
             ])
+            // ->routes(
+            //     fn () => Route::get('/downloadtemplate', function () {
+            //         return Excel::download(new TemplateImport, 'template_imports.xlsx');
+            //     })->name('downloadtemplate')
+            // )
             ->spa()
             ->unsavedChangesAlerts()
             ->databaseNotifications()

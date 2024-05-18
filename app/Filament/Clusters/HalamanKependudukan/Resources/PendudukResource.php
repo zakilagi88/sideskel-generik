@@ -2,7 +2,7 @@
 
 namespace App\Filament\Clusters\HalamanKependudukan\Resources;
 
-use App\Enums\Kependudukan\{AgamaType, EtnisSukuType, GolonganDarahType, JenisKelaminType, KewarganegaraanType, PendidikanType, PekerjaanType, StatusPengajuanType, PerkawinanType, StatusDasarType, StatusHubunganType, StatusTempatTinggalType};
+use App\Enums\Kependudukan\{AgamaType, EtnisSukuType, GolonganDarahType, JenisKelaminType, KewarganegaraanType, PendidikanType, PekerjaanType, StatusPengajuanType, PerkawinanType, StatusDasarType, StatusHubunganType, StatusTempatTinggalType, UmurType};
 use App\Facades\Deskel;
 use App\Filament\Clusters\HalamanKependudukan;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\Pages;
@@ -12,22 +12,26 @@ use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Facades\Filament;
 use Filament\Forms\Form;
-use Filament\Forms\Components\{Actions\Action as FormsAction, Checkbox, Component, Group, Section, Select, TextInput, DatePicker, DateTimePicker, Fieldset, FileUpload, Grid as FormsGrid, Hidden, Placeholder, Split as ComponentsSplit, Textarea, TimePicker, Wizard};
+use Filament\Forms\Components\{Actions\Action as FormsAction, Checkbox, Component, Group, Section, Select, TextInput, DatePicker, DateTimePicker, Fieldset, FileUpload, Grid as FormsGrid, Hidden, Placeholder, Split as ComponentsSplit, Textarea, TimePicker, Toggle, Wizard};
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\{Actions, Grid, Group as ComponentsGroup, Section as ComponentsSection, Split, TextEntry};
+use Filament\Infolists\Components\{Actions, Grid, Group as ComponentsGroup, IconEntry, Section as ComponentsSection, Split, TextEntry};
 use Filament\Infolists\Components\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\{Action as ActionsAction, ActionGroup, BulkAction};
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -79,7 +83,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
 
     public static function form(Form $form): Form
     {
-
         return $form
             ->schema(
                 [
@@ -93,9 +96,10 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                         ->label('NIK')
                                         ->unique(ignoreRecord: true)
                                         ->live()
-                                        // ->afterStateUpdated(function (HasForms $livewire, TextInput $component) {
-                                        //     $livewire->validateOnly($component->getStatePath());
-                                        // })
+                                        ->afterStateUpdated(function (HasForms $livewire, TextInput $component) {
+                                            /** @var Livewire $livewire */
+                                            $livewire->validateOnly($component->getStatePath());
+                                        })
                                         ->required(),
                                     TextInput::make('nama_lengkap')
                                         ->label('Nama Lengkap')
@@ -166,38 +170,33 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                     ->disabledOn('create')
                                             ]
                                         )->hidden(fn (?Penduduk $record) => $record === null),
-                                    // Section::make()
-                                    //     ->heading('Data Lainnya')
-                                    //     ->description('Silahkan Isi Ada')
-                                    //     ->schema([
-                                    //         Select::make('kesehatan')
-                                    //             ->preload()
-                                    //             ->relationship('kesehatan', 'kes_id')
-                                    //             ->multiple()
-
-                                    //             ->searchingMessage('Mencari Jaminan Kesehatan')
-                                    //             ->createOptionForm(
-                                    //                 [
-                                    //                     TextInput::make('kes_id')
-                                    //                         ->label('Jaminan Kesehatan')
-                                    //                 ]
-                                    //             ),
-                                    //         Select::make('bantuan')
-                                    //             ->label('Bantuan')
-                                    //     ])->collapsible(),
                                 ]),
                             Section::make()
-                                ->heading('Status Tempat Tinggal')
-                                ->description('Keterangan Status Tempat Tinggal')
+                                ->heading('Alamat')
+                                ->description('Alamat Tempat Tinggal')
+                                ->schema([
+                                    TextInput::make('alamat_sekarang')
+                                        ->label('Alamat Sekarang')
+                                        ->required(),
+                                    TextInput::make('alamat_sebelumnya')
+                                        ->label('Alamat Sebelumnya'),
+                                ]),
+                            Section::make()
+                                ->heading('Status ')
+                                ->description('Keterangan Status Penduduk')
                                 ->schema(
                                     [
-                                        Select::make('status dasar')
+                                        Select::make('status_tempat_tinggal')
+                                            ->label('Status Tempat Tinggal')
+                                            ->options(StatusTempatTinggalType::class),
+                                        Select::make('status_dasar')
+                                            ->disabled()
                                             ->label('Status Dasar')
-                                            ->options(StatusDasarType::class)
-                                            ->required(),
-                                        TextInput::make('alamat')
-                                            ->label('Alamat')
-                                            ->required(),
+                                            ->options(StatusDasarType::class),
+                                        Toggle::make('is_nik_sementara')
+                                            ->label('NIK Sementara')
+                                            ->onColor('success')
+                                            ->offColor('danger'),
                                     ]
                                 ),
                         ])->columnSpan(['lg' => 1]),
@@ -209,21 +208,40 @@ class PendudukResource extends Resource implements HasShieldPermissions
     {
         $freezeColoumn = [
             'style' => 'position: sticky; left: 0;',
-            'class' => ''
         ];
 
         /** @var \App\Models\User */
         $auth = Filament::auth()->user();
         return $table
             ->columns([
+                TextColumn::make('kk_id')
+                    ->html()
+                    ->color('primary')
+                    ->label(
+                        fn () => new HtmlString(
+                            '<p class="text-sm text-left">No. KK</p> <p class="text-sm text-gray-500 text-left">Kepala Keluarga</p>'
+                        )
+                    )
+                    ->searchable()
+                    ->url(fn ($record) => KartuKeluargaResource::getUrl('edit', ['record' => $record->kk_id]))
+                    ->description(fn (Penduduk $record) => ($record->kartuKeluargas?->kepalaKeluarga?->nama_lengkap) ?: 'Tidak Diketahui')
+                    ->sortable(),
                 TextColumn::make('nik')
                     ->label('NIK')
                     ->searchable()
-                    // ->extraAttributes($freezeColoumn)
                     ->extraHeaderAttributes($freezeColoumn)
                     ->extraCellAttributes(array_merge($freezeColoumn, ['class' => 'to-be-striped']))
                     ->sortable(),
                 TextColumn::make('nama_lengkap')
+                    ->searchable()
+                    ->formatStateUsing(
+                        function ($state) {
+                            return ucwords(strtolower($state));
+                        }
+                    )
+                    ->sortable(),
+                TextColumn::make('wilayah.wilayah_nama')
+                    ->placeholder('Wilayah Tidak Diketahui')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('jenis_kelamin')
@@ -282,24 +300,73 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ->sortable(),
 
 
+
             ])
             ->filters([
-                //
+                SelectFilter::make('wilayah')
+                    ->relationship('wilayah', 'wilayah_nama')
+                    ->options(JenisKelaminType::class)
+                    ->label('Wilayah'),
+                SelectFilter::make('jenis_kelamin')
+                    ->options(JenisKelaminType::class)
+                    ->label('Jenis Kelamin'),
+                SelectFilter::make('agama')
+                    ->options(AgamaType::class)
+                    ->label('Agama'),
+                SelectFilter::make('pekerjaan')
+                    ->options(PekerjaanType::class)
+                    ->label('Pendidikan'),
+                SelectFilter::make('umur')
+                    ->options(UmurType::class)
+                    ->label('Umur'),
+                SelectFilter::make('pendidikan')
+                    ->options(PendidikanType::class)
+                    ->label('Pendidikan'),
+                SelectFilter::make('status_hubungan')
+                    ->options(StatusHubunganType::class)
+                    ->label('Status Hubungan'),
+                SelectFilter::make('status_perkawinan')
+                    ->options(PerkawinanType::class)
+                    ->label('Status Perkawinan'),
+                SelectFilter::make('status_pengajuan')
+                    ->options(StatusPengajuanType::class)
+                    ->label('Status Pengajuan'),
+
+            ], FiltersLayout::AboveContentCollapsible)
+            ->persistFiltersInSession()
+            ->persistColumnSearchesInSession()
+            ->persistSearchInSession()
+            ->persistSortInSession()
+            ->deferFilters()
+            ->filtersFormColumns(2)
+            ->filtersFormSchema(fn (array $filters): array => [
+                Group::make()
+                    ->extraAttributes(['class' => 'mb-4'])
+                    ->schema([
+                        $filters['wilayah'],
+                        $filters['jenis_kelamin'],
+                        $filters['agama'],
+                        $filters['pekerjaan'],
+                        $filters['pendidikan'],
+                        $filters['umur'],
+                        $filters['status_hubungan'],
+                        $filters['status_perkawinan'],
+                        $filters['status_pengajuan'],
+                    ])
+                    ->columns(4)
+                    ->columnSpanFull(),
             ])
             ->actions(
                 [
-                    Tables\Actions\ViewAction::make()->button()->color('primary')->iconSize(IconSize::Small),
                     ActionsAction::make('Batalkan')
                         ->action(
                             function (Penduduk $record) {
-
                                 static::restoreAuditSelected($record);
                                 $record->update(['status_pengajuan' => 'SELESAI']);
                             }
                         )
-                        ->color('danger')->label(
-                            'Batalkan'
-                        )->button()
+                        ->iconPosition('after')
+                        ->color('danger')->label('Batalkan')->button()
                         ->requiresConfirmation()->after(fn (Penduduk $record) =>
                         Notification::make()
                             ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
@@ -311,15 +378,12 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             ->seconds(5)
                             ->persistent()
                             ->send())
-                        ->visible(function (Penduduk $record) {
+                        ->visible(function (Penduduk $record) use ($auth) {
 
-                            $roles = auth()->user()->roles->pluck('name');
+                            $role = $auth->hasRole('Monitor Wilayah');
                             $pengajuan = $record->status_pengajuan->value;
-                            foreach ($roles as $role) {
-                                if ($role == 'Monitor Wilayah' && ($pengajuan == 'DALAM PROSES')) {
-                                    return true;
-                                }
-                            }
+
+                            return ($role == 'Monitor Wilayah' && ($pengajuan == 'DALAM PROSES')) ? true : false;
                         }),
 
                     ActionGroup::make([
@@ -503,7 +567,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                     $record->update(['status_pengajuan' => 'DIBATALKAN']);
                                 }
                             )
-                            ->color('danger')->label(
+                            ->color('danger')
+                            ->label(
                                 'Tinjau Ulang'
                             )->icon('fas-circle-question')
                             ->requiresConfirmation()->after(fn (Penduduk $record, array $data) => Notification::make()
@@ -516,20 +581,18 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 ->seconds(5)
                                 ->persistent()
                                 ->send())
-                            ->visible(function (Penduduk $record) {
-                                $roles = auth()->user()->roles->pluck('name');
+                            ->visible(function (Penduduk $record) use ($auth) {
+                                $role = $auth->hasRole('Admin');
                                 $pengajuan = $record->status_pengajuan->value;
-                                foreach ($roles as $role) {
-                                    if ($role == 'admin' && ($pengajuan == 'DALAM PROSES' || $pengajuan == 'SELESAI')) {
-                                        return true;
-                                    }
+                                if ($role && ($pengajuan == 'DALAM PROSES' || $pengajuan == 'SELESAI')) {
+                                    return true;
                                 }
                             }),
 
                         Tables\Actions\DeleteAction::make(),
                         Tables\Actions\ViewAction::make()->color('primary')->iconSize(IconSize::Small),
                         Tables\Actions\EditAction::make()->color('info')->iconSize(IconSize::Small),
-                    ])->icon("fas-gears")->iconPosition('after')->color('success')->iconButton()->label('Aksi'),
+                    ])->icon("fas-gears")->iconPosition('after')->color('success')->button()->label('Aksi'),
                 ],
                 position: ActionsPosition::AfterColumns
             )
@@ -544,11 +607,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                         )
                         ->visible(
                             function () use ($auth) {
-                                if ($auth->hasRole('Admin')) {
-                                    return true;
-                                } else {
-                                    return false;
-                                }
+                                $auth->hasRole('Admin') ? true : false;
                             }
                         )
                         ->deselectRecordsAfterCompletion()
@@ -562,6 +621,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
 
     public static function infolist(Infolist $infolist): Infolist
     {
+        /** @var \App\Models\User */
+        $auth = Filament::auth()->user();
         return $infolist
             ->schema([
                 Grid::make(3)
@@ -586,6 +647,11 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                         TextEntry::make('nama_lengkap')
                                                             ->label('Nama Lengkap')
                                                             ->weight(FontWeight::Bold)
+                                                            ->formatStateUsing(
+                                                                function ($state) {
+                                                                    return ucwords(strtolower($state));
+                                                                }
+                                                            )
                                                             ->copyable()
                                                             ->inlineLabel()
                                                             ->copyMessage('Telah Disalin!')
@@ -595,14 +661,23 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                             ->label('Alamat')
                                                             ->inlineLabel()
                                                             ->weight(FontWeight::Bold)
+                                                            ->formatStateUsing(
+                                                                function ($state) {
+                                                                    return ucwords(strtolower($state));
+                                                                }
+                                                            )
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
                                                         TextEntry::make('pendidikan')
                                                             ->label('Pendidikan')
                                                             ->weight(FontWeight::Bold)
+                                                            ->formatStateUsing(
+                                                                function ($state) {
+                                                                    return ucwords(strtolower($state->value));
+                                                                }
+                                                            )
                                                             ->inlineLabel()
-                                                            ->weight(FontWeight::Bold)
 
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
@@ -611,12 +686,22 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                             ->label('Status Perkawinan')
                                                             ->weight(FontWeight::Bold)
                                                             ->copyable()
+                                                            ->formatStateUsing(
+                                                                function ($state) {
+                                                                    return ucwords(strtolower($state->value));
+                                                                }
+                                                            )
                                                             ->inlineLabel()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
                                                         TextEntry::make('pekerjaan')
                                                             ->label('Pekerjaan')
                                                             ->inlineLabel()
+                                                            ->formatStateUsing(
+                                                                function ($state) {
+                                                                    return ucwords(strtolower($state->value));
+                                                                }
+                                                            )
                                                             ->weight(FontWeight::Bold)
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
@@ -640,11 +725,21 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                         TextEntry::make('jenis_kelamin')
                                                             ->inlineLabel()
                                                             ->weight(FontWeight::Bold)
+                                                            ->formatStateUsing(
+                                                                function ($state) {
+                                                                    return ucwords(strtolower($state->value));
+                                                                }
+                                                            )
 
                                                             ->label('Jenis Kelamin'),
                                                         TextEntry::make('tempat_lahir')
                                                             ->inlineLabel()
                                                             ->weight(FontWeight::Bold)
+                                                            ->formatStateUsing(
+                                                                function ($state) {
+                                                                    return ucwords(strtolower($state));
+                                                                }
+                                                            )
 
                                                             ->label('Tempat Lahir'),
                                                         TextEntry::make('tanggal_lahir')
@@ -655,6 +750,11 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                             ->label('Agama')
                                                             ->weight(FontWeight::Bold)
                                                             ->inlineLabel()
+                                                            ->formatStateUsing(
+                                                                function ($state) {
+                                                                    return ucwords(strtolower($state->value));
+                                                                }
+                                                            )
 
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
@@ -672,36 +772,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
 
                                     ]
                                 )->columnSpan(['lg' => 2]),
-                            // ComponentsSection::make()
-                            //     ->heading('Informasi Tambahan')
-                            //     ->description('Berikut adalah informasi tambahan dari penduduk')
-                            //     ->schema(
-                            //         [
-                            //             Split::make([
-                            //                 Grid::make(2)
-                            //                     ->schema([
-                            //                         ComponentsGroup::make([
-                            //                             TextEntry::make('kesehatan.kesehatan_jaminan')
-                            //                                 ->label('Kesehatan')
-                            //                                 ->weight(FontWeight::Bold)
-                            //                                 ->badge()
-                            //                                 ->copyable()
-                            //                                 ->inlineLabel()
-                            //                                 ->copyMessage('Telah Disalin!')
-                            //                                 ->copyMessageDuration(1000),
-                            //                             TextEntry::make('bantuan')
-                            //                                 ->label('Bantuan')
-                            //                                 ->weight(FontWeight::Bold)
-                            //                                 ->copyable()
-                            //                                 ->inlineLabel()
-                            //                                 ->copyMessage('Telah Disalin!')
-                            //                                 ->copyMessageDuration(1000),
-                            //                         ]),
-
-                            //                     ])
-                            //             ]),
-                            //         ]
-                            //     )->columnSpan(['lg' => 2]),
                         ])->columnSpan(['lg' => 2], ['sm' => 2]),
 
                         ComponentsGroup::make([
@@ -729,6 +799,33 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 ]),
                             ComponentsSection::make('')
                                 ->schema([
+                                    TextEntry::make('alamat_sekarang')
+                                        ->label('Alamat Sekarang')
+                                        ->inlineLabel()
+                                        ->weight(FontWeight::Bold)
+                                        ->formatStateUsing(
+                                            function ($state) {
+                                                return ucwords(strtolower($state));
+                                            }
+                                        )
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('alamat_sebelumnya')
+                                        ->label('Alamat Sebelumnya')
+                                        ->inlineLabel()
+                                        ->formatStateUsing(
+                                            function ($state) {
+                                                return ucwords(strtolower($state));
+                                            }
+                                        )
+                                        ->weight(FontWeight::Bold)
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                ]),
+                            ComponentsSection::make('')
+                                ->schema([
                                     TextEntry::make('status_pengajuan')
                                         ->label('Pengajuan')
                                         ->inlineLabel()
@@ -737,8 +834,18 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                         ->copyable()
                                         ->copyMessage('Telah Disalin!')
                                         ->copyMessageDuration(1000),
+                                    IconEntry::make('is_nik_sementara')
+                                        ->label('NIK Sementara')
+                                        ->inlineLabel()
+                                        ->trueColor('success')
+                                        ->falseColor('danger')
+                                        ->trueIcon('fas-check')
+                                        ->falseIcon('fas-times')
+                                        ->iconPosition(IconPosition::After)
+                                        ->color('success'),
+
                                     Actions::make([
-                                        Action::make('verifikasi')
+                                        Action::make('Verifikasi')
                                             ->action(
                                                 fn (Penduduk $record) => $record->update(['status_pengajuan' => 'SELESAI']),
                                             )->color('success')->label(
@@ -753,25 +860,27 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                 )
                                                 ->seconds(5)
                                                 ->persistent()
-                                                ->send())->visible(function (Penduduk $record) {
-                                                $roles = auth()->user()->roles->pluck('name');
-                                                if ($roles->contains('admin') && $record->status_pengajuan->value == 'DALAM PROSES') {
+                                                ->send())
+                                            ->visible(function (Penduduk $record) use ($auth) {
+                                                $role = $auth->hasRole('Admin');
+                                                if ($role && $record->status_pengajuan->value == 'DALAM PROSES') {
                                                     return true;
                                                 } else {
                                                     return false;
                                                 }
                                             }),
-                                        Action::make('Batalkan')->action(
-                                            function (Penduduk $record) {
-
-                                                static::restoreAuditSelected($record);
-                                                $record->update(['status_pengajuan' => 'SELESAI']);
-                                            }
-                                        )
+                                        Action::make('Batalkan')
+                                            ->action(
+                                                function (Penduduk $record) {
+                                                    static::restoreAuditSelected($record);
+                                                    $record->update(['status_pengajuan' => 'SELESAI']);
+                                                }
+                                            )
                                             ->color('danger')->label(
                                                 'Batalkan'
                                             )->button()
-                                            ->requiresConfirmation()->after(fn (Penduduk $record) => Notification::make()
+                                            ->requiresConfirmation()
+                                            ->after(fn (Penduduk $record) => Notification::make()
                                                 ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
                                                 ->body($record->nama_lengkap . ' dibatalkan , data penduduk akan dikembalikan ke sebelumnya. Silahkan periksa kembali data penduduk')
                                                 ->danger()
@@ -782,13 +891,11 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                 ->seconds(5)
                                                 ->persistent()
                                                 ->send())
-                                            ->visible(function (Penduduk $record) {
-                                                $roles = auth()->user()->roles->pluck('name');
+                                            ->visible(function (Penduduk $record) use ($auth) {
+                                                $role = $auth->hasRole('Monitor Wilayah');
                                                 $pengajuan = $record->status_pengajuan->value;
-                                                foreach ($roles as $role) {
-                                                    if ($role == 'Monitor Wilayah' && ($pengajuan == 'DALAM PROSES')) {
-                                                        return true;
-                                                    }
+                                                if ($role == 'Monitor Wilayah' && ($pengajuan == 'DALAM PROSES')) {
+                                                    return true;
                                                 }
                                             }),
                                         Action::make('Tinjau')
@@ -805,7 +912,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                             ->color('danger')->label(
                                                 'Tinjau Ulang'
                                             )->button()
-                                            ->requiresConfirmation()->after(fn (Penduduk $record, array $data) => Notification::make()
+                                            ->requiresConfirmation()
+                                            ->after(fn (Penduduk $record, array $data) => Notification::make()
                                                 ->title('Penduduk ' . $record->nama_lengkap . ' perlu ditinjau ulang')
                                                 ->body('Catatan : ' . $data['catatan'])
                                                 ->danger()
@@ -815,13 +923,12 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                 ->seconds(5)
                                                 ->persistent()
                                                 ->send())
-                                            ->visible(function (Penduduk $record) {
-                                                $roles = auth()->user()->roles->pluck('name');
+                                            ->visible(function (Penduduk $record) use ($auth) {
+                                                $role = $auth->hasRole('Admin');
                                                 $pengajuan = $record->status_pengajuan->value;
-                                                foreach ($roles as $role) {
-                                                    if ($role == 'Admin' && ($pengajuan == 'DALAM PROSES' || $pengajuan == 'SELESAI')) {
-                                                        return true;
-                                                    }
+
+                                                if ($role == 'Admin' && ($pengajuan == 'DALAM PROSES' || $pengajuan == 'SELESAI')) {
+                                                    return true;
                                                 }
                                             }),
 
@@ -1006,8 +1113,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                 ->label('Status Penduduk')
                                                 ->placeholder('Pilih Status Penduduk')
                                                 ->options([
-                                                    'Tetap' => 'Tetap',
-                                                    'Sementara' => 'Sementara',
+                                                    'TETAP' => 'Tetap',
+                                                    'SEMENTARA' => 'Sementara',
                                                 ])
                                                 ->required(),
 
@@ -1020,8 +1127,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                             'md' => 3,
                                             'sm' => 3,
                                         ])
-
-
                                 ])->columns(
                                     [
                                         'lg' => 3,
@@ -1305,29 +1410,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 }
                             )
                             ->multiple()
-                        // ->createOptionForm(
-                        //     [
-                        //         TextInput::make('jenis_bantuan')
-                        //             ->label('Jaminan Kesehatan'),
-                        //         TextInput::make('keterangan_bantuan')
-                        //             ->label('Keterangan Bantuan'),
-                        //         DateTimePicker::make('tanggal_bantuan')
-                        //             ->label('tanggal_bantuan')
-                        //     ]
-                        // )
-                        // ->createOptionUsing(
-                        //     function (array $data) {
-                        //         return Bantuan::create([
-                        //             'jenis_bantuan' => $data['jenis_bantuan'],
-                        //             'keterangan_bantuan' => $data['keterangan_bantuan'],
-                        //             'tanggal_bantuan' => $data['tanggal_bantuan'],
-                        //         ]);
-                        //     }
-                        // ),
 
                     ])->columns(2),
-
-
             ];
     }
 }

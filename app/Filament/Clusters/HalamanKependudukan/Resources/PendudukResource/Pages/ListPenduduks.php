@@ -60,12 +60,13 @@ class ListPenduduks extends ListRecords
     {
         return [
             'Warga' => Tab::make()->modifyQueryUsing(fn (Builder $query) => ($query->where('status_dasar', 'HIDUP')))->badge($this->statuswarga[StatusDasarType::HIDUP->value] ?? '0')->icon('fas-children')->badgeColor('primary'),
-            'Sementara' => Tab::make('Sementara')->modifyQueryUsing(fn (Builder $query) => ($query->where('status_penduduk', 'Sementara')))->badge($this->sementara['Sementara'] ?? '0')->icon('fas-people-group')->badgeColor('success'),
-            'Pindah' => Tab::make()->modifyQueryUsing(function (Builder $query) {
-                $query->where('status_dasar', 'PINDAH')->whereHas('dinamikas', function ($query) {
-                    $query->where('dinamika_type', Kepindahan::class);
-                });
-            })
+            'Sementara' => Tab::make('Sementara')->modifyQueryUsing(fn (Builder $query) => ($query->where('status_penduduk', 'SEMENTARA')))->badge($this->sementara['SEMENTARA'] ?? '0')->icon('fas-people-group')->badgeColor('success'),
+            'Pindah' => Tab::make()
+                ->modifyQueryUsing(function (Builder $query) {
+                    $query->where('status_dasar', 'PINDAH')->whereHas('dinamikas', function ($query) {
+                        $query->where('dinamika_type', Kepindahan::class);
+                    });
+                })
                 ->label('Pindah')
                 ->badge(Dinamika::where('dinamika_type', Kepindahan::class)->count())
                 ->icon('fas-person-walking-dashed-line-arrow-right')->badgeColor('warning'),
@@ -73,12 +74,12 @@ class ListPenduduks extends ListRecords
                 $query->where('status_dasar', 'HIDUP')->whereHas('dinamikas', function ($query) {
                     $query->where('dinamika_type', Pendatang::class);
                 });
-            })->badge(
-                Dinamika::where('dinamika_type', Pendatang::class)->count()
-            )->icon('fas-arrows-down-to-people')->badgeColor('info'),
-            'Meninggal' => Tab::make()->modifyQueryUsing(function (Builder $query) {
-                $query->where('status_dasar', 'MENINGGAL');
-            })->badge($this->statuswarga[StatusDasarType::MENINGGAL->value] ?? '0')->icon('fas-person-falling-burst')->badgeColor('danger'),
+            })
+                ->badge(Dinamika::where('dinamika_type', Pendatang::class)->count())->icon('fas-arrows-down-to-people')->badgeColor('info'),
+            'Meninggal' => Tab::make()
+                ->modifyQueryUsing(function (Builder $query) {
+                    $query->where('status_dasar', 'MENINGGAL');
+                })->badge($this->statuswarga[StatusDasarType::MENINGGAL->value] ?? '0')->icon('fas-person-falling-burst')->badgeColor('danger'),
         ];
     }
 

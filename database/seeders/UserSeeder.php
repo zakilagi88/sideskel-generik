@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
     public function run()
     {
         // Membuat pengguna admin
-        $admin = User::factory()->create([
+        $admin = User::create([
             'name' => 'Admin',
             'username' => 'admin',
             'email' => null,

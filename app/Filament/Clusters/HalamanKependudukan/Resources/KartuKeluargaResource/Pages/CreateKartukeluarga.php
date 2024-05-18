@@ -236,7 +236,7 @@ class CreateKartukeluarga extends CreateRecord
                                     'Ya' => 'Ya',
                                     'Tidak' => 'Tidak',
                                 ])
-                                ->default('Tidak')
+                                ->default('Ya')
                                 ->key('cek_anggota')
                                 ->columnSpanFull(),
                             KartukeluargaResource::getAnggotaKeluargaFormSchema(),
@@ -299,7 +299,7 @@ class CreateKartukeluarga extends CreateRecord
                 'nik_ayah' => $data['nik_ayah'] ?? null,
                 'nik_ibu' => $data['nik_ibu'] ?? null,
                 'status_dasar' => StatusDasarType::HIDUP,
-                'status_penduduk' => $data['status_penduduk'] ?? 'Tetap',
+                'status_penduduk' => $data['status_penduduk'] ?? 'TETAP',
                 'status_tempat_tinggal' => $data['status_tempat_tinggal'] ?? null,
                 'status_hubungan' => $data['status_hubungan'] ?? null,
                 'email' => $data['email'] ?? null,

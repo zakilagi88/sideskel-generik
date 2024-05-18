@@ -428,7 +428,6 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                 function (array $state): ?string {
                     $nik = $state['nik'] ?? null;
                     $hubungan = $state['hubungan'] ?? null;
-                    // dump($state);
                     $penduduk = Penduduk::where('nik', $nik)->first();
                     $nama = $penduduk->nama_lengkap ?? null;
                     return $nama . ' - ' . $nik . ' - ' . $hubungan;

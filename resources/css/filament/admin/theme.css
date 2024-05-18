@@ -185,7 +185,7 @@
     } */
 
     table th {
-        @apply !bg-secondary-100 !important;
+        @apply !bg-secondary-100 dark:!bg-gray-900 !important;
     }
 
     /* table th:nth-child(even) {
@@ -198,10 +198,10 @@
     }  */
 
     table tbody tr:nth-child(even) td.to-be-striped {
-        @apply !bg-gray-50 !important;
+        @apply !bg-gray-50 dark:!bg-white/5 !important;
     }
     table tbody tr:nth-child(odd) td.to-be-striped {
-        @apply !bg-white hover:bg-gray-50 !important;
+        @apply !bg-white hover:bg-gray-50 dark:!bg-gray-900 !important;
     }  
     /* table tbody tr:nth-child(even) {
         @apply !bg-secondary-100 !important;

@@ -32,12 +32,11 @@ class GenerateStatusAnak
 
         $filterTb = number_format(($tinggiBadan - floor($tinggiBadan) >= 0.5 ? floor($tinggiBadan) + 0.5 : floor($tinggiBadan)), 1, '.', '');
 
-
         $jk = $jenisKelamin == 'PEREMPUAN' ? $tbBbData['pr'] : $tbBbData['lk'];
 
         $cek = $filterTb < 24 ? 'under24' : 'over24';
 
-        $tinggiRef = $jk[$cek][(string) $filterTb];
+        $tinggiRef = $jk[$cek][(string) $filterTb] ?? null;
 
         return self::calculateIndeks($beratBadan, $tinggiRef);
     }
@@ -49,6 +48,10 @@ class GenerateStatusAnak
 
     private static function calculateIndeks($value, $umurRef)
     {
+        if ($umurRef == null) {
+            return null;
+        }
+
         $median = $umurRef[3];
         $difference = abs($value - $median);
 

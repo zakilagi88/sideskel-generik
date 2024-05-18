@@ -45,13 +45,13 @@ class KeamananLingkunganSeeder extends Seeder
         KeamananDanLingkungan::create([
             'deskel_profil_id' => 1,
             'jenis' => 'keamanan-dan-ketertiban',
-            'data' => $data['keamanan-dan-ketertiban']
+            'data' => array($data['keamanan-dan-ketertiban'])
         ]);
 
         KeamananDanLingkungan::create([
             'deskel_profil_id' => 1,
             'jenis' => 'lingkungan-hidup',
-            'data' => $data['lingkungan-hidup']
+            'data' => array($data['lingkungan-hidup'])
         ]);
     }
 }

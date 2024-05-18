@@ -35,6 +35,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -54,6 +55,18 @@ class ListKartukeluargas extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('testing')
+                ->openUrlInNewTab(true)
+                ->label('Download Data Testing')
+                ->size(ActionSize::Small)
+                ->color('info')
+                ->button()
+                ->action(
+                    function () {
+                        return response()->download('test/datatesting.xlsx');
+                    }
+                ),
+
             Actions\CreateAction::make()->label('Tambah Kartu Keluarga')
                 ->label('Tambah Kartu Keluarga')
                 ->size(ActionSize::Small)
@@ -80,7 +93,11 @@ class ListKartukeluargas extends ListRecords
                     ActionsAction::make('Download Template')
                         ->openUrlInNewTab(true)
                         ->button()
-                        ->url(url('downloadtemplate'))
+                        ->action(
+                            function () {
+                                return Excel::download(new TemplateImport, 'template_imports.xlsx');
+                            }
+                        ),
 
                 ])
                 ->label('Import File')

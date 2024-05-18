@@ -100,7 +100,7 @@ class DesaKelurahanProfile extends Model
     {
         return $this->belongsToThrough(
             Provinsi::class,
-            [Kabkota::class, Kecamatan::class, DesaKelurahan::class],
+            [KabKota::class, Kecamatan::class, DesaKelurahan::class],
             null,
             '',
             [Provinsi::class => 'prov_id', KabKota::class => 'kabkota_id', Kecamatan::class => 'kec_id', DesaKelurahan::class => 'deskel_id']
