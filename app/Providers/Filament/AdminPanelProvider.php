@@ -20,6 +20,7 @@ use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource;
 use App\Filament\Pages\Settings\PengaturanUmum;
 use App\Filament\Resources\Shield\{RoleResource, UserResource};
 use App\Models\Desa\Peraturan;
+use App\Models\DesaKelurahanProfile;
 use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Forms\Components\FileUpload;
@@ -110,8 +111,8 @@ class AdminPanelProvider extends PanelProvider
                         NavigationItem::make(fn (): string => 'Profil ' . $settings['sebutan_deskel'])
                             ->icon('fas-city')
                             ->visible(fn (): bool => $auth->can('page_DeskelProfile') && $cek == false)
-                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.deskel.resources.profil.edit', ['record' => Deskel::getFacadeRoot()->first()]))
-                            ->url(fn (): string => DeskelProfileResource::getUrl()),
+                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.deskel.resources.profil.edit', ['record' => DesaKelurahanProfile::first()]))
+                            ->url(fn (): string => DeskelProfileResource::getUrl('edit', ['record' => DesaKelurahanProfile::first()])),
                         NavigationItem::make(fn (): string => 'Wilayah ' . $settings['sebutan_deskel'])
                             ->icon('fas-map-marked-alt')
                             ->visible(fn (): bool => $auth->can('page_HalamanWilayah') && $cek == false)

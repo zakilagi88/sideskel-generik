@@ -27,11 +27,11 @@
 
 </head>
 
-<body class="antialiased bg-secondary-100">
+<body class="antialiased bg-secondary-100 min-h-screen">
 
     <x-header />
-   
-    <main class="container">
+
+    <main class="container my-10">
 
         {{ $slot }}
 

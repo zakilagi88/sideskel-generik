@@ -25,7 +25,7 @@ return new class extends SettingsMigration
         $this->migrator->add('general.sebutan_kepala', 'Lurah');
         $this->migrator->add('general.sebutan_deskel', 'Kelurahan');
         $this->migrator->add('general.sebutan_prov', 'Provinsi');
-        $this->migrator->add('general.sebutan_kabkota', 'Kabupaten/Kota');
+        $this->migrator->add('general.sebutan_kabkota', 'Kota');
         $this->migrator->add('general.sebutan_kec', 'Kecamatan');
         $this->migrator->add('general.singkatan_prov', 'Prov.');
         $this->migrator->add('general.singkatan_kabkota', 'Kota.');

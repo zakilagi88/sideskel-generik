@@ -24,8 +24,8 @@
 
         </div>
     </div>
-    <div class="flex flex-col justify-center">
-        <div class="flex flex-col lg:flex-row items-center pt-24 justify-center" data-aos="fade-in">
+    <div class="flex flex-col gap-10 justify-center">
+        <div class="flex flex-col lg:flex-row items-center pt-24 gap-10 justify-center" data-aos="fade-in">
             <div class="lg:w-3/12 hidden lg:block py-4">
                 <img src="{{ asset('storage/' . $data['kepala_gambar']) }}" class="rounded-tl-lg rounded-br-full"
                     data-aos="fade-in">
@@ -50,8 +50,21 @@
                     </blockqoute>
             </div>
         </div>
+        <div>
+            <div class="w-full px-4">
+                <div class="text-center mx-auto mb-[60px] lg:mb-20 max-w-[510px]">
+                    <span class="font-semibold text-lg text-primary mb-2 block">
+                        Agenda
+                    </span>
+                    <h2 class=" font-bold text-3xl sm:text-4xl md:text-[40px] text-dark mb-4 ">
+                        Agenda Kegiatan
+                    </h2>
+                </div>
+            </div>
+
+            <livewire:widgets.jadwal-kegiatan-publik />
+        </div>
     </div>
-    <livewire:widgets.jadwal-kegiatan-publik />
     <livewire:pages.berita.berita-grid :data="$data" />
 </div>
 

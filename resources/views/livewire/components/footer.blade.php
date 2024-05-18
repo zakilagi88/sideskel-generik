@@ -1,4 +1,4 @@
-<div class="bg-primary-400">
+<div class="bg-primary-400 sticky top-[100vh]">
     <div class=" pt-16  w-full max-w-screen-2xl md:mx-auto px-20 md:px-24 lg:px-8 ">
         <div class="grid gap-10 row-gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4 ">
             <div class="sm:col-span-2">

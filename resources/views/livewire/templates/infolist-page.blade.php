@@ -8,7 +8,7 @@
         <x-web.breadcrumbs :items="[$this->getPageBreadcrumb(), $this->getShiftPageBreadcrumb()]" :heading="$this->getPageHeading()" />
     </div>
 
-    <div>
+    <div class="mb-6">
         {{ $this->infolist }}
     </div>
 

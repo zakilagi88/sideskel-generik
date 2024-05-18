@@ -5,7 +5,7 @@
                 <div class="w-full px-4">
                     <div class="text-center mx-auto mb-[60px] lg:mb-20 max-w-[510px]">
                         <span class="font-semibold text-lg text-primary mb-2 block">
-                            Halaman Berita
+                            Berita
                         </span>
                         <h2 class=" font-bold text-3xl sm:text-4xl md:text-[40px] text-dark mb-4 ">
                             {{ $data['berita_judul'] }}

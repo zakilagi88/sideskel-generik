@@ -17,7 +17,9 @@ class ProfilDisplay extends SimplePage
 
     protected static bool $isCluster = true;
 
-    protected static string $parameter = 'deskel_id';
+    protected static string $parameter = '';
+
+    protected static string $parentSlug = 'profil';
 
     public function infolist(Infolist $infolist): Infolist
     {
@@ -59,9 +61,17 @@ class ProfilDisplay extends SimplePage
     //     return $record;
     // }
 
+
+    protected function getRouteName(): string
+    {
+        $slug = $this->getPageSlug() ?: static::$resource::getSlug();
+
+        return 'index.' . static::$parentSlug;
+    }
+
     protected function getPageSlug(): string
     {
-        return $this->record->deskel_id ?? '';
+        return $this->record->id ?? '';
     }
 
     protected function getPageHeading(): string
