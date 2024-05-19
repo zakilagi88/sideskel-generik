@@ -21,7 +21,7 @@ return new class extends SettingsMigration
                             "sub_name" => "Identitas",
                             "sub_link_name" => "index.profil.show",
                             "sub_link_type" => "dynamic",
-                            "sub_link_options" => "1",  
+                            "sub_link_options" => "1",
                         ],
                         [
                             "sub_name" => "Aparatur",
@@ -163,8 +163,8 @@ return new class extends SettingsMigration
         $this->migrator->add('web.menus', $menus);
         $this->migrator->add('web.web_active', false);
         $this->migrator->add('web.web_title', 'Website Resmi');
-        $this->migrator->add('web.web_gambar', 'sites/logo.png');
-        $this->migrator->add('web.kepala_gambar', 'sites/gambar-aparatur-man.png');
+        $this->migrator->add('web.web_gambar', 'web/logo.png');
+        $this->migrator->add('web.kepala_gambar', 'web/gambar-aparatur-man.png');
         $this->migrator->add('web.kepala_judul', 'Sambutan Kepala Desa/Kelurahan');
         $this->migrator->add('web.kepala_nama', 'Nama Kepala Desa/Kelurahan');
         $this->migrator->add('web.kepala_deskripsi', 'Deskripsi Kepala Desa/Kelurahan');

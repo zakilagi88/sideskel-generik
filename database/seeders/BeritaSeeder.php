@@ -19,17 +19,17 @@ class BeritaSeeder extends Seeder
         $dataKategori = [
             [
                 'kategori_berita_id' => 1,
-                'nama' => 'Kelurahan',
+                'name' => 'Kelurahan',
                 'slug' => 'kelurahan',
             ],
             [
                 'kategori_berita_id' => 2,
-                'nama' => 'Bantuan',
+                'name' => 'Bantuan',
                 'slug' => 'bantuan',
             ],
             [
                 'kategori_berita_id' => 3,
-                'nama' => 'Pengumuman',
+                'name' => 'Pengumuman',
                 'slug' => 'pengumuman',
             ],
         ];
@@ -45,7 +45,7 @@ class BeritaSeeder extends Seeder
                 'kategori_berita_id' => 1,
                 'title' => 'Berita Terbaik',
                 'slug' => 'berita-terbaik',
-                'gambar' => '"berita\/01HY68GE2X44H81380YDMM13WM.gif"',
+                'gambar' => "deskel\/berita\/protection.gif",
                 'body' => '**Lorem ipsum dolor sit amet,** consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 > Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet consectetur adipiscing elit.',
@@ -61,9 +61,9 @@ class BeritaSeeder extends Seeder
                 'berita_id' => 2,
                 'user_id' => 1,
                 'kategori_berita_id' => 2,
-                'title' => 'Berita Terbaik',
-                'slug' => 'berita-terbaik',
-                'gambar' => '"berita\/01HY68GE2X44H81380YDMM13WM.gif"',
+                'title' => 'Kelurahan Terbaik',
+                'slug' => 'kelurahan-terbaik',
+                'gambar' => "deskel\/berita\/protection.gif",
                 'body' => '**Lorem ipsum dolor sit amet,** consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 > Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet consectetur adipiscing elit.',
@@ -79,9 +79,9 @@ class BeritaSeeder extends Seeder
                 'berita_id' => 3,
                 'user_id' => 1,
                 'kategori_berita_id' => 3,
-                'title' => 'Berita Terbaik',
-                'slug' => 'berita-terbaik',
-                'gambar' => '"berita\/01HY68GE2X44H81380YDMM13WM.gif"',
+                'title' => 'Pengumuman Terbaik',
+                'slug' => 'pengumuman-terbaik',
+                'gambar' => "deskel\/berita\/protection.gif",
                 'body' => '**Lorem ipsum dolor sit amet,** consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 > Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet consectetur adipiscing elit.',

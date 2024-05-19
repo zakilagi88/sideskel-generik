@@ -82,7 +82,6 @@ class BeritaResource extends Resource implements HasShieldPermissions
                                         Forms\Components\TextInput::make('slug')
                                             ->disabled()
                                             ->dehydrated()
-                                            ->required()
                                             ->unique(Berita::class, 'slug', ignoreRecord: true),
 
                                         Forms\Components\MarkdownEditor::make('body')
@@ -121,7 +120,11 @@ class BeritaResource extends Resource implements HasShieldPermissions
                                             ->label('Image')
                                             ->hiddenLabel()
                                             ->disk('public')
-                                            ->directory('berita')
+                                            ->directory('deskel/berita')
+                                            ->preserveFilenames()
+                                            ->moveFiles()
+
+
                                             ->image()
                                             ->imageEditor()
                                             ->imageEditorAspectRatios([

@@ -2,9 +2,9 @@
 
 return [
 
-    'title' => 'Tambah :label',
+    'title' => 'Ubah :label',
 
-    'breadcrumb' => 'Tambah',
+    'breadcrumb' => 'Ubah',
 
     'form' => [
 
@@ -25,7 +25,7 @@ return [
     'content' => [
 
         'tab' => [
-            'label' => 'Tambah',
+            'label' => 'Ubah',
         ],
 
     ],

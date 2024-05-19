@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('penduduk', function (Blueprint $table) {
             $table->string('nik', 16)->unique()->primary();
             $table->string('kk_id', 16)->nullable()->index();
-            $table->foreign('kk_id')->references('kk_id')->on('kartu_keluarga')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('kk_id')->references('kk_id')->on('kartu_keluarga')
+                ->cascadeOnUpdate()->cascadeOnDelete();
             $table->boolean('status_identitas')->default(false);
             $table->string('jenis_identitas')->nullable();
             $table->string('status_rekam_identitas')->nullable();
@@ -27,9 +28,9 @@ return new class extends Migration
             $table->date('tanggal_lahir');
             $table->integer('umur');
             $table->string('agama');
-            $table->string('pendidikan');
-            $table->string('pekerjaan');
-            $table->string('status_perkawinan');
+            $table->string('pendidikan')->nullable();
+            $table->string('pekerjaan')->nullable();
+            $table->string('status_perkawinan')->nullable();
             $table->date('tgl_perkawinan')->nullable();
             $table->date('tgl_perceraian')->nullable();
             $table->string('kewarganegaraan')->default('WNI');
@@ -43,7 +44,7 @@ return new class extends Migration
             $table->string('penyakit')->nullable();
             $table->string('akseptor_kb')->nullable();
             $table->string('status_hubungan')->nullable();
-            $table->string('status_penduduk')->default('Tetap');
+            $table->string('status_penduduk')->default('TETAP');
             $table->string('status_dasar')->default('HIDUP');
             $table->string('status_pengajuan')->default('BELUM DIVERIFIKASI');
             $table->string('status_tempat_tinggal')->nullable();

@@ -260,7 +260,7 @@ class DeskelProfileResource extends Resource
                                             ->autofocus(),
                                         Select::make('dasar_hukum_id')
                                             ->label(fn () => 'Dasar Hukum ' . $settings['sebutan_deskel'])
-                                            ->placeholder(fn () => 'Dasar Hukum ' . $settings['sebutan_deskel'])
+                                            ->placeholder(fn () => 'Pilih Dokumen Dasar Hukum ' . $settings['sebutan_deskel'])
                                             ->relationship('dokumen', 'dok_nama')
                                             ->inlineLabel()
                                             ->nullable()

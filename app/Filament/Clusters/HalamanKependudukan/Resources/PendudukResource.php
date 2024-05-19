@@ -7,9 +7,11 @@ use App\Facades\Deskel;
 use App\Filament\Clusters\HalamanKependudukan;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\Pages;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\Widgets\PendudukOverview;
+use App\Filament\Exports\PendudukExporter;
 use App\Models\{Bantuan, Kepindahan, Kematian, Penduduk, Dinamika, Wilayah};
 use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Facades\Filament;
 use Filament\Forms\Form;
 use Filament\Forms\Components\{Actions\Action as FormsAction, Checkbox, Component, Group, Section, Select, TextInput, DatePicker, DateTimePicker, Fieldset, FileUpload, Grid as FormsGrid, Hidden, Placeholder, Split as ComponentsSplit, Textarea, TimePicker, Toggle, Wizard};
@@ -26,7 +28,7 @@ use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\{Action as ActionsAction, ActionGroup, BulkAction};
+use Filament\Tables\Actions\{Action as ActionsAction, ActionGroup, BulkAction, ExportAction};
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Enums\FiltersLayout;
@@ -355,6 +357,16 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ])
                     ->columns(4)
                     ->columnSpanFull(),
+            ])->headerActions([
+                ExportAction::make()
+                    ->exporter(PendudukExporter::class)
+                    ->color('primary')
+                    ->label('Ekspor Data')
+                    ->formats([
+                        ExportFormat::Xlsx,
+                        ExportFormat::Csv,
+                    ])
+                    ->columnMapping(),
             ])
             ->actions(
                 [

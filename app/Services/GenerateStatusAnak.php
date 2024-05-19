@@ -49,7 +49,7 @@ class GenerateStatusAnak
     private static function calculateIndeks($value, $umurRef)
     {
         if ($umurRef == null) {
-            return null;
+            return 0;
         }
 
         $median = $umurRef[3];
@@ -131,8 +131,6 @@ class GenerateStatusAnak
             return 'Normal';
         } elseif ($zScore > 3) {
             return 'Tinggi';
-        } else {
-            return 'Tidak diketahui';
         }
     }
 
@@ -150,8 +148,6 @@ class GenerateStatusAnak
             return 'Gizi lebih (overweight)';
         } elseif ($zScore >= 3) {
             return 'Obesitas (obese)';
-        } else {
-            return 'Tidak diketahui';
         }
     }
 
@@ -169,8 +165,6 @@ class GenerateStatusAnak
             return 'Gizi lebih (overweight)';
         } elseif ($zScore >= 3) {
             return 'Obesitas (obese)';
-        } else {
-            return 'Tidak diketahui';
         }
     }
 }

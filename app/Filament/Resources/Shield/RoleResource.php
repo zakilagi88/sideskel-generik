@@ -7,6 +7,7 @@ use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Filament\Resources\Shield\RoleResource\Pages;
 use BezhanSalleh\FilamentShield\Support\Utils;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Form;
@@ -118,8 +119,8 @@ class RoleResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()->hidden(fn ($record) => $record->name === 'Admin'),
+                Tables\Actions\DeleteAction::make()->hidden(fn ($record) => $record->name === 'Admin'),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

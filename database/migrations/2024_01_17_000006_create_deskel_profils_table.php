@@ -17,13 +17,15 @@ return new class extends Migration
         Schema::create('deskel_profils', function (Blueprint $table) {
             $table->id();
             $table->string('deskel_id', 10)->nullable();
-            $table->foreign('deskel_id')->references('deskel_id')->on('desa_kelurahan')->cascadeOnUpdate()->cascadeOnDelete()->nullable();
+            $table->foreign('deskel_id')->references('deskel_id')->on('desa_kelurahan')
+                ->nullable()->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('sebutan')->nullable();
             $table->string('struktur')->nullable();
             $table->string('kepala')->nullable();
             $table->string('alamat')->nullable();
             $table->string('thn_bentuk')->nullable();
-            $table->foreignId('dasar_hukum_id')->nullable()->constrained('dokumens')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('dasar_hukum_id')->nullable()->constrained('dokumens')
+                ->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('kodepos')->nullable();
             $table->string('koordinat_lat')->nullable();
             $table->string('koordinat_long')->nullable();
@@ -60,20 +62,26 @@ return new class extends Migration
         $dk = new DesaKelurahanProfile([
             'id' => 1,
             'luaswilayah' => [
-                'lahan_sawah' => null,
-                'lahan_ladang' => null,
-                'lahan_perkebunan' => null,
-                'lahan_peternakan' => null,
-                'lahan_hutan' => null,
-                'waduk_danau_situ' => null,
-                'lainnya' => null,
+                [
+                    'lahan_sawah' => null,
+                    'lahan_ladang' => null,
+                    'lahan_perkebunan' => null,
+                    'lahan_peternakan' => null,
+                    'lahan_hutan' => null,
+                    'waduk_danau_situ' => null,
+                    'lainnya' => null,
+                ],
             ],
+
             'orbitrasi' => [
-                'pusat_kec' => null,
-                'pusat_pemerintahan' => null,
-                'pusat_kota' => null,
-                'pusat_prov' => null,
+                [
+                    'pusat_kec' => null,
+                    'pusat_pemerintahan' => null,
+                    'pusat_kota' => null,
+                    'pusat_prov' => null,
+                ]
             ],
+
         ]);
         $dk->save();
     }

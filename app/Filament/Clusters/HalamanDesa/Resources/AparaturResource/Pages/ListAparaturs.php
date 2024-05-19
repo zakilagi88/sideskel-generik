@@ -14,7 +14,7 @@ class ListAparaturs extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Tambah Data'),
             Actions\Action::make('jabatan')
                 ->label('Jabatan')
                 ->icon('fas-cogs')

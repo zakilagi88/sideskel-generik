@@ -4,15 +4,20 @@ namespace App\Filament\Clusters\HalamanKesehatan\Resources;
 
 use App\Filament\Clusters\HalamanKesehatan\Resources\KesehatanAnakResource\Pages;
 use App\Filament\Clusters\HalamanKesehatan;
+use App\Filament\Exports\KesehatanAnakExporter;
 use App\Models\KesehatanAnak;
 use App\Services\GenerateStatusAnak;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Carbon\Carbon;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms;
-use Filament\Forms\Components\{Select, TextInput};
+use Filament\Forms\Components\{Group, Select, TextInput};
 use Filament\Forms\{Form, Get, Set};
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,6 +30,8 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
     protected static ?string $slug = 'anak';
 
     protected static ?string $cluster = HalamanKesehatan::class;
+
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function getPermissionPrefixes(): array
     {
@@ -99,7 +106,6 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     ->content(
                                         function (Get $get) {
                                             $bgColor = 'info';
-
                                             $indeks = "TB/BB";
                                             $status = $get('kategori_tb_bb');
                                             $nilai = $get('z_score_tb_bb');
@@ -114,11 +120,11 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                             ->columns(2)
                             ->schema([
                                 Forms\Components\Select::make('nama_lengkap')
-                                    ->relationship('anak', 'nama_lengkap', fn ($query) => $query->whereDoesntHave('kesehatanAnak'))
+                                    ->relationship(name: 'anak', modifyQueryUsing: fn ($query) => $query->with('wilayah')->whereDoesntHave('kesehatanAnak'))
+                                    ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->nama_lengkap} {$record->wilayah?->wilayah_nama}")
                                     ->live(onBlur: true)
                                     ->label('Nama Anak')
                                     ->hiddenOn('edit')
-
                                     ->afterStateUpdated(function (Select $component, Set $set) {
                                         $id = $component->getState();
                                         $relasi = $component->getRelationship()->getRelated()->where('nik', $id)->first();
@@ -137,7 +143,8 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     }),
                                 Forms\Components\Select::make('nama_lengkap')
                                     ->disabled()
-                                    ->relationship('anak', 'nama_lengkap')
+                                    ->relationship(name: 'anak', modifyQueryUsing: fn ($query) => $query->with('wilayah'))
+                                    ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->nama_lengkap} {$record->wilayah?->wilayah_nama}")
                                     ->live(onBlur: true)
                                     ->label('Nama Anak')
                                     ->hiddenOn('create')
@@ -184,25 +191,34 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     ->numeric()
                                     ->afterStateUpdated(
                                         function (Get $get, Set $set) {
+                                            $tinggiBadan = $get('tinggi_badan');
+                                            $umur = (int) $get('umur');
+                                            $jenisKelamin = $get('jenis_kelamin');
+                                            $beratBadan = $get('berat_badan');
+
                                             if ($get('berat_badan') == null) {
                                                 return;
                                             }
-                                            $indeksBbu = GenerateStatusAnak::getBbUIndeks(
-                                                (int) $get('berat_badan'),
-                                                (int) $get('umur'),
-                                                $get('jenis_kelamin')
-                                            );
-
-                                            $get('tinggi_badan') == null ?:
-                                                $set('imt', GenerateStatusAnak::getImt(
-                                                    (int) $get('berat_badan'),
-                                                    (int) $get('tinggi_badan'),
-                                                    (int) $get('umur')
-                                                ));
 
 
+                                            $indeksBbu = GenerateStatusAnak::getBbUIndeks((int) $get('berat_badan'), $umur, $jenisKelamin);
                                             $set('z_score_bbu', $indeksBbu);
                                             $set('kategori_bbu', GenerateStatusAnak::getStatusBbU($indeksBbu));
+
+                                            if ($beratBadan === null || $tinggiBadan === null) {
+                                                return;
+                                            }
+
+                                            $imt = GenerateStatusAnak::getImt((int) $beratBadan, (int) $tinggiBadan, $umur);
+                                            $set('imt', $imt);
+
+                                            $z_score_imtu = GenerateStatusAnak::getImtUIndeks($imt, $umur, $jenisKelamin);
+                                            $set('z_score_imtu', $z_score_imtu);
+                                            $set('kategori_imtu', GenerateStatusAnak::getStatusImtU($z_score_imtu));
+
+                                            $z_score_tb_bb = GenerateStatusAnak::getTbBbIndeks((int) $tinggiBadan, (int) $beratBadan, $jenisKelamin);
+                                            $set('z_score_tb_bb', $z_score_tb_bb);
+                                            $set('kategori_tb_bb', GenerateStatusAnak::getStatusTbBb($z_score_tb_bb));
                                         }
                                     )
                                     ->required(),
@@ -211,168 +227,48 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     ->live(onBlur: true)
                                     ->suffix('Cm')
                                     ->required()
+                                    ->numeric()
                                     ->afterStateUpdated(
                                         function (Get $get, Set $set) {
-                                            if ($get('tinggi_badan') == null) {
+                                            $tinggiBadan = $get('tinggi_badan');
+                                            $umur = (int) $get('umur');
+                                            $jenisKelamin = $get('jenis_kelamin');
+                                            $beratBadan = $get('berat_badan');
+
+                                            if ($tinggiBadan === null) {
                                                 return;
                                             }
-                                            $indeksTbu = GenerateStatusAnak::getTbUIndeks(
-                                                (int) $get('tinggi_badan'),
-                                                (int) $get('umur'),
-                                                $get('jenis_kelamin')
-                                            );
 
-                                            $get('berat_badan') == null ?:
-                                                $set('imt', GenerateStatusAnak::getImt(
-                                                    (int) $get('berat_badan'),
-                                                    (int) $get('tinggi_badan'),
-                                                    (int) $get('umur')
-                                                ));
-
+                                            $indeksTbu = GenerateStatusAnak::getTbUIndeks((int) $tinggiBadan, $umur, $jenisKelamin);
                                             $set('z_score_tbu', $indeksTbu);
                                             $set('kategori_tbu', GenerateStatusAnak::getStatusTbU($indeksTbu));
-                                        }
-                                    )
-                                    ->numeric(),
-                                Forms\Components\TextInput::make('imt')
-                                    ->label('Indeks Massa Tubuh')
-                                    ->placeholder('Indeks Massa Tubuh')
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(
-                                        function (Get $get, Set $set) {
-                                            if ($get('umur') == null) {
+
+                                            if ($beratBadan === null || $tinggiBadan === null) {
                                                 return;
                                             }
-                                            $indeksImtu = GenerateStatusAnak::getImtUIndeks(
-                                                (int) $get('imt'),
-                                                (int) $get('umur'),
-                                                $get('jenis_kelamin')
-                                            );
 
-                                            $set('z_score_imtu', $indeksImtu);
-                                            $set('kategori_imtu', GenerateStatusAnak::getStatusImtU($indeksImtu));
-                                        }
-                                    )
-                                    ->formatStateUsing(
-                                        function (Get $get, Set $set) {
-                                            if ($get('berat_badan') == null || $get('tinggi_badan') == null) {
-                                                return null;
-                                            }
-                                            $imt = GenerateStatusAnak::getImt(
-                                                (int) $get('berat_badan'),
-                                                (int) $get('tinggi_badan'),
-                                                (int) $get('umur')
-                                            );
-
+                                            $imt = GenerateStatusAnak::getImt((int) $beratBadan, (int) $tinggiBadan, $umur);
                                             $set('imt', $imt);
 
-                                            return $imt;
-                                        }
-                                    )
-                                    ->numeric(),
+                                            $z_score_imtu = GenerateStatusAnak::getImtUIndeks($imt, $umur, $jenisKelamin);
+                                            $set('z_score_imtu', $z_score_imtu);
+                                            $set('kategori_imtu', GenerateStatusAnak::getStatusImtU($z_score_imtu));
 
-                                Forms\Components\Hidden::make('z_score_tbu')
-                                    ->formatStateUsing(
-                                        function (Get $get) {
-                                            if ($get('tinggi_badan') == null) {
-                                                return null;
-                                            }
-                                            return GenerateStatusAnak::getTbUIndeks(
-                                                (int) $get('tinggi_badan'),
-                                                (int) $get('umur'),
-                                                $get('jenis_kelamin')
-                                            );
+                                            $z_score_tb_bb = GenerateStatusAnak::getTbBbIndeks((int) $tinggiBadan, (int) $beratBadan, $jenisKelamin);
+                                            $set('z_score_tb_bb', $z_score_tb_bb);
+                                            $set('kategori_tb_bb', GenerateStatusAnak::getStatusTbBb($z_score_tb_bb));
                                         }
-                                    ),
-                                Forms\Components\Hidden::make('kategori_tbu')
-                                    ->live()
-                                    ->formatStateUsing(
-                                        function (Get $get) {
-                                            if ($get('z_score_tbu') == null) {
-                                                return null;
-                                            }
-                                            return GenerateStatusAnak::getStatusTbU(
-                                                (int) $get('z_score_tbu'),
-                                            );
-                                        }
-                                    ),
 
-                                Forms\Components\Hidden::make('z_score_bbu')
-                                    ->live()
-                                    ->formatStateUsing(
-                                        function (Get $get) {
-                                            if ($get('berat_badan') == null) {
-                                                return null;
-                                            }
-                                            return GenerateStatusAnak::getBbUIndeks(
-                                                (int) $get('berat_badan'),
-                                                (int) $get('umur'),
-                                                $get('jenis_kelamin')
-                                            );
-                                        }
                                     ),
-                                Forms\Components\Hidden::make('kategori_bbu')
-                                    ->live()
-                                    ->formatStateUsing(
-                                        function (Get $get) {
-                                            if ($get('z_score_bbu') == null) {
-                                                return null;
-                                            }
-                                            return GenerateStatusAnak::getStatusBbU(
-                                                (int) $get('z_score_bbu'),
-                                            );
-                                        }
-                                    ),
-                                Forms\Components\Hidden::make('z_score_imtu')
-                                    ->live()
-                                    ->formatStateUsing(
-                                        function (Get $get) {
-                                            if ($get('imt') == null) {
-                                                return null;
-                                            }
-                                            return GenerateStatusAnak::getImtUIndeks(
-                                                (int) $get('imt'),
-                                                (int) $get('umur'),
-                                                $get('jenis_kelamin')
-                                            );
-                                        }
-                                    ),
-                                Forms\Components\Hidden::make('kategori_imtu')
-                                    ->live()
-                                    ->formatStateUsing(
-                                        function (Get $get) {
-                                            if ($get('z_score_imtu') == null) {
-                                                return null;
-                                            }
-                                            return GenerateStatusAnak::getStatusImtU(
-                                                (int) $get('z_score_imtu'),
-                                            );
-                                        }
-                                    ),
-                                Forms\Components\Hidden::make('kategori_tb_bb')
-                                    ->formatStateUsing(
-                                        function (Get $get) {
-                                            if ($get('z_score_tb_bb') == null) {
-                                                return null;
-                                            }
-                                            return GenerateStatusAnak::getStatusTbBb(
-                                                (int) $get('z_score_tb_bb'),
-                                            );
-                                        }
-                                    ),
-                                Forms\Components\Hidden::make('z_score_tb_bb')
-                                    ->formatStateUsing(
-                                        function (Get $get) {
-                                            if ($get('tinggi_badan') == null || $get('berat_badan') == null) {
-                                                return null;
-                                            }
-                                            return GenerateStatusAnak::getTbBbIndeks(
-                                                $get('tinggi_badan'),
-                                                (int) $get('berat_badan'),
-                                                $get('jenis_kelamin')
-                                            );
-                                        }
-                                    )
+                                Forms\Components\Hidden::make('imt')->reactive(),
+                                Forms\Components\Hidden::make('z_score_tbu')->reactive(),
+                                Forms\Components\Hidden::make('kategori_tbu')->reactive(),
+                                Forms\Components\Hidden::make('z_score_bbu')->reactive(),
+                                Forms\Components\Hidden::make('kategori_bbu')->reactive(),
+                                Forms\Components\Hidden::make('z_score_imtu')->reactive(),
+                                Forms\Components\Hidden::make('kategori_imtu')->reactive(),
+                                Forms\Components\Hidden::make('kategori_tb_bb')->reactive(),
+                                Forms\Components\Hidden::make('z_score_tb_bb')->reactive(),
 
                             ]),
                     ]),
@@ -386,44 +282,50 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('anak.nama_lengkap')
+                    ->label('Nama Anak')
+                    ->description(fn ($record) => $record->anak?->wilayah?->wilayah_nama ?? 'Wilayah Tidak Diketahui')
                     ->placeholder('Nama Anak')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('nama_lengkap')
-                    ->placeholder('Nama Ibu')
+                Tables\Columns\TextColumn::make('nama_ibu')
+                    ->label('Ibu')
+                    ->placeholder(fn ($record) => $record->anak?->nama_ibu ?? 'Ibu Tidak Diketahui')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('berat_badan')
                     ->numeric()
+                    ->suffix(' gram')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tinggi_badan')
                     ->numeric()
+                    ->suffix(' cm')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('imt')
                     ->numeric()
+                    ->label('Indeks Massa Tubuh')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('kategori_tbu')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Kategori TB/U')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('z_score_tbu')
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('kategori_bbu')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Kategori BB/U')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('z_score_bbu')
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('kategori_imtu')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Kategori IMT/U')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('z_score_imtu')
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('kategori_tb_bb')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Kategori TB/BB')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('z_score_tb_bb')
                     ->numeric()
                     ->sortable()
@@ -439,9 +341,69 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('kategori_tbu')
+                    ->label('Kategori TB/U')
+                    ->options([
+                        'Sangat pendek (severely stunted)' => 'Sangat pendek (severely stunted)',
+                        'Pendek (stunted)' => 'Pendek (stunted)',
+                        'Normal' => 'Normal',
+                        'Tinggi' => 'Tinggi',
+                    ]),
+                SelectFilter::make('kategori_bbu')
+                    ->label('Kategori BB/U')
+                    ->options([
+                        'Berat Badan sangat kurang (severely underweight)' => 'Berat Badan sangat kurang (severely underweight)',
+                        'Berat Badan kurang (underweight)' => 'Berat Badan kurang (underweight)',
+                        'Berat Badan normal (normal)' => 'Berat Badan normal (normal)',
+                        'Risiko Berat Badan lebih (overweight)' => 'Risiko Berat Badan lebih (overweight)',
+                    ]),
+                SelectFilter::make('kategori_imtu')
+                    ->label('Kategori IMT/U')
+                    ->options([
+                        'Gizi buruk (severely wasted)' => 'Gizi Buruk (severely wasted)',
+                        'Gizi kurang (wasted)' => 'Gizi Kurang (wasted)',
+                        'Gizi baik (normal)' => 'Gizi Baik (normal)',
+                        'Berisiko gizi lebih (possible risk of overweight)' => 'Berisiko gizi lebih (possible risk of overweight)',
+                        'Gizi lebih (overweight)' => 'Gizi lebih (overweight)',
+                        'Obesitas (obese)' => 'Obesitas (obese)',
+                    ]),
+                SelectFilter::make('kategori_tb_bb')
+                    ->label('Kategori TB/BB')
+                    ->options([
+                        'Gizi buruk (severely wasted)' => 'Gizi Buruk (severely wasted)',
+                        'Gizi kurang (wasted)' => 'Gizi Kurang (wasted)',
+                        'Gizi baik (normal)' => 'Gizi Baik (normal)',
+                        'Berisiko gizi lebih (possible risk of overweight)' => 'Berisiko gizi lebih (possible risk of overweight)',
+                        'Gizi lebih (overweight)' => 'Gizi lebih (overweight)',
+                        'Obesitas (obese)' => 'Obesitas (obese)',
+                    ]),
+            ], FiltersLayout::AboveContent)
+            ->filtersFormColumns(2)
+            ->filtersFormSchema(fn (array $filters): array => [
+                Group::make()
+                    ->extraAttributes(['class' => 'mb-4'])
+                    ->schema([
+                        $filters['kategori_tbu'],
+                        $filters['kategori_bbu'],
+                        $filters['kategori_imtu'],
+                        $filters['kategori_tb_bb'],
+                    ])
+                    ->columns(4)
+                    ->columnSpanFull(),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(KesehatanAnakExporter::class)
+                    ->color('primary')
+                    ->label('Ekspor Data')
+                    ->formats([
+                        ExportFormat::Xlsx,
+                        ExportFormat::Csv,
+                    ])
+                    ->columnMapping(),
             ])
             ->actions([
+
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

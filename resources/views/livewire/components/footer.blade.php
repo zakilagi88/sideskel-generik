@@ -50,7 +50,7 @@
                     <x-filament::icon-button icon="fab-instagram" size="lg" href="{{ $deskel->instagram }}"
                         color="info" tag="a" />
                     <x-filament::icon-button icon="fab-youtube" size="lg" href="{{ $deskel->youtube }}"
-                        color="warning" tag="a" />
+                        color="danger" tag="a" />
                 </div>
                 <p class="mt-4 text-sm text-white dark:text-gray-400">
                     Jangan lupa untuk follow kami di media sosial kami.

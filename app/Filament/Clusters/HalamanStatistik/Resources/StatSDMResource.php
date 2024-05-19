@@ -19,6 +19,7 @@ use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Query\Builder;
@@ -32,6 +33,8 @@ class StatSDMResource extends Resource implements HasShieldPermissions
 
     protected static ?string $cluster = HalamanStatistik::class;
 
+    protected static ?string $modelLabel = 'Statistik Kependudukan';
+
     protected static ?string $navigationIcon = '';
 
     protected static ?string $navigationLabel = 'Statistik';
@@ -44,12 +47,7 @@ class StatSDMResource extends Resource implements HasShieldPermissions
 
     protected static bool $shouldRegisterNavigation = false;
 
-    public array $data = [];
 
-    public function mount($record): void
-    {
-        $this->data = $this->getPendudukViewQuery($record);
-    }
 
 
     public static function getPermissionPrefixes(): array
@@ -90,15 +88,24 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                     ->required(),
                 Tabs::make('grafik')
                     ->columnSpanFull()
+                    ->hiddenOn('create')
                     ->tabs([
                         Tab::make('Grafik Bar')
+                            ->icon('fas-table-columns')
+                            ->iconPosition(IconPosition::After)
                             ->schema([
                                 Livewire::make(SDMBarChart::class, ['chartData' => self::getPendudukViewQuery($key)])
+                                    ->hiddenOn('create')
+                                    ->hidden(fn (?Model $record): bool => $record === null)
                                     ->label('Grafik Bar Statistik'),
                             ]),
                         Tab::make('Grafik Pie')
+                            ->icon('fas-chart-pie')
+                            ->iconPosition(IconPosition::After)
                             ->schema([
                                 Livewire::make(SDMPieChart::class, ['chartData' => self::getPendudukViewQuery($key)])
+                                    ->hiddenOn('create')
+                                    ->hidden(fn (?Model $record): bool => $record === null)
                                     ->label('Grafik Pie Statistik'),
                             ]),
                     ])
@@ -160,13 +167,15 @@ class StatSDMResource extends Resource implements HasShieldPermissions
 
         $wilayah = $authUser->hasRole('Admin') ? null : $descendants;
 
-        $query = PendudukView::getView(key: $record->key, wilayahId: $wilayah);
+        if (is_null($record) || is_null($record->key)) {
+            return [];
+        } else {
+            $query = PendudukView::getView(key: $record->key, wilayahId: $wilayah);
 
-
-        if ($record->key === 'rentang_umur') {
-            $query->orderByRaw("CAST(SUBSTRING_INDEX(rentang_umur, '-', 1) AS UNSIGNED)");
+            if ($record->key === 'rentang_umur') {
+                $query->orderByRaw("CAST(SUBSTRING_INDEX(rentang_umur, '-', 1) AS UNSIGNED)");
+            }
+            return $query->get()->toArray();
         }
-
-        return $query->get()->toArray();
     }
 }
