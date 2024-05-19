@@ -26,7 +26,7 @@
                                 <div class="flex items-center gap-x-4 text-xs">
                                     <time datetime="2020-03-16"
                                         class="text-gray-500">{{ $b->published_at->format('F j, Y') }}</time>
-                                    <a href="{{ route('index.kategori_berita', $b->kategori->slug) }}"
+                                    <a href="{{ route('index.berita', ['kategori' => $b->kategori->slug]) }}"
                                         class="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100">{{ str($b->kategori->name)->ucFirst() }}</a>
                                 </div>
                                 <h3
@@ -52,7 +52,8 @@
                                     </svg>
                                 </a>
                                 <div class="w-full text-gray-600 gap-10 ">
-                                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center">
+                                    <div
+                                        class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4">
                                         <div class="flex flex-row items-center ml-4 mb-2 lg:mb-0 gap-4">
                                             <img src="{{ $b->author->getFilamentAvatarUrl() }}" alt=""
                                                 class="h-10 w-10 rounded-full object-contain bg-gray-50">
@@ -117,7 +118,7 @@
                             <div class="flex items-center gap-x-4 text-xs">
                                 <time datetime="2020-03-16"
                                     class="text-gray-500">{{ $b->published_at->format('F j, Y') }}</time>
-                                <a href="{{ route('index.kategori_berita', $b->kategori->slug) }}"
+                                <a href="{{ route('index.berita', ['kategori' => $b->kategori->slug]) }}"
                                     class="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100">{{ str($b->kategori->name)->ucFirst() }}</a>
                             </div>
                         </div>

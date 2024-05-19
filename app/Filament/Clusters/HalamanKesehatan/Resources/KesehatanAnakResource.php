@@ -114,50 +114,68 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                             ->columns(2)
                             ->schema([
                                 Forms\Components\Select::make('nama_lengkap')
-                                    ->relationship('anak', 'nama_lengkap')
+                                    ->relationship('anak', 'nama_lengkap', fn ($query) => $query->whereDoesntHave('kesehatanAnak'))
                                     ->live(onBlur: true)
                                     ->label('Nama Anak')
+                                    ->hiddenOn('edit')
+
                                     ->afterStateUpdated(function (Select $component, Set $set) {
                                         $id = $component->getState();
                                         $relasi = $component->getRelationship()->getRelated()->where('nik', $id)->first();
-                                        $set('tanggal_lahir', $relasi->tanggal_lahir);
-                                        $set('umur', $relasi->umur);
-                                        $set('jenis_kelamin', $relasi->jenis_kelamin->value);
-                                        $set('nama_ibu', $relasi->nama_ibu);
-                                        // $component->getContainer()->getComponent('anak')->getChildComponentContainer()
-                                        //     ->fill([
-                                        //         'tanggal_lahir' => $relasi->tanggal_lahir,
-                                        //         'jenis_kelamin' => $relasi->jenis_kelamin,
-                                        //         'nama_ibu' => $relasi->nama_ibu,
-                                        //     ]);
-                                    }),
-                                TextInput::make('tanggal_lahir')
-                                    ->readOnly()
-                                    ->formatStateUsing(
-                                        function (Model $record) {
-                                            $umur = Carbon::parse($record->anak->tanggal_lahir)->diffInMonths(now());
-                                            return round($umur, 0);
+
+                                        if ($relasi == null) {
+                                            $set('umur', null);
+                                            $set('jenis_kelamin', null);
+                                            $set('nama_ibu', null);
+
+                                            return;
                                         }
 
-                                    )
+                                        $set('umur', round(Carbon::parse($relasi->tanggal_lahir)->diffInMonths(now())), 0);
+                                        $set('jenis_kelamin', $relasi->jenis_kelamin->value);
+                                        $set('nama_ibu', $relasi->nama_ibu);
+                                    }),
+                                Forms\Components\Select::make('nama_lengkap')
+                                    ->disabled()
+                                    ->relationship('anak', 'nama_lengkap')
+                                    ->live(onBlur: true)
+                                    ->label('Nama Anak')
+                                    ->hiddenOn('create')
+
+                                    ->afterStateUpdated(function (Select $component, Set $set) {
+                                        $id = $component->getState();
+                                        $relasi = $component->getRelationship()->getRelated()->where('nik', $id)->first();
+
+                                        if ($relasi == null) {
+                                            $set('umur', null);
+                                            $set('jenis_kelamin', null);
+                                            $set('nama_ibu', null);
+
+                                            return;
+                                        }
+
+                                        $set('umur', round(Carbon::parse($relasi->tanggal_lahir)->diffInMonths(now())), 0);
+                                        $set('jenis_kelamin', $relasi->jenis_kelamin->value);
+                                        $set('nama_ibu', $relasi->nama_ibu);
+                                    }),
+
+                                TextInput::make('umur')
+                                    ->readOnly()
+                                    ->live()
+                                    ->formatStateUsing(fn ($record) => (is_null($record)) ? null :  round(Carbon::parse($record->anak?->tanggal_lahir)->diffInMonths(now()), 0))
                                     ->suffix('Bulan')
                                     ->placeholder('Umur dalam Bulan')
                                     ->maxLength(16),
                                 Forms\Components\TextInput::make('jenis_kelamin')
-                                    ->hiddenOn('create')
-                                    ->formatStateUsing(
-                                        function (TextInput $component) {
-                                            if (!$component->getRecord()) {
-                                                return null;
-                                            }
-                                            $jk = $component->getRecord()->anak->jenis_kelamin->value;
-                                            return $jk;
-                                        }
-                                    )
+                                    ->readOnly()
+                                    ->live()
+                                    ->formatStateUsing(fn ($record) => (is_null($record)) ? null : $record->anak?->jenis_kelamin->value)
                                     ->placeholder('Jenis Kelamin')
                                     ->maxLength(16),
                                 Forms\Components\TextInput::make('nama_ibu')
                                     ->placeholder('Nama Ibu')
+                                    ->readOnly()
+                                    ->formatStateUsing(fn ($record) => (is_null($record)) ? null : $record->anak?->nama_ibu)
                                     ->maxLength(16),
                                 Forms\Components\TextInput::make('berat_badan')
                                     ->placeholder('Berat Badan')
@@ -174,6 +192,14 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                                 (int) $get('umur'),
                                                 $get('jenis_kelamin')
                                             );
+
+                                            $get('tinggi_badan') == null ?:
+                                                $set('imt', GenerateStatusAnak::getImt(
+                                                    (int) $get('berat_badan'),
+                                                    (int) $get('tinggi_badan'),
+                                                    (int) $get('umur')
+                                                ));
+
 
                                             $set('z_score_bbu', $indeksBbu);
                                             $set('kategori_bbu', GenerateStatusAnak::getStatusBbU($indeksBbu));
@@ -196,6 +222,13 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                                 $get('jenis_kelamin')
                                             );
 
+                                            $get('berat_badan') == null ?:
+                                                $set('imt', GenerateStatusAnak::getImt(
+                                                    (int) $get('berat_badan'),
+                                                    (int) $get('tinggi_badan'),
+                                                    (int) $get('umur')
+                                                ));
+
                                             $set('z_score_tbu', $indeksTbu);
                                             $set('kategori_tbu', GenerateStatusAnak::getStatusTbU($indeksTbu));
                                         }
@@ -205,7 +238,6 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     ->label('Indeks Massa Tubuh')
                                     ->placeholder('Indeks Massa Tubuh')
                                     ->live(onBlur: true)
-                                    ->readOnly()
                                     ->afterStateUpdated(
                                         function (Get $get, Set $set) {
                                             if ($get('umur') == null) {
@@ -222,7 +254,7 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                         }
                                     )
                                     ->formatStateUsing(
-                                        function (Get $get) {
+                                        function (Get $get, Set $set) {
                                             if ($get('berat_badan') == null || $get('tinggi_badan') == null) {
                                                 return null;
                                             }
@@ -231,6 +263,8 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                                 (int) $get('tinggi_badan'),
                                                 (int) $get('umur')
                                             );
+
+                                            $set('imt', $imt);
 
                                             return $imt;
                                         }

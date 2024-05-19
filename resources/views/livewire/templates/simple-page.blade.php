@@ -21,7 +21,7 @@
                 <div
                     class="flex items-center gap-1 space-x-2 first-line:relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100">
                     <x-heroicon-o-folder class="w-4 h-4 text-gray-700" />
-                    <a href="{{ route('index.kategori_berita', $record->kategori->slug) }}"
+                    <a href="{{ route('index.berita', ['kategori' => $record->kategori->slug]) }}"
                         class=" font-medium text-gray-600">
                         {{ str($record->kategori->name)->ucFirst() }}</a>
                 </div>

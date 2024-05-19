@@ -111,7 +111,7 @@ class StatSDMWidgets extends Component implements HasForms
                             ->columnSpanFull()
                             ->tabs([
                                 Tabs\Tab::make('Tabel')
-                                    ->icon('heroicon-m-bell')
+                                    ->icon('fas-table-columns')
                                     ->iconPosition(IconPosition::After)
                                     ->schema([
                                         Livewire::make(StatSDMTable::class, ['filters' => $this->filters, 'record' => $this->record])
@@ -120,7 +120,7 @@ class StatSDMWidgets extends Component implements HasForms
 
                                     ]),
                                 Tabs\Tab::make('Grafik')
-                                    ->icon('heroicon-m-bell')
+                                    ->icon('fas-chart-pie')
                                     ->iconPosition(IconPosition::After)
                                     ->schema([
                                         Tabs::make('Tabs')

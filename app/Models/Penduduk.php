@@ -308,9 +308,9 @@ class Penduduk extends Model implements Auditable
         return $this->morphToMany(Bantuan::class, 'bantuanable', 'bantuanables', 'bantuanable_id', 'bantuan_id')->withTimestamps()->withPivot('bantuanable_type', 'bantuanable_id');
     }
 
-    public function kesehatanAnak(): HasMany
+    public function kesehatanAnak(): HasOne
     {
-        return $this->hasMany(KesehatanAnak::class, 'anak_id', 'nik')->whereDate('tanggal_lahir', '>', now()->subYears(5));
+        return $this->hasOne(KesehatanAnak::class, 'anak_id', 'nik');
     }
 
     public function wilayah(): BelongsToThrough

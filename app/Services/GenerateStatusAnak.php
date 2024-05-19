@@ -116,6 +116,8 @@ class GenerateStatusAnak
             return 'Berat Badan normal (normal)';
         } elseif ($zScore > 1) {
             return 'Risiko Berat Badan lebih (overweight)';
+        } else {
+            return 'Tidak diketahui';
         }
     }
 
@@ -129,6 +131,8 @@ class GenerateStatusAnak
             return 'Normal';
         } elseif ($zScore > 3) {
             return 'Tinggi';
+        } else {
+            return 'Tidak diketahui';
         }
     }
 
@@ -146,6 +150,8 @@ class GenerateStatusAnak
             return 'Gizi lebih (overweight)';
         } elseif ($zScore >= 3) {
             return 'Obesitas (obese)';
+        } else {
+            return 'Tidak diketahui';
         }
     }
 
@@ -163,6 +169,8 @@ class GenerateStatusAnak
             return 'Gizi lebih (overweight)';
         } elseif ($zScore >= 3) {
             return 'Obesitas (obese)';
+        } else {
+            return 'Tidak diketahui';
         }
     }
 }

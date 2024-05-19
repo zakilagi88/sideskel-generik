@@ -92,9 +92,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                     ->unique(ignoreRecord: true)
                                     ->dehydrated()
                                     ->placeholder('Masukkan nomor kartu keluarga')
-                                    ->dehydrated(
-                                        fn (?string $state): bool => filled($state)
-                                    )
+                                    ->dehydrated(fn (?string $state): bool => filled($state))
                                     ->required(fn (string $operation): bool => $operation === 'create'),
                                 Group::make()
                                     ->relationship('kepalaKeluarga')
@@ -181,7 +179,6 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                 TextColumn::make('kk_alamat')
                     ->label('Alamat KK')
                     ->searchable()
-
                     ->copyable()
                     ->copyMessage('Telah Disalin!')
                     ->copyMessageDuration(500)
@@ -453,7 +450,6 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
             'index' => Pages\ListKartukeluargas::route('/'),
             'edit' => Pages\EditKartukeluarga::route('/{record}/edit'),
             'create' => Pages\CreateKartukeluarga::route('/tambah_masuk'),
-            // 'view' => Pages\ViewKartukeluarga::route('/{record}'),
         ];
     }
 

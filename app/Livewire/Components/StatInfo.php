@@ -24,38 +24,22 @@ class StatInfo extends Widget
                 [
                     'id' => 2,
                     'heading' => 'Kepala Keluarga',
-                    'icon' => 'fas-person',
-                    'value' => Penduduk::where(
-                        [
-                            'status_hubungan' => 'KEPALA KELUARGA',
-                            'status_dasar' => 'HIDUP'
-                        ]
-                    )->count(),
+                    'icon' => 'fas-user-large',
+                    'value' => Penduduk::where(['status_hubungan' => 'KEPALA KELUARGA', 'status_dasar' => 'HIDUP'])->count(),
                     'iconColor' => 'danger',
                 ],
-
                 [
                     'id' => 3,
                     'heading' => 'Penduduk Laki-laki',
                     'icon' => 'fas-person',
-                    'value' => Penduduk::where(
-                        [
-                            'jenis_kelamin' => 'LAKI-LAKI',
-                            'status_dasar' => 'HIDUP'
-                        ]
-                    )->count(),
+                    'value' => Penduduk::where(['jenis_kelamin' => 'LAKI-LAKI', 'status_dasar' => 'HIDUP'])->count(),
                     'iconColor' => 'secondary',
                 ],
                 [
                     'id' => 4,
                     'heading' => 'Penduduk Perempuan',
-                    'icon' => 'fas-person',
-                    'value' => Penduduk::where(
-                        [
-                            'jenis_kelamin' => 'PEREMPUAN',
-                            'status_dasar' => 'HIDUP'
-                        ]
-                    )->count(),
+                    'icon' => 'fas-person-dress',
+                    'value' => Penduduk::where(['jenis_kelamin' => 'PEREMPUAN', 'status_dasar' => 'HIDUP'])->count(),
                     'iconColor' => 'info',
                 ],
 

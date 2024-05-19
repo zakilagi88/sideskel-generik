@@ -28,7 +28,7 @@ class DesaKelurahanProfile extends Model
         'alamat',
         'kodepos',
         'thn_bentuk',
-        'dasar_hukum_bentuk',
+        'dasar_hukum_id',
         'aparatur_id',
         'tipologi',
         'klasifikasi',
@@ -52,7 +52,11 @@ class DesaKelurahanProfile extends Model
         'telepon',
         'email',
         'status',
-
+        'website',
+        'facebook',
+        'twitter',
+        'instagram',
+        'youtube',
     ];
 
     protected $casts = [
@@ -65,7 +69,17 @@ class DesaKelurahanProfile extends Model
 
     public function getLogo(): string
     {
-        return $this->logo ? Storage::url($this->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($this->dk->deskel_nama) . '&background=random&size=512';
+        return $this->logo ? Storage::url($this->logo) : Storage::url('images/logo.png');
+    }
+
+    public function getGambar(): string
+    {
+        return $this->gambar ? Storage::url($this->gambar) : Storage::url('images/bg-kantor.png');
+    }
+
+    public function Dokumen(): BelongsTo
+    {
+        return $this->belongsTo(Dokumen::class, 'dasar_hukum_id', 'id');
     }
 
 

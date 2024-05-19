@@ -46,7 +46,7 @@ class Lembaga extends Model
 
     public function dokumen(): BelongsTo
     {
-        return $this->belongsTo(Dokumen::class);
+        return $this->belongsTo(Dokumen::class, 'dokumen_id', 'id');
     }
 
     public function anggota(): BelongsToMany

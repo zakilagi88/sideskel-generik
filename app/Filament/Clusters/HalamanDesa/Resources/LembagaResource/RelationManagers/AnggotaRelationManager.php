@@ -38,7 +38,7 @@ class AnggotaRelationManager extends RelationManager
                                 $modifiedKeyValue[$normalizedKey] = $kategori;
                             }
                             return $modifiedKeyValue;
-                        }
+                    }
                     )
                     ->dehydrateStateUsing(fn (string $state): string => ucwords($state)),
                 Forms\Components\TextInput::make('keterangan')
@@ -62,7 +62,7 @@ class AnggotaRelationManager extends RelationManager
     {
         return $table
             ->recordTitle(
-                fn (Penduduk $record): string => "{$record->nama_lengkap} - ({$record->nik} - {$record->wilayah->wilayah_nama})"
+                fn (Penduduk $record): string => "{$record->nama_lengkap} - ({$record->nik} - {$record->wilayah?->wilayah_nama})"
             )
             ->columns([
                 Tables\Columns\TextColumn::make('nama_lengkap')
@@ -137,6 +137,6 @@ class AnggotaRelationManager extends RelationManager
                 ])
                     ->hidden($this->hideIndexPage()),
             ])
-            ->deferLoading(false);
+            ->deferLoading();
     }
 }

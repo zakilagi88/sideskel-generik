@@ -165,7 +165,7 @@ class SistemPreparation extends Widget
                     'description' => 'Inisiasi Wilayah sesuai kebutuhan Desa/Kelurahan Anda.',
                     'href' => route('filament.admin.index.resources.wilayah.index'),
                     'completed' => $this->completedSteps[2],
-                    'icon' => 'fas-map',
+                    'icon' => 'fas-map-location',
                 ],
                 [
                     'id' => 3,
@@ -173,7 +173,7 @@ class SistemPreparation extends Widget
                     'description' => 'Kelola Data Kependudukan dengan mengelola Kartu Keluarga dan Penduduk.',
                     'href' => route('filament.admin.kependudukan.resources.keluarga.index'),
                     'completed' => $this->completedSteps[3],
-                    'icon' => 'fas-city',
+                    'icon' => 'fas-users',
                 ],
                 [
                     'id' => 4,
@@ -189,7 +189,7 @@ class SistemPreparation extends Widget
                     'description' => 'Langkah-langkah konfigurasi awal sistem telah selesai. Selamat menggunakan sistem!',
                     'href' => route('filament.admin.pages.dashboard'),
                     'completed' => $this->completedSteps[5],
-                    'icon' => 'fas-building-circle-check',
+                    'icon' => 'fas-check-circle',
                 ],
             ],
         ];

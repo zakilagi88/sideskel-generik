@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Settings\GeneralSettings;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Support\Facades\FilamentColor;
 use Filament\Support\Facades\FilamentView;
 use Filament\Tables\Table;
@@ -31,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
                 ->defaultPaginationPageOption(10)
                 ->paginated([10, 25, 50, 100])
                 ->extremePaginationLinks();
+        });
+
+        TextEntry::configureUsing(function (TextEntry $textEntry): void {
+            $textEntry->extraAttributes(['class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100']);
         });
 
         FilamentColor::register(fn (GeneralSettings $settings) => $settings->site_theme);

@@ -45,9 +45,12 @@
             <div>
                 <span class="text-base font-bold tracking-wide text-white dark:text-gray-400 mb-2">Social Media</span>
                 <div class="flex items-center mt-1 space-x-3">
-                    <x-filament::icon icon="fab-facebook" class="h-5 w-5 text-white dark:text-gray-400" />
-                    <x-filament::icon icon="fab-instagram" class="h-5 w-5 text-white dark:text-gray-400" />
-                    <x-filament::icon icon="fab-youtube" class="h-5 w-5 text-white dark:text-gray-400" />
+                    <x-filament::icon-button icon="fab-facebook" size="lg" href="{{ $deskel->facebook }}"
+                        tag="a" />
+                    <x-filament::icon-button icon="fab-instagram" size="lg" href="{{ $deskel->instagram }}"
+                        color="info" tag="a" />
+                    <x-filament::icon-button icon="fab-youtube" size="lg" href="{{ $deskel->youtube }}"
+                        color="warning" tag="a" />
                 </div>
                 <p class="mt-4 text-sm text-white dark:text-gray-400">
                     Jangan lupa untuk follow kami di media sosial kami.

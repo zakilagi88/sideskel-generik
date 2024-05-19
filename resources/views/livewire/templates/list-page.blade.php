@@ -1,9 +1,9 @@
-<div class="w-full grid grid-cols-3 gap-6">
+<div class="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
     <div class="col-span-full">
         <x-web.breadcrumbs :items="[$this->getPageBreadcrumb()]" :heading="$this->getPageHeading()" />
     </div>
-    <div class="col-span-2 bg-white rounded-xl">
-        <div id="posts" class=" px-3 lg:px-7 ">
+    <div class="md:col-span-2 bg-white rounded-xl">
+        <div id="posts" class="px-3 lg:px-7">
             <div class="m-4">
                 @if ($search)
                     <h3 class="text-lg font-semibold text-gray-600 mb-3">Sedang Mencari ... "{{ $search }}"</h3>
@@ -23,7 +23,7 @@
                 @endif
 
             </div>
-            <div class="flex justify-between items-center border-b border-gray-100">
+            <div class="flex flex-col md:flex-row justify-between items-center border-b border-gray-100">
                 <div class="flex items-center space-x-4 font-light ">
                     <button x-on:click="$wire.setSort('desc')"
                         :class="{
@@ -57,7 +57,7 @@
         </div>
     </div>
     <div id="side-bar"
-        class="bg-white rounded-xl border-t border-t-gray-100 md:border-t-none col-span-1 px-3 md:px-6  space-y-10 py-6 pt-10 md:border-l border-gray-100 h-screen">
+        class="bg-white rounded-xl border-t border-t-gray-100 md:border-t-none md:col-span-1 px-3 md:px-6 space-y-10 py-6 pt-10 md:border-l border-gray-100 md:h-screen">
         <div id="search-box">
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">Search</h3>

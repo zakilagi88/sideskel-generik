@@ -55,7 +55,6 @@ class PenduduksRelationManager extends RelationManager
                     ->size(ActionSize::ExtraSmall)
                     ->requiresConfirmation()
                     ->hidden(function ($record) {
-
                         return $record->status_hubungan->value !== 'KEPALA KELUARGA';
                     })
                     ->modalDescription(
@@ -75,7 +74,11 @@ class PenduduksRelationManager extends RelationManager
                     )
                     ->form([
                         Select::make('status_hubungan')
-                            ->options(StatusHubunganType::class)
+                            ->options(
+                                fn () => collect(StatusHubunganType::cases())
+                                    ->mapWithKeys(fn ($value, $key) => [$value->value => $value->name])
+                                    ->filter(fn ($value, $key) => $key !== 'KEPALA KELUARGA')
+                            )
                             ->dehydrateStateUsing(fn (string $state): string => ucwords($state)),
                         Select::make('nik')
                             ->key('dynamic-form')

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('kepala')->nullable();
             $table->string('alamat')->nullable();
             $table->string('thn_bentuk')->nullable();
-            $table->string('dasar_hukum_bentuk')->nullable();
+            $table->foreignId('dasar_hukum_id')->nullable()->constrained('dokumens')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('kodepos')->nullable();
             $table->string('koordinat_lat')->nullable();
             $table->string('koordinat_long')->nullable();
@@ -47,13 +47,27 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->string('telepon')->nullable();
             $table->string('email')->nullable();
+            $table->string('website')->nullable();
+            $table->string('facebook')->nullable();
+            $table->string('twitter')->nullable();
+            $table->string('instagram')->nullable();
+            $table->string('youtube')->nullable();
             $table->boolean('status')->default(false);
 
             $table->timestamps();
         });
 
-        $cek = new DesaKelurahanProfile([
+        $dk = new DesaKelurahanProfile([
             'id' => 1,
+            'luaswilayah' => [
+                'lahan_sawah' => null,
+                'lahan_ladang' => null,
+                'lahan_perkebunan' => null,
+                'lahan_peternakan' => null,
+                'lahan_hutan' => null,
+                'waduk_danau_situ' => null,
+                'lainnya' => null,
+            ],
             'orbitrasi' => [
                 'pusat_kec' => null,
                 'pusat_pemerintahan' => null,
@@ -61,7 +75,7 @@ return new class extends Migration
                 'pusat_prov' => null,
             ],
         ]);
-        $cek->save();
+        $dk->save();
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Filament\Clusters\HalamanDesa\Resources\DeskelProfileResource\Pages;
 use App\Filament\Clusters\HalamanDesa\Resources\DeskelProfileResource\RelationManagers;
 use App\Models\{DesaKelurahan, DesaKelurahanProfile, KabKota, Kecamatan, Provinsi};
 use App\Settings\GeneralSettings;
+use Faker\Provider\ar_EG\Text;
 use Filament\Forms\Components\{FileUpload, Grid as GridForm, Group as GroupForm, Repeater, RichEditor, Section as SectionForm, Select, Split as SplitForm, Tabs as TabsForm, Tabs\Tab as Tab, Textarea, TextInput, ToggleButtons};
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -249,23 +250,21 @@ class DeskelProfileResource extends Resource
                                             ->label(fn () => 'Kode Pos ' . $settings['sebutan_deskel'])
                                             ->placeholder(fn () => 'Kode Pos ' . $settings['sebutan_deskel'])
                                             ->inlineLabel()
-                                            ->autofocus()
-                                            ->required(),
+                                            ->autofocus(),
                                         TextInput::make('thn_bentuk')
                                             ->label(fn () => 'Tahun Pembentukan ' . $settings['sebutan_deskel'])
                                             ->placeholder(fn () => 'Tahun Pembentukan ' . $settings['sebutan_deskel'])
                                             ->inlineLabel()
                                             ->numeric()
                                             ->minValue(0)
-                                            ->autofocus()
-                                            ->required(),
-                                        TextInput::make('dasar_hukum_bentuk')
+                                            ->autofocus(),
+                                        Select::make('dasar_hukum_id')
                                             ->label(fn () => 'Dasar Hukum ' . $settings['sebutan_deskel'])
                                             ->placeholder(fn () => 'Dasar Hukum ' . $settings['sebutan_deskel'])
+                                            ->relationship('dokumen', 'dok_nama')
                                             ->inlineLabel()
                                             ->nullable()
-                                            ->autofocus()
-                                            ->required(),
+                                            ->autofocus(),
                                         TextInput::make('koordinat_lat')
                                             ->label(fn () => 'Longitude ' . $settings['sebutan_deskel'])
                                             ->inlineLabel()
@@ -414,12 +413,14 @@ class DeskelProfileResource extends Resource
                                             ->placeholder(fn () => 'Jumlah Tanah Bersertifikat ' . $settings['sebutan_deskel'])
                                             ->nullable()
                                             ->numeric()
+                                            ->minValue(0)
                                             ->inputMode('decimal')
                                             ->suffix('Sertifikat'),
                                         TextInput::make('tanah_kas')
                                             ->label(fn () => 'Tanah Kas ' . $settings['sebutan_deskel'])
                                             ->placeholder(fn () => 'Tanah Kas Desa/Kelurahan ' . $settings['sebutan_deskel'])
                                             ->nullable()
+                                            ->minValue(0)
                                             ->numeric()
                                             ->inputMode('decimal')
                                             ->suffix('Ha'),
@@ -440,6 +441,7 @@ class DeskelProfileResource extends Resource
                                                             ->placeholder('Jarak')
                                                             ->nullable()
                                                             ->numeric()
+                                                            ->minValue(0)
                                                             ->inputMode('decimal')
                                                             ->suffix('Km'),
                                                         TextInput::make('pusat_pemerintah')
@@ -447,6 +449,7 @@ class DeskelProfileResource extends Resource
                                                             ->placeholder('Jarak')
                                                             ->nullable()
                                                             ->numeric()
+                                                            ->minValue(0)
                                                             ->inputMode('decimal')
                                                             ->suffix('Km'),
                                                         TextInput::make('pusat_kab')
@@ -454,6 +457,7 @@ class DeskelProfileResource extends Resource
                                                             ->placeholder('Jarak')
                                                             ->nullable()
                                                             ->numeric()
+                                                            ->minValue(0)
                                                             ->inputMode('decimal')
                                                             ->suffix('Km'),
                                                         TextInput::make('pusat_prov')
@@ -461,6 +465,7 @@ class DeskelProfileResource extends Resource
                                                             ->placeholder('Jarak')
                                                             ->nullable()
                                                             ->numeric()
+                                                            ->minValue(0)
                                                             ->inputMode('decimal')
                                                             ->suffix('Km'),
                                                     ])
@@ -478,9 +483,7 @@ class DeskelProfileResource extends Resource
                                             ->placeholder(fn () => 'Batas Utara ' . $settings['sebutan_deskel']),
                                         TextInput::make('bts_timur')
                                             ->inlineLabel()
-                                            ->label(
-                                                fn () => 'Batas Timur ' . $settings['sebutan_deskel']
-                                            )->nullable()
+                                            ->label(fn () => 'Batas Timur ' . $settings['sebutan_deskel'])->nullable()
                                             ->placeholder(fn () => 'Batas Timur ' . $settings['sebutan_deskel']),
                                         TextInput::make('bts_selatan')
                                             ->inlineLabel()
@@ -501,7 +504,7 @@ class DeskelProfileResource extends Resource
                                             ->label(fn () => 'Sejarah ' . $settings['sebutan_deskel'])->nullable()
                                             ->placeholder(fn () => 'Sejarah ' . $settings['sebutan_deskel']),
                                     ]),
-                                Tab::make('Kontak Desa/Kelurahan')
+                                Tab::make('Kontak dan Media Desa/Kelurahan')
                                     ->schema([
                                         TextInput::make('telepon')
                                             ->label(fn () => 'Telepon ' . $settings['sebutan_deskel'])->nullable()->tel()->nullable()
@@ -509,6 +512,21 @@ class DeskelProfileResource extends Resource
                                         TextInput::make('email')
                                             ->label(fn () => 'Email ' . $settings['sebutan_deskel'])->nullable()->email()
                                             ->placeholder(fn () => 'Email ' . $settings['sebutan_deskel']),
+                                        TextInput::make('website')
+                                            ->label(fn () => 'Website ' . $settings['sebutan_deskel'])->nullable()->url()
+                                            ->placeholder(fn () => 'Website ' . $settings['sebutan_deskel']),
+                                        TextInput::make('facebook')
+                                            ->label(fn () => 'Facebook ' . $settings['sebutan_deskel'])->nullable()->url()
+                                            ->placeholder(fn () => 'Facebook ' . $settings['sebutan_deskel']),
+                                        TextInput::make('twitter')
+                                            ->label(fn () => 'Twitter ' . $settings['sebutan_deskel'])->nullable()->url()
+                                            ->placeholder(fn () => 'Twitter ' . $settings['sebutan_deskel']),
+                                        TextInput::make('instagram')
+                                            ->label(fn () => 'Instagram ' . $settings['sebutan_deskel'])->nullable()->url()
+                                            ->placeholder(fn () => 'Instagram ' . $settings['sebutan_deskel']),
+                                        TextInput::make('youtube')
+                                            ->label(fn () => 'Youtube ' . $settings['sebutan_deskel'])->nullable()->url()
+                                            ->placeholder(fn () => 'Youtube ' . $settings['sebutan_deskel']),
                                     ]),
                             ])->columnSpanFull(),
                     ]),
@@ -592,7 +610,6 @@ class DeskelProfileResource extends Resource
     {
 
         $settings = app(GeneralSettings::class)->toArray();
-
         return $infolist
             ->schema([
                 GridInfo::make([
@@ -606,7 +623,8 @@ class DeskelProfileResource extends Resource
                                 function ($record) {
                                     return [
                                         'class' => 'h-80 w-full',
-                                        'style' => 'background-image: url(' . ($record->gambar ? asset('storage/' . $record->gambar) : asset('images/bg-kantor.png')) . '); background-size: cover; background-position: center; background-repeat: no-repeat; border-radius: 0px; border-top-right-radius: 0.5rem; border-top-left-radius: 0.5rem;',
+                                        'style' => 'background-image: url(' . ($record->getGambar()) . '); 
+                                        background-size: cover; background-position: center; background-repeat: no-repeat; border-radius: 0px; border-top-right-radius: 0.5rem; border-top-left-radius: 0.5rem;',
                                     ];
                                 }
                             ),
@@ -738,21 +756,19 @@ class DeskelProfileResource extends Resource
                                                             }
                                                         ),
                                                 ])
-
-
                                         ])
                                             ->verticalAlignment(VerticalAlignment::Center)
                                             ->from('md')
                                             ->extraAttributes([
                                                 'style' => 'justify-content: stretch;'
                                             ]),
-
                                     ]),
                                 TextEntry::make('')
                                     ->hiddenLabel()
                                     ->size(TextEntrySize::Large)
                                     ->weight(FontWeight::SemiBold)
                                     ->default('VISI')
+                                    ->extraAttributes([])
                                     ->alignCenter(),
                                 TextEntry::make('visi')
                                     ->size(TextEntrySize::Medium)
@@ -768,6 +784,7 @@ class DeskelProfileResource extends Resource
                                     ->size(TextEntrySize::Large)
                                     ->weight(FontWeight::SemiBold)
                                     ->default('MISI')
+                                    ->extraAttributes([])
                                     ->alignCenter(),
                                 TextEntry::make('misi')
                                     ->size(TextEntrySize::Medium)
@@ -790,133 +807,80 @@ class DeskelProfileResource extends Resource
                                         GroupInfo::make()
                                             ->schema([
                                                 TextEntry::make('dk.deskel_nama')
-                                                    ->placeholder(fn () => 'Nama ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->label(fn () => 'Nama ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->placeholder(fn () => 'Nama ' . $settings['sebutan_deskel'])
+                                                    ->label(fn () => 'Nama ' . $settings['sebutan_deskel'])
+                                                    ->inlineLabel(),
                                                 TextEntry::make('deskel_id')
-                                                    ->placeholder(fn () => 'Kode ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->label(fn () => 'Kode ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->placeholder(fn () => 'Kode ' . $settings['sebutan_deskel'])
+                                                    ->label(fn () => 'Kode ' . $settings['sebutan_deskel'])
+                                                    ->inlineLabel(),
                                                 TextEntry::make('kodepos')
-                                                    ->placeholder(fn () => 'Kode Pos ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->label(fn () => 'Kode Pos ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->placeholder(fn () => 'Kode Pos ' . $settings['sebutan_deskel'])
+                                                    ->label(fn () => 'Kode Pos ' . $settings['sebutan_deskel'])
+                                                    ->inlineLabel(),
                                                 TextEntry::make('thn_bentuk')
                                                     ->placeholder('Tahun Pembentukan')
                                                     ->label('Tahun Pembentukan')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
-                                                TextEntry::make('dasar_hukum_bentuk')
+                                                    ->inlineLabel(),
+                                                TextEntry::make('dokumen.dok_nama')
                                                     ->placeholder('Dasar Hukum Pembentukan')
                                                     ->label('Dasar Hukum Pembentukan')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                                 TextEntry::make('kepala')
-                                                    ->placeholder(fn () => 'Kepala ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->label(fn () => 'Kepala ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->placeholder(fn () => 'Kepala ' . $settings['sebutan_deskel'])
+                                                    ->label(fn () => 'Kepala ' . $settings['sebutan_deskel'])
+                                                    ->inlineLabel(),
                                                 TextEntry::make('alamat')
-                                                    ->placeholder(fn () => 'Alamat ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->label(fn () => 'Alamat ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->placeholder(fn () => 'Alamat ' . $settings['sebutan_deskel'])
+                                                    ->label(fn () => 'Alamat ' . $settings['sebutan_deskel'])
+                                                    ->inlineLabel(),
                                                 TextEntry::make('jmlh_pdd')
-                                                    ->label(fn () => 'Jumlah Penduduk ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
+                                                    ->label(fn () => 'Jumlah Penduduk ' . $settings['sebutan_deskel'])
                                                     ->suffix(' Jiwa')
                                                     ->inlineLabel()
-                                                    ->placeholder(fn () => 'Jumlah Penduduk ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->placeholder(fn () => 'Jumlah Penduduk ' . $settings['sebutan_deskel']),
                                             ]),
                                         GroupInfo::make([
                                             TextEntry::make('prov.prov_nama')
                                                 ->placeholder('Nama Provinsi')
                                                 ->label('Nama Provinsi')
-                                                ->inlineLabel()
-                                                ->extraAttributes([
-                                                    'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                ]),
+                                                ->inlineLabel(),
                                             TextEntry::make('prov.prov_id')
                                                 ->placeholder('Kode Provinsi')
                                                 ->label('Kode Provinsi')
-                                                ->inlineLabel()
-                                                ->extraAttributes([
-                                                    'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                ]),
+                                                ->inlineLabel(),
                                             TextEntry::make('kabkota.kabkota_nama')
                                                 ->placeholder('Nama Kabupaten/Kota')
                                                 ->label('Nama Kabupaten/Kota')
-                                                ->inlineLabel()
-                                                ->extraAttributes([
-                                                    'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                ]),
+                                                ->inlineLabel(),
                                             TextEntry::make('kabkota.kabkota_id')
                                                 ->placeholder('Kode Kabupaten/Kota')
                                                 ->label('Kode Kabupaten/Kota')
-                                                ->inlineLabel()
-                                                ->extraAttributes([
-                                                    'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                ]),
+                                                ->inlineLabel(),
                                             TextEntry::make('kec.kec_nama')
                                                 ->placeholder('Nama Kecamatan')
                                                 ->label('Nama Kecamatan')
-                                                ->inlineLabel()
-                                                ->extraAttributes([
-                                                    'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                ]),
+                                                ->inlineLabel(),
                                             TextEntry::make('kec.kec_id')
                                                 ->placeholder('Kode Kecamatan')
                                                 ->label('Kode Kecamatan')
-                                                ->inlineLabel()
-                                                ->extraAttributes([
-                                                    'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                ]),
+                                                ->inlineLabel(),
                                             TextEntry::make('koordinat_lat')
-                                                ->placeholder(fn () => 'Koordinat Lattitude ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                ->label(fn () => 'Koordinat Lat ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                ->inlineLabel()
-                                                ->extraAttributes([
-                                                    'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                ]),
+                                                ->placeholder(fn () => 'Koordinat Lattitude ' . $settings['sebutan_deskel'])
+                                                ->label(fn () => 'Koordinat Lat ' . $settings['sebutan_deskel'])
+                                                ->inlineLabel(),
                                             TextEntry::make('koordinat_long')
-                                                ->placeholder(fn () => 'Koordinat Longitude ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                ->label(fn () => 'Koordinat Longitude ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                                ->inlineLabel()
-                                                ->extraAttributes([
-                                                    'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                ]),
-
-
+                                                ->placeholder(fn () => 'Koordinat Longitude ' . $settings['sebutan_deskel'])
+                                                ->label(fn () => 'Koordinat Longitude ' . $settings['sebutan_deskel'])
+                                                ->inlineLabel(),
                                         ])
                                     ]),
                                 TabInfo::make('Data Umum Desa/Kelurahan')
                                     ->schema([
                                         TextEntry::make('tipologi')
-                                            ->label(fn () => 'Tipologi ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->placeholder(fn () => 'Tipologi ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->inlineLabel()
-                                            ->extraAttributes([
-                                                'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                            ]),
+                                            ->label(fn () => 'Tipologi ' . $settings['sebutan_deskel'])
+                                            ->placeholder(fn () => 'Tipologi ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
                                         RepeatableEntry::make('luaswilayah')
                                             ->label('Luas Wilayah')
                                             ->columns(2)
@@ -926,84 +890,57 @@ class DeskelProfileResource extends Resource
                                                     ->suffix(' Ha')
                                                     ->numeric()
                                                     ->placeholder('Luas Lahan Sawah')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                                 TextEntry::make('lahan_ladang')
                                                     ->label('Lahan Ladang')
                                                     ->suffix(' Ha')
                                                     ->numeric()
                                                     ->placeholder('Luas Lahan Ladang')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                                 TextEntry::make('lahan_perkebunan')
                                                     ->label('Lahan Perkebunan')
                                                     ->suffix(' Ha')
                                                     ->numeric()
                                                     ->placeholder('Luas Lahan Perkebunan')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                                 TextEntry::make('lahan_peternakan')
                                                     ->label('Lahan Peternakan')
                                                     ->suffix(' Ha')
                                                     ->numeric()
                                                     ->placeholder('Luas Lahan Peternakan')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                                 TextEntry::make('lahan_hutan')
                                                     ->label('Lahan Hutan')
                                                     ->suffix(' Ha')
                                                     ->numeric()
                                                     ->placeholder('Luas Lahan Hutan')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                                 TextEntry::make('waduk_danau_situ')
                                                     ->label('Luas Waduk/Danau/Situ')
                                                     ->suffix(' Ha')
                                                     ->numeric()
                                                     ->placeholder('Luas Waduk/Danau/Situ')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                                 TextEntry::make('lainnya')
                                                     ->label('Lahan Lainnya')
                                                     ->suffix(' Ha')
                                                     ->numeric()
                                                     ->placeholder('Luas Lahan Lainnya')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                             ]),
                                         TextEntry::make('jmlh_sert_tanah')
                                             ->label('Jumlah Tanah Bersertifikat')
                                             ->suffix(' Sertifikat')
                                             ->numeric()
                                             ->placeholder('Jumlah Tanah Bersertifikat')
-                                            ->inlineLabel()
-                                            ->extraAttributes([
-                                                'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                            ]),
+                                            ->inlineLabel(),
 
                                         TextEntry::make('tanah_kas')
                                             ->label('Tanah Kas')
                                             ->suffix(' Ha')
                                             ->numeric()
                                             ->placeholder('Luas Tanah Kas')
-                                            ->inlineLabel()
-                                            ->extraAttributes([
-                                                'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                            ]),
+                                            ->inlineLabel(),
 
                                         RepeatableEntry::make('orbitrasi')
                                             ->label('Orbitrasi (Jarak dari Pusat Pemerintahan)')
@@ -1014,95 +951,82 @@ class DeskelProfileResource extends Resource
                                                     ->suffix(' Km')
                                                     ->numeric()
                                                     ->placeholder('Jarak dari Pusat Pemerintahan Kecamatan')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                                 TextEntry::make('pusat_kota')
                                                     ->label('Jarak dari Pusat Pemerintahan Kab/Kota')
                                                     ->suffix(' Km')
                                                     ->numeric()
                                                     ->placeholder('Jarak dari Pusat Pemerintahan Kab/Kota')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                                 TextEntry::make('pusat_kab')
                                                     ->label('Jarak dari Kota/Ibukota Kabupaten')
                                                     ->suffix(' Km')
                                                     ->numeric()
                                                     ->placeholder('Jarak dari Kota/Ibukota Kabupaten')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                                 TextEntry::make('pusat_prov')
                                                     ->label('Jarak dari Pusat Pemerintahan Provinsi')
                                                     ->suffix(' Km')
                                                     ->numeric()
                                                     ->placeholder('Jarak dari Pusat Pemerintahan Provinsi')
-                                                    ->inlineLabel()
-                                                    ->extraAttributes([
-                                                        'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                                    ]),
+                                                    ->inlineLabel(),
                                             ]),
 
                                     ]),
                                 TabInfo::make('Sejarah Desa/Kelurahan')
                                     ->schema([
                                         TextEntry::make('sejarah')
-                                            ->label(fn () => 'Sejarah ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->placeholder(fn () => 'Sejarah ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
+                                            ->label(fn () => 'Sejarah ' . $settings['sebutan_deskel'])
+                                            ->placeholder(fn () => 'Sejarah ' . $settings['sebutan_deskel'])
                                             ->inlineLabel()
-                                            ->markdown()
-                                            ->extraAttributes([
-                                                'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                            ]),
+                                            ->markdown(),
                                         TextEntry::make('bts_utara')
-                                            ->label(fn () => 'Batas Utara ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->placeholder(fn () => 'Batas Utara ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->inlineLabel()
-                                            ->extraAttributes([
-                                                'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                            ]),
+                                            ->label(fn () => 'Batas Utara ' . $settings['sebutan_deskel'])
+                                            ->placeholder(fn () => 'Batas Utara ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
                                         TextEntry::make('bts_timur')
-                                            ->label(fn () => 'Batas Timur ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->placeholder(fn () => 'Batas Timur ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->inlineLabel()
-                                            ->extraAttributes([
-                                                'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                            ]),
+                                            ->label(fn () => 'Batas Timur ' . $settings['sebutan_deskel'])
+                                            ->placeholder(fn () => 'Batas Timur ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
                                         TextEntry::make('bts_selatan')
-                                            ->label(fn () => 'Batas Selatan ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->placeholder(fn () => 'Batas Selatan ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->inlineLabel()
-                                            ->extraAttributes([
-                                                'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                            ]),
+                                            ->label(fn () => 'Batas Selatan ' . $settings['sebutan_deskel'])
+                                            ->placeholder(fn () => 'Batas Selatan ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
                                         TextEntry::make('bts_barat')
-                                            ->label(fn () => 'Batas Barat ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->placeholder(fn () => 'Batas Barat ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->inlineLabel()
-                                            ->extraAttributes([
-                                                'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                            ]),
+                                            ->label(fn () => 'Batas Barat ' . $settings['sebutan_deskel'])
+                                            ->placeholder(fn () => 'Batas Barat ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
                                     ]),
                                 TabInfo::make('Kontak Desa/Kelurahan')
                                     ->schema([
                                         TextEntry::make('email')
-                                            ->placeholder(fn () => 'Email ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->label(fn () => 'Email ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->inlineLabel()
-                                            ->extraAttributes([
-                                                'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                            ]),
+                                            ->placeholder(fn () => 'Email ' . $settings['sebutan_deskel'])
+                                            ->label(fn () => 'Email ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
                                         TextEntry::make('telepon')
-                                            ->placeholder(fn () => 'Telepon ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->label(fn () => 'Telepon ' . ($settings['sebutan_deskel'] === null ? 'Desa/Kelurahan' : $settings['sebutan_deskel']))
-                                            ->inlineLabel()
-                                            ->extraAttributes([
-                                                'class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100',
-                                            ]),
+                                            ->placeholder(fn () => 'Telepon ' . $settings['sebutan_deskel'])
+                                            ->label(fn () => 'Telepon ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
+                                        TextEntry::make('website')
+                                            ->placeholder(fn () => 'Website ' . $settings['sebutan_deskel'])
+                                            ->label(fn () => 'Website ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
+                                        TextEntry::make('facebook')
+                                            ->placeholder(fn () => 'Facebook ' . $settings['sebutan_deskel'])
+                                            ->label(fn () => 'Facebook ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
+                                        TextEntry::make('twitter')
+                                            ->placeholder(fn () => 'Twitter ' . $settings['sebutan_deskel'])
+                                            ->label(fn () => 'Twitter ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
+                                        TextEntry::make('instagram')
+                                            ->placeholder(fn () => 'Instagram ' . $settings['sebutan_deskel'])
+                                            ->label(fn () => 'Instagram ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
+                                        TextEntry::make('youtube')
+                                            ->placeholder(fn () => 'Youtube ' . $settings['sebutan_deskel'])
+                                            ->label(fn () => 'Youtube ' . $settings['sebutan_deskel'])
+                                            ->inlineLabel(),
                                     ])
                             ]),
 

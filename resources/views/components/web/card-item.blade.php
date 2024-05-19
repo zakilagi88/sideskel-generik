@@ -7,18 +7,22 @@
             </a>
         </div>
         <div class="col-span-8">
-            <div class="flex py-1 text-sm items-center">
-                <img class="w-7 h-7 rounded-full mr-3" src="{{ $item->author->getFilamentAvatarUrl() }}" alt="avatar">
-                <span class="mr-1 text-xs">{{ $item->author->name }}</span>
-                <span class="text-gray-500 text-xs">. {{ $item->published_at->diffForHumans() }}</span>
+            <div class="flex py-1 text-sm items-center justify-between">
+                <div class="flex items-center">
+                    <img class="w-7 h-7 rounded-full mr-3" src="{{ $item->author->getFilamentAvatarUrl() }}"
+                        alt="avatar">
+                    <span class="mr-1 text-xs">{{ $item->author->name }}</span>
+                </div>
+                <span class="text-gray-500 text-xs">{{ $item->published_at->diffForHumans() }}</span>
             </div>
+
             <h2 class="text-xl font-bold text-gray-900">
                 <a href="{{ route('index.berita.show', $item->slug) }}" wire:navigate>
                     {{ $item->title }}
                 </a>
             </h2>
 
-            <x-markdown class="text-justify break-words line-clamp-4 ">
+            <x-markdown class="text-justify break-words line-clamp-4 mt-2 ">
                 {{ $item->getExcerpt() }}
             </x-markdown>
             <div class=" mt-6 flex items-center justify-between">

@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('admin'),
         ]);
 
-        $admin_web = User::factory()->create([
+        $admin_web = User::create([
             'name' => 'Admin Web',
             'username' => 'admin_web',
             'email' => null,

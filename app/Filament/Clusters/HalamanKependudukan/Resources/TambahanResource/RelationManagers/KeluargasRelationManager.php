@@ -55,7 +55,7 @@ class KeluargasRelationManager extends RelationManager
                     ->byWilayah($authUser, $descendants)
             )
             ->recordTitle(
-                fn (KartuKeluarga $record): string => "{$record->kepalaKeluarga?->nama_lengkap} - ({$record->kepalaKeluarga->wilayah->wilayah_nama})"
+                fn (KartuKeluarga $record): string => "{$record->kepalaKeluarga?->nama_lengkap} - ({$record->kepalaKeluarga?->wilayah?->wilayah_nama})"
             )
             ->heading('Data Keluarga Terdaftar Data Tambahan')
             ->columns([
