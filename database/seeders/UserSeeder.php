@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin',
             'username' => 'admin',
             'email' => null,
-            'password' => Hash::make('admin'),
+            'password' => Hash::make('adminpass'),
         ]);
 
         $admin_web = User::create([
