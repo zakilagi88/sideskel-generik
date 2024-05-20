@@ -279,7 +279,6 @@ class DeskelProfileResource extends Resource
                                             ->label(fn () => 'Alamat Kantor ' . $settings['sebutan_deskel'])
                                             ->inlineLabel()
                                             ->autofocus()
-                                            ->required()
                                             ->placeholder(fn () => 'Alamat Kantor ' . $settings['sebutan_deskel']),
                                     ])->columns(1),
                                 Tab::make('Data Umum Desa/Kelurahan ')

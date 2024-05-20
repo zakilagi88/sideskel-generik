@@ -35,6 +35,7 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
@@ -357,7 +358,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ])
                     ->columns(4)
                     ->columnSpanFull(),
-            ])->headerActions([
+            ])
+            ->headerActions([
                 ExportAction::make()
                     ->exporter(PendudukExporter::class)
                     ->color('primary')
@@ -626,6 +628,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                         ->requiresConfirmation(),
                 ]),
             ])
+            ->recordClasses(fn (Model $record) => empty($record->wilayah?->wilayah_nama) ? 'bg-red-100' : '')
             ->emptyStateActions([])
             ->deferLoading()
             ->striped();

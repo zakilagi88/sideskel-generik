@@ -48,29 +48,4 @@ class DinamikaTable extends TableWidget
             ->paginated(false)
             ->striped();
     }
-
-    // public function getTableEloquentQuery(array $filters): Builder
-    // {
-    //     return PendudukAgama::query()
-    //         ->when($filters['agama'] !== [], function (Builder $query) use ($filters) {
-    //             $query->whereIn('agama', $filters['agama']);
-    //         })
-    //         ->when($filters['parent_id'] !== '' && $filters['parent_id'] !== null, function (Builder $query) use ($filters) {
-    //             $query->where('parent_id', $filters['parent_id']);
-    //         })
-    //         ->when($filters['children_id'] !== '' && $filters['children_id'] !== null, function (Builder $query) use ($filters) {
-    //             $query->where('wilayah_id', $filters['children_id']);
-    //         })
-    //         ->select(
-    //             'id',
-    //             'agama',
-    //             'parent_id',
-    //             'wilayah_id',
-    //             DB::raw('SUM(laki_laki) AS laki_laki'),
-    //             DB::raw('SUM(perempuan) AS perempuan'),
-    //             DB::raw('SUM(total) AS total')
-    //         )
-    //         ->orderBy('total', 'desc')
-    //         ->groupBy('agama');
-    // }
 }

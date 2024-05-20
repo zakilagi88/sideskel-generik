@@ -91,8 +91,8 @@ class PengaturanUmum extends SettingsPage
                                         Forms\Components\Select::make('site_active')
                                             ->label(fn () => __('page.general_settings.fields.site_active'))
                                             ->options([
-                                                0 => "Not Active",
-                                                1 => "Active",
+                                                0 => "Tidak Aktif",
+                                                1 => "Aktif",
                                             ])
                                             ->disabled()
                                             ->native(false)
@@ -155,7 +155,7 @@ class PengaturanUmum extends SettingsPage
                                             ->moveFiles()
                                             ->required(),
                                         Forms\Components\TextInput::make('kepala_judul')->label('Judul Sambutan Kepala Website Publik')->inlineLabel(),
-                                        Forms\Components\TextInput::make('kepala_nama')->label('Nama Kepala Website Publik')->hint('Isikan Dengan Gelar dan Nama Kepala Desa/Kelurahan')->inlineLabel(),
+                                        Forms\Components\TextInput::make('kepala_nama')->label('Nama Kepala Website Publik')->helperText('Isikan Dengan Gelar dan Nama Kepala Desa/Kelurahan')->inlineLabel(),
                                         Forms\Components\Textarea::make('kepala_deskripsi')->label('Deskripsi Kepala Website Publik')->inlineLabel(),
                                         Forms\Components\TextInput::make('berita_judul')->label('Judul Berita Website Publik')->inlineLabel(),
                                         Forms\Components\Textarea::make('berita_deskripsi')->label('Deskripsi Berita Website Publik')->inlineLabel(),

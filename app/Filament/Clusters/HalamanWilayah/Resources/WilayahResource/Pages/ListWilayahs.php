@@ -135,6 +135,7 @@ class ListWilayahs extends ListRecords
                                 TextInput::make('nama_1')
                                     ->label('Nama Satuan Wilayah Terbesar')
                                     ->placeholder('Contoh: Jorong, Banjar, dll')
+                                    ->default('Jorong')
                                     ->live(onBlur: true)
                                     ->required()
                                     ->helperText('Masukkan nama wilayah terbesar,contohnya Jorong, Banjar, dll')
@@ -165,14 +166,15 @@ class ListWilayahs extends ListRecords
                                 TextInput::make('nama_1')
                                     ->label('Nama Wilayah Terbesar')
                                     ->placeholder('Contoh: RW')
+                                    ->default('RW')
                                     ->live(onBlur: true)
                                     ->required()
-
                                     ->helperText('Masukkan nama wilayah terbesar, contohnya RW')
                                     ->columnStart(['md' => 1, 'lg' => 1]),
                                 TextInput::make('nama_2')
                                     ->label('Nama Wilayah')
                                     ->placeholder('Contoh: RT')
+                                    ->default('RT')
                                     ->required()
                                     ->live(onBlur: true)
                                     ->helperText('Masukkan nama wilayah terkecil, contohnya RT')
@@ -226,6 +228,7 @@ class ListWilayahs extends ListRecords
                                     ->required()
                                     ->live(onBlur: true)
                                     ->placeholder('Contoh: Dusun')
+                                    ->default('Dusun')
                                     ->helperText('Masukkan nama wilayah terbesar, contohnya Dusun')
                                     ->columnStart(['md' => 1, 'lg' => 1]),
 
@@ -234,6 +237,7 @@ class ListWilayahs extends ListRecords
                                     ->required()
                                     ->live(onBlur: true)
                                     ->placeholder('Contoh: RW')
+                                    ->default('RW')
                                     ->helperText('Masukkan nama wilayah menengah, contohnya RW')
                                     ->columnStart(['md' => 2, 'lg' => 2]),
 
@@ -242,6 +246,7 @@ class ListWilayahs extends ListRecords
                                     ->required()
                                     ->live(onBlur: true)
                                     ->placeholder('Contoh: RT')
+                                    ->default('RT')
                                     ->helperText('Masukkan nama wilayah terkecil, contohnya RT')
                                     ->columnStart(['md' => 3, 'lg' => 3]),
 
@@ -483,16 +488,15 @@ class ListWilayahs extends ListRecords
                 'type' => 'Dasar',
                 'tingkatan' =>
                 [
-                    'tingkat_1' => '',
+                    'tingkat_1' => 'RW',
                     'Mulai' => '',
                     'Sampai' => '',
                 ],
                 [
-                    'tingkat_2' => '',
+                    'tingkat_2' => 'RT',
                     'Mulai' => '',
                     'Sampai' => '',
-                ],
-
+                ]
             ];
     }
 }
