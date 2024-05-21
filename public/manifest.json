@@ -2,10 +2,10 @@
     "name": "SIDeskel Generik",
     "short_name": "SIDeskel",
     "start_url": "/panel/beranda",
-    "background_color": "#6777ef",
+    "background_color": "#004AAD",
     "description": "SIDeskel Generik",
     "display": "fullscreen",
-    "theme_color": "#6777ef",
+    "theme_color": "#004AAD",
     "icons": [
         {
             "src": "images/logo-app.png",
