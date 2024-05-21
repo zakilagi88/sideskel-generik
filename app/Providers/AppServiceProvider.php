@@ -10,6 +10,7 @@ use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\ServiceProvider;
 use Nette\Utils\Html;
@@ -62,29 +63,30 @@ class AppServiceProvider extends ServiceProvider
         );
 
 
+        // dd($logoPath);
+
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_START,
             fn (): string => new HtmlString(
-                <<<HTML
-                        <!-- PWA -->
-                        <meta name="theme-color" content="#6777ef" />
-                        <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
-                        <link rel="manifest" href="{{ asset('/manifest.json') }}">
-                HTML
+                Blade::render('
+                    <!-- PWA -->
+                    <meta name="theme-color" content="#6777ef" />
+                    <link rel="apple-touch-icon" href="{{ asset(\'logo.png\') }}">
+                    <link rel="manifest" href="{{ asset(\'manifest.json\') }}">
+                    ')
             )
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::SCRIPTS_AFTER,
             fn (): string => new HtmlString(
-                <<<HTML
+                Blade::render('
                     <script>
                         document.addEventListener("scroll-to-top", function () {
                             window.scrollTo({ top: 0, behavior: "smooth" });
                         });
                     </script>
-
-                    <script src="{{ asset('/sw.js') }}"></script>
+                    <script src="{{ asset(\'/sw.js\') }}"></script>
                     <script>
                         if ("serviceWorker" in navigator) {
                             // Register a service worker hosted at the root of the
@@ -94,14 +96,14 @@ class AppServiceProvider extends ServiceProvider
                                     console.log("Service worker registration succeeded:", registration);
                                 },
                                 (error) => {
-                                    console.error(`Service worker registration failed: \${error}`);
+                                    console.error(`Service worker registration failed: ${error}`);
                                 }
                             );
                         } else {
                             console.error("Service workers are not supported.");
                         }
                     </script>
-                HTML
+                ')
             )
         );
     }
