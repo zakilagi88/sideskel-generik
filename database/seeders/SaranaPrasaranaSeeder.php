@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\SaranaPrasarana;
+use App\Models\Deskel\SaranaPrasarana;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

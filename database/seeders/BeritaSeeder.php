@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\KategoriBerita;
+use App\Models\Web\KategoriBerita;
 use App\Models\Web\Berita;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;

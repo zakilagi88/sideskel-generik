@@ -7,8 +7,8 @@ use App\Filament\Clusters\HalamanDesa\Resources\LembagaResource;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource;
 use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource;
-use App\Models\{Dinamika, KartuKeluarga, Kelahiran, Kematian, Kepindahan, Lembaga, Pendatang, Penduduk, Wilayah};
-use App\Models\Desa\Aparatur;
+use App\Models\Deskel\{Aparatur, Lembaga};
+use App\Models\{Dinamika, KartuKeluarga, Kelahiran, Kematian, Kepindahan, Pendatang, Penduduk, Wilayah};
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 

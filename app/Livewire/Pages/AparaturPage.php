@@ -4,7 +4,7 @@ namespace App\Livewire\Pages;
 
 use App\Filament\Clusters\HalamanDesa\Resources\AparaturResource;
 use App\Livewire\Templates\TablePage;
-use App\Models\Desa\Aparatur;
+use App\Models\Deskel\Aparatur;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Table;

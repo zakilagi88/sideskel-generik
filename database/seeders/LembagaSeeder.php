@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Lembaga;
+use App\Models\Deskel\Lembaga;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

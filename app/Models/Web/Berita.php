@@ -3,7 +3,7 @@
 namespace App\Models\Web;
 
 use App\Enums\Desa\StatusBeritaType;
-use App\Models\KategoriBerita;
+use App\Models\Web\KategoriBerita;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

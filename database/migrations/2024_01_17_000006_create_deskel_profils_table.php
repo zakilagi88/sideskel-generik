@@ -1,7 +1,7 @@
 <?php
 
 use App\Facades\Deskel;
-use App\Models\{DesaKelurahanProfile, Kab_Kota, KabKota, Kecamatan, Kelurahan, Provinsi};
+use App\Models\Deskel\DesaKelurahanProfile;
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('deskel_id', 10)->nullable();
             $table->foreign('deskel_id')->references('deskel_id')->on('desa_kelurahan')
                 ->nullable()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('sebutan')->nullable();
             $table->string('struktur')->nullable();
             $table->string('kepala')->nullable();
             $table->string('alamat')->nullable();
@@ -54,7 +53,6 @@ return new class extends Migration
             $table->string('twitter')->nullable();
             $table->string('instagram')->nullable();
             $table->string('youtube')->nullable();
-            $table->boolean('status')->default(false);
 
             $table->timestamps();
         });

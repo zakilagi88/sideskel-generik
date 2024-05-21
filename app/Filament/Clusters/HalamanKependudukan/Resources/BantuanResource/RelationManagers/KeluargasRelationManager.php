@@ -2,7 +2,11 @@
 
 namespace App\Filament\Clusters\HalamanKependudukan\Resources\BantuanResource\RelationManagers;
 
+use App\Models\KartuKeluarga;
+use App\Models\Wilayah;
+use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -29,29 +33,62 @@ class KeluargasRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        /** @var \App\Models\User */
+        $authUser = Filament::auth()->user();
+        $descendants = ($authUser->hasRole('Monitor Wilayah')) ? Wilayah::tree()->find($authUser->wilayah_id)->descendants->pluck('wilayah_id') : null;
         return $table
-            ->recordTitleAttribute('kk_kepala')
+            ->modifyQueryUsing(
+                fn (Builder $query) => $query
+                    ->byWilayah($authUser, $descendants)
+            )
+            ->recordTitle(
+                fn (KartuKeluarga $record): string => "{$record->kepalaKeluarga?->nama_lengkap} - ({$record->kepalaKeluarga?->wilayah?->wilayah_nama})"
+            )
             ->heading('Data Keluarga Terdaftar Bantuan')
             ->columns([
-                TextColumn::make('kk_kepala'),
+                TextColumn::make('no')->label('No')->alignCenter()->rowIndex(),
+                TextColumn::make('tambahanable_ket')->label('Keterangan')->badge()->sortable()->alignJustify(),
+                TextColumn::make('kepalaKeluarga.nama_lengkap')->label('Nama Kepala Keluarga'),
+                TextColumn::make('kepalaKeluarga.nik')->label('NIK'),
+                TextColumn::make('wilayah.wilayah_nama')->label('Wilayah'),
+                TextColumn::make('kepalaKeluarga.alamat_sekarang')->label('Alamat'),
+                TextColumn::make('kepalaKeluarga.jenis_kelamin')->label('Jenis Kelamin'),
+                TextColumn::make('kepalaKeluarga.tempat_lahir')->label('Tempat Lahir'),
+                TextColumn::make('kepalaKeluarga.umur')->sortable()->label('Usia')->suffix(' Tahun')
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                AttachAction::make()->label('Tambahkan Data Terpilih')
-                    ->color('success'),
+                AttachAction::make()
+                    ->recordSelectOptionsQuery(
+                        fn (Builder $query) => $query
+                            ->with(['kepalaKeluarga', 'wilayah', 'kepalaKeluarga.wilayah'])
+                            ->byWilayah($authUser, $descendants)
+                            ->leftJoin('penduduk as p', 'kartu_keluarga.kk_id', '=', 'p.kk_id')
+                            ->where('p.status_hubungan', 'KEPALA KELUARGA')
+                    )
+                    ->recordSelectSearchColumns(['p.nama_lengkap', 'p.nik'])
+                    ->preloadRecordSelect()
+                    ->label('Tambahkan Data Terpilih')
+                    ->color('success')
+                    ->multiple()
+                    ->recordSelect(
+                        fn (Select $select) => $select->placeholder('Pilih Keluarga...'),
+                    )
+                ->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
             ])
             ->actions([
                 DetachAction::make()->label('Tidak Valid')->color('danger')
                     ->requiresConfirmation()
                     ->modalHeading('Apakah Anda Yakin?')
                     ->modalDescription('Data yang tidak valid akan dihapus dari daftar bantuan.')
-                    ->button(),
+                    ->button()
+                ->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DetachBulkAction::make(),
+                    DetachBulkAction::make()->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
                 ]),
             ]);
     }

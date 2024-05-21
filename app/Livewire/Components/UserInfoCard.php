@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Components;
 
-use App\Models\DesaKelurahanProfile;
+use App\Models\Deskel\DesaKelurahanProfile;
 use App\Settings\GeneralSettings;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;

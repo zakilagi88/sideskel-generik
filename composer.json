@@ -16,6 +16,7 @@
         "filament/spatie-laravel-tags-plugin": "^3.2",
         "flowframe/laravel-trend": "^0.2",
         "guzzlehttp/guzzle": "^7.2",
+        "ladumor/laravel-pwa": "^0.0.4",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",

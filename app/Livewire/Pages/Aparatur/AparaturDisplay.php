@@ -4,7 +4,7 @@ namespace App\Livewire\Pages\Aparatur;
 
 use App\Filament\Clusters\HalamanDesa\Resources\AparaturResource;
 use App\Livewire\Templates\SimplePage;
-use App\Models\Desa\Aparatur;
+use App\Models\Deskel\Aparatur;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components;
 

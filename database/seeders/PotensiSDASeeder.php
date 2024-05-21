@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Desa\PotensiSDA;
+use App\Models\Deskel\PotensiSDA;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

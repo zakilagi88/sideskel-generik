@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Facades\Deskel;
-use App\Models\DesaKelurahanProfile;
+use App\Models\Deskel\DesaKelurahanProfile;
 use Illuminate\Support\ServiceProvider;
 
 class DeskelServiceProvider extends ServiceProvider

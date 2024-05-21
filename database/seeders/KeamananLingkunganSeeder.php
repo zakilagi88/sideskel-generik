@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\KeamananDanLingkungan;
+use App\Models\Deskel\KeamananDanLingkungan;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

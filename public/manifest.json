@@ -1,0 +1,17 @@
+{
+    "name": "SIDeskel Generik",
+    "short_name": "SIDeskel",
+    "start_url": "/panel/beranda",
+    "background_color": "#6777ef",
+    "description": "SIDeskel Generik",
+    "display": "fullscreen",
+    "theme_color": "#6777ef",
+    "icons": [
+        {
+            "src": "images/logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

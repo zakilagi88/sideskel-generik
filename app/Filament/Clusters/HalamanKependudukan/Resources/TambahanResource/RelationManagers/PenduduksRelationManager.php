@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\HalamanKependudukan\Resources\TambahanResource\RelationManagers;
 
+use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource;
 use App\Filament\Exports\TambahanExporter;
 use App\Models\Penduduk;
 use App\Models\Tambahan;
@@ -69,16 +70,19 @@ class PenduduksRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('no')->label('No')->alignCenter()->rowIndex(),
                 TextColumn::make('tambahanable_ket')->label('Keterangan')->badge()->sortable()->alignJustify(),
-                TextColumn::make('nik')->label('NIK'),
-                TextColumn::make('wilayah.wilayah_nama')->label('Wilayah'),
-                TextColumn::make('nama_lengkap')->label('Nama'),
-                TextColumn::make('alamat_sekarang')->label('Alamat'),
-                TextColumn::make('jenis_kelamin')->label('Jenis Kelamin'),
-                TextColumn::make('tempat_lahir')->label('Tempat Lahir'),
+                TextColumn::make('nik')->label('NIK')->url(fn ($record) => PendudukResource::getUrl('edit', ['record' => $record->nik]))->color('primary'),
+                TextColumn::make('wilayah.wilayah_nama')->label('Wilayah')->placeholder('Belum Diiisi'),
+                TextColumn::make('nama_lengkap')->label('Nama Lengkap')->placeholder('Belum Diiisi'),
+                TextColumn::make('alamat_sekarang')->label('Alamat')->placeholder('Belum Diiisi'),
+                TextColumn::make('jenis_kelamin')->label('Jenis Kelamin')->placeholder('Belum Diiisi'),
+                TextColumn::make('tempat_lahir')->label('Tempat Lahir')->placeholder('Belum Diiisi'),
                 TextColumn::make('umur')
                     ->sortable()
                     ->label('Usia')
-                    ->suffix(' Tahun')
+                    ->suffix(' Tahun'),
+                TextColumn::make('agama')->label('Agama')->placeholder('Belum Diiisi')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('pendidikan')->label('Pendidikan')->placeholder('Belum Diiisi')->toggleable(isToggledHiddenByDefault: true),
+
             ])
             ->filters([
                 SelectFilter::make('tambahanable_ket')
@@ -144,6 +148,7 @@ class PenduduksRelationManager extends RelationManager
                         $action->getRecordSelect()->multiple(),
                     ])
                     ->color('success')
+                    ->hidden(fn () => $authUser->hasRole('Monitor Wilayah'))
             ])
             ->actions([
                 DetachAction::make()
@@ -153,8 +158,11 @@ class PenduduksRelationManager extends RelationManager
                     ->requiresConfirmation()
                     ->modalHeading('Apakah Anda Yakin?')
                     ->modalDescription('Data yang tidak valid akan dihapus dari daftar tambahan.')
-                    ->button(),
+                    ->button()
+                ->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
                 EditAction::make('edit')
+                ->hidden(fn () => $authUser->hasRole('Monitor Wilayah'))
+
                     ->label('Ganti Keterangan')
                     ->color('info')
                     ->size(ActionSize::ExtraSmall)
@@ -177,8 +185,11 @@ class PenduduksRelationManager extends RelationManager
             ], ActionsPosition::BeforeColumns)
             ->bulkActions([
                 BulkActionGroup::make([
-                    DetachBulkAction::make(),
+                    DetachBulkAction::make()                    ->hidden(fn () => $authUser->hasRole('Monitor Wilayah'))
+,
                     BulkAction::make('edit')
+                    ->hidden(fn () => $authUser->hasRole('Monitor Wilayah'))
+
                         ->icon('fas-edit')
                         ->iconSize(IconSize::Small)
                         ->form([

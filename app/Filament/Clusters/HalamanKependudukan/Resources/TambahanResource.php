@@ -177,7 +177,6 @@ class TambahanResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()->button(),
                 Tables\Actions\EditAction::make()->button(),
             ])
             ->bulkActions([

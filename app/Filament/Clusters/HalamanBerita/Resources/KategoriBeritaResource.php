@@ -4,7 +4,7 @@ namespace App\Filament\Clusters\HalamanBerita\Resources;
 
 use App\Filament\Clusters\HalamanBerita;
 use App\Filament\Clusters\HalamanBerita\Resources\KategoriBeritaResource\Pages;
-use App\Models\KategoriBerita;
+use App\Models\Web\KategoriBerita;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;

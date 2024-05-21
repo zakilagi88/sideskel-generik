@@ -121,6 +121,8 @@ class KeluargasRelationManager extends RelationManager
                     )
                     ->recordSelectSearchColumns(['p.nama_lengkap', 'p.nik'])
                     ->preloadRecordSelect()
+                    ->hidden(fn () => $authUser->hasRole('Monitor Wilayah'))
+
                     ->color('success')
                     ->form(fn (AttachAction $action): array => [
                         Forms\Components\Select::make('tambahanable_ket')
@@ -149,11 +151,14 @@ class KeluargasRelationManager extends RelationManager
                     ->modalHeading('Apakah Anda Yakin?')
                     ->modalDescription('Data yang tidak valid akan dihapus dari daftar tambahan.')
                     ->hidden(fn () => $authUser->hasRole('Monitor Wilayah'))
-                    ->button(),
+                    ->button()
+                    ->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
                 EditAction::make('edit')
                     ->label('Ganti Keterangan')
                     ->color('info')
                     ->size(ActionSize::ExtraSmall)
+                    ->hidden(fn () => $authUser->hasRole('Monitor Wilayah'))
+
                     ->button()
                     ->form([
                         Forms\Components\Select::make('tambahanable_ket')
@@ -173,8 +178,10 @@ class KeluargasRelationManager extends RelationManager
             ], ActionsPosition::BeforeColumns)
             ->bulkActions([
                 BulkActionGroup::make([
-                    DetachBulkAction::make(),
+                    DetachBulkAction::make()->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
                     BulkAction::make('edit')
+                        ->hidden(fn () => $authUser->hasRole('Monitor Wilayah'))
+
                         ->icon('fas-edit')
                         ->iconSize(IconSize::Small)
                         ->form([

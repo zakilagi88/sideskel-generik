@@ -5,7 +5,7 @@ namespace App\Filament\Clusters\HalamanPotensi\Resources;
 use App\Filament\Clusters\HalamanPotensi;
 use App\Filament\Clusters\HalamanPotensi\Resources\PotensiSDAResource\Pages;
 use App\Filament\Clusters\HalamanPotensi\Resources\PotensiSDAResource\RelationManagers;
-use App\Models\Desa\PotensiSDA as ModelPotensiSDA;
+use App\Models\Deskel\PotensiSDA as ModelPotensiSDA;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
 use Faker\Provider\ar_EG\Text;

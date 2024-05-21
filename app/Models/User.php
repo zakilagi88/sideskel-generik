@@ -37,8 +37,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'email',
         'password',
         'avatar_url',
-        'settings'
-
     ];
 
     /**
@@ -59,7 +57,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'settings' => 'array'
     ];
 
     /**
@@ -86,10 +83,5 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function wilayah(): BelongsTo
     {
         return $this->belongsTo(Wilayah::class);
-    }
-
-    public function penduduk()
-    {
-        return $this->belongsTo(Penduduk::class, 'nik', 'nik');
     }
 }

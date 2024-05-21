@@ -9,7 +9,8 @@ use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Models\{DesaKelurahanProfile, User, Wilayah};
+use App\Models\{User, Wilayah};
+use App\Models\Deskel\DesaKelurahanProfile;
 use Filament\Actions;
 use Filament\Forms\Components\{Grid, Group, Hidden, Placeholder, Repeater, TextInput, ToggleButtons};
 use Filament\Forms\{Get, Set};
@@ -76,7 +77,8 @@ class ListWilayahs extends ListRecords
             ->success()
             ->title($title)
             ->body($body)
-            ->sendToDatabase($admin);
+            ->sendToDatabase($admin)
+            ->send();
     }
 
     public function generateWilayahForm(): array
@@ -458,11 +460,11 @@ class ListWilayahs extends ListRecords
                 break;
             case 'Dasar':
                 $this->insertUsers(array_merge($parentUser, $childrenUser));
-                $this->insertRoles(array_merge($this->generateRoles($this->getUserIds($parentUser), 4), $this->generateRoles($this->getUserIds($childrenUser), 3)));
+                $this->insertRoles(array_merge($this->generateRoles($this->getUserIds($parentUser), 3), $this->generateRoles($this->getUserIds($childrenUser), 4)));
                 break;
             case 'Lengkap':
                 $this->insertUsers(array_merge($parentUser, $childrenUser, $subparentUser));
-                $this->insertRoles(array_merge($this->generateRoles($this->getUserIds(array_merge($parentUser, $subparentUser)), 4), $this->generateRoles($this->getUserIds($childrenUser), 3)));
+                $this->insertRoles(array_merge($this->generateRoles($this->getUserIds(array_merge($parentUser, $subparentUser)), 3), $this->generateRoles($this->getUserIds($childrenUser), 4)));
                 break;
             default:
                 break;

@@ -5,7 +5,7 @@ namespace App\Livewire\Pages;
 use App\Filament\Clusters\HalamanPotensi\Resources\PotensiSDAResource;
 use Livewire\Component;
 use App\Livewire\Templates\TablePage;
-use App\Models\Desa\PotensiSDA;
+use App\Models\Deskel\PotensiSDA;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Table;

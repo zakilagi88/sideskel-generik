@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Jabatan;
+use App\Models\Deskel\Jabatan;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

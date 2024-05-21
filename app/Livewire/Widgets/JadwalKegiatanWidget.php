@@ -3,7 +3,7 @@
 namespace App\Livewire\Widgets;
 
 use App\Filament\Clusters\HalamanDesa\Resources\JadwalKegiatanResource;
-use App\Models\JadwalKegiatan;
+use App\Models\Deskel\JadwalKegiatan;
 use Saade\FilamentFullCalendar\Actions;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;

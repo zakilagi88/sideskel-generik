@@ -4,7 +4,7 @@ namespace App\Filament\Clusters\HalamanArsip\Resources;
 
 use App\Filament\Clusters\HalamanArsip;
 use App\Filament\Clusters\HalamanArsip\Resources\PeraturanResource\Pages;
-use App\Models\Desa\Peraturan;
+use App\Models\Deskel\Peraturan;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Carbon\Carbon;
 use Filament\Facades\Filament;

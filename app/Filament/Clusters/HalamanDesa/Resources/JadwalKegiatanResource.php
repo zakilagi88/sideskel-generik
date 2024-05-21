@@ -5,7 +5,7 @@ namespace App\Filament\Clusters\HalamanDesa\Resources;
 use App\Filament\Clusters\HalamanDesa;
 use App\Filament\Clusters\HalamanDesa\Resources\JadwalKegiatanResource\Pages;
 use App\Filament\Clusters\HalamanDesa\Resources\JadwalKegiatanResource\RelationManagers;
-use App\Models\JadwalKegiatan;
+use App\Models\Deskel\JadwalKegiatan;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;

@@ -89,30 +89,27 @@ class ListKartukeluargas extends ListRecords
                         ->preserveFilenames()
                         ->acceptedFileTypes(['application/msexcel', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'])
                 ])
-                ->extraModalFooterActions([
-                    ActionsAction::make('Download Template')
-                        ->openUrlInNewTab(true)
-                        ->button()
-                        ->action(
-                            function () {
-                                return Excel::download(new TemplateImport, 'template_imports.xlsx');
-                            }
-                        ),
+                // ->extraModalFooterActions([
+                //     ActionsAction::make('Download Template')
+                //         ->openUrlInNewTab(true)
+                //         ->button()
+                //         ->action(
+                //             function () {
+                //                 return Excel::download(new TemplateImport, 'template_imports.xlsx');
+                //             }
+                //         ),
 
-                ])
+                // ])
                 ->label('Import File')
                 ->modalFooterActionsAlignment(Alignment::End)
                 ->action(
                     function (array $data) {
                         self::import($data['file']);
                         Notification::make()
+                            ->success()
                             ->title('Import Data Kartu Keluarga')
-                            ->body(
-                                'Data kartu keluarga berhasil diimport'
-                            )->sendToDatabase(User::whereHas('roles', function ($query) {
-                                $query->where('name', 'Admin');
-                            })->get())
-
+                            ->body('Data kartu keluarga berhasil di impor')
+                            ->sendToDatabase(User::role('Admin')->get('id'))
                             ->send();
                     }
 

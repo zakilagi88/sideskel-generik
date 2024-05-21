@@ -25,11 +25,16 @@ class UserResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = User::class;
 
+    protected static ?string $modelLabel = 'Pengguna';
+
+
     protected static ?string $navigationIcon = 'fas-user-gear';
 
     protected static ?string $navigationLabel = 'Pengaturan Pengguna';
 
     protected static ?string $slug = 'pengguna';
+
+    protected static ?string $breadcrumb = 'Pengguna';
 
     public static function getPermissionPrefixes(): array
     {
@@ -55,22 +60,30 @@ class UserResource extends Resource implements HasShieldPermissions
                     ->schema([
                         TextInput::make('name')
                             ->required()
+                            ->label('Nama Pengguna')
+                            ->placeholder('Masukkan nama pengguna')
                             ->maxLength(255),
                         TextInput::make('username')
+                            ->hint('Username tidak dapat diubah.')
+                            ->placeholder('Masukkan username pengguna. Digunakan untuk login.')
+                            ->unique(ignoreRecord: true)
+                            ->disabledOn('edit')
                             ->required()
                             ->maxLength(255),
                         TextInput::make('email')
+                            ->label('Email')
+                            ->placeholder('Masukkan email pengguna')
                             ->email()
                             ->required()
                             ->maxLength(255),
-                        DateTimePicker::make('email_verified_at'),
+                        DateTimePicker::make('email_verified_at')->label('Email Terverifikasi Pada'),
                         TextInput::make('password')
                             ->password()
                             ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
                             ->dehydrated(fn (?string $state): bool => filled($state))
                             ->required(fn (string $operation): bool => $operation === 'create'),
                         Select::make('roles')
-                            ->multiple()
+                            ->label('Peran Pengguna')
                             ->relationship('roles', 'name')->preload()
                     ])
             ]);
@@ -127,12 +140,12 @@ class UserResource extends Resource implements HasShieldPermissions
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            AutentikasiLogRelationManager::class,
-        ];
-    }
+    // public static function getRelations(): array
+    // {
+    //     return [
+    //         AutentikasiLogRelationManager::class,
+    //     ];
+    // }
 
     public static function getPages(): array
     {
@@ -145,6 +158,6 @@ class UserResource extends Resource implements HasShieldPermissions
 
     public static function getRecordTitle(?Model $record): string|Htmlable|null
     {
-        return dd($record);
+        return $record->name;
     }
 }

@@ -5,7 +5,7 @@ namespace App\Filament\Clusters\HalamanDesa\Resources;
 use App\Filament\Clusters\HalamanDesa;
 use App\Filament\Clusters\HalamanDesa\Resources\JabatanResource\Pages;
 use App\Filament\Clusters\HalamanDesa\Resources\JabatanResource\RelationManagers;
-use App\Models\Jabatan;
+use App\Models\Deskel\Jabatan;
 use Filament\Forms;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;

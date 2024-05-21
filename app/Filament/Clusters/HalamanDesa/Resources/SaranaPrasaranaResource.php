@@ -6,7 +6,7 @@ use App\Facades\Deskel;
 use App\Filament\Clusters\HalamanDesa;
 use App\Filament\Clusters\HalamanDesa\Resources\SaranaPrasaranaResource\Pages;
 use App\Filament\Clusters\HalamanDesa\Resources\SaranaPrasaranaResource\RelationManagers;
-use App\Models\SaranaPrasarana;
+use App\Models\Deskel\SaranaPrasarana;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
 use Filament\Forms;

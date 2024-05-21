@@ -9,7 +9,8 @@ use App\Filament\Clusters\Kependudukan\Kependudukan;
 use App\Filament\Clusters\HalamanKependudukan;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\Pages;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\RelationManagers\PenduduksRelationManager;
-use App\Models\{DesaKelurahan, DesaKelurahanProfile, DeskelProfil, Dusun, KabKota, KartuKeluarga, Kecamatan, Kelurahan, Penduduk, Provinsi, RT, RW, Wilayah};
+use App\Models\Deskel\DesaKelurahanProfile;
+use App\Models\{KartuKeluarga,  Penduduk, Wilayah};
 use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Carbon\Carbon;
@@ -225,12 +226,9 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                 ]),
             ])
             ->groups([
-                Tables\Grouping\Group::make('rt.rt_nama')
-                    ->label('RT ')
+                Tables\Grouping\Group::make('wilayah.wilayah_nama')
+                    ->label('Wilayah ')
                     ->collapsible(),
-                Tables\Grouping\Group::make('rw.rw_nama')
-                    ->label('RW ')
-                    ->collapsible()
             ])
             ->groupRecordsTriggerAction(
                 fn (Action $action) => $action

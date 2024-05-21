@@ -4,7 +4,7 @@ namespace App\Livewire\Pages;
 
 use App\Filament\Clusters\HalamanBerita\Resources\BeritaResource;
 use App\Livewire\Templates\ListPage;
-use App\Models\KategoriBerita;
+use App\Models\Web\KategoriBerita;
 
 class BeritaPage extends ListPage
 {

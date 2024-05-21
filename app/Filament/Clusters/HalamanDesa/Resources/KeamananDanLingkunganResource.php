@@ -6,7 +6,7 @@ use App\Facades\Deskel;
 use App\Filament\Clusters\HalamanDesa;
 use App\Filament\Clusters\HalamanDesa\Resources\KeamananDanLingkunganResource\Pages;
 use App\Filament\Clusters\HalamanDesa\Resources\KeamananDanLingkunganResource\RelationManagers;
-use App\Models\KeamananDanLingkungan;
+use App\Models\Deskel\KeamananDanLingkungan;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
 use Filament\Forms;

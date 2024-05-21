@@ -63,6 +63,6 @@ class AuthLogin extends Login
 
     public function getHeading(): string|Htmlable
     {
-        return __('Kelurahan Kuripan');
+        return __('Selamat Datang');
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Livewire\Templates;
 
 use App\Filament\Clusters\HalamanArsip\Resources\KeputusanResource;
-use App\Models\Desa\Keputusan;
+use App\Models\Deskel\Keputusan;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Infolists\Concerns\InteractsWithInfolists;

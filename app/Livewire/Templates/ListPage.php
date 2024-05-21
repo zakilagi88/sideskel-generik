@@ -3,7 +3,7 @@
 namespace App\Livewire\Templates;
 
 use App\Filament\Clusters\HalamanBerita\Resources\BeritaResource;
-use App\Models\KategoriBerita;
+use App\Models\Web\KategoriBerita;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;

@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Facades\Deskel;
-use App\Models\DesaKelurahanProfile;
+use App\Models\Deskel\DesaKelurahanProfile;
 use App\Settings\GeneralSettings;
 use App\Settings\WebSettings;
 use Livewire\Component;

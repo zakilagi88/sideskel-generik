@@ -5,7 +5,7 @@ namespace App\Filament\Clusters\HalamanDesa\Resources;
 use App\Filament\Clusters\HalamanDesa;
 use App\Filament\Clusters\HalamanDesa\Resources\LembagaResource\Pages;
 use App\Filament\Clusters\HalamanDesa\Resources\LembagaResource\RelationManagers;
-use App\Models\Lembaga;
+use App\Models\Deskel\Lembaga;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;

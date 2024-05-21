@@ -4,7 +4,7 @@ namespace App\Filament\Clusters\HalamanArsip\Resources;
 
 use App\Filament\Clusters\HalamanArsip;
 use App\Filament\Clusters\HalamanArsip\Resources\KeputusanResource\Pages;
-use App\Models\Desa\Keputusan;
+use App\Models\Deskel\Keputusan;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Carbon\Carbon;
 use Filament\Forms;
