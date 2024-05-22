@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages\Settings;
 
+use App\Filament\Pages\Dashboard;
 use App\Services\FileService;
 use App\Settings\GeneralSettings;
 use App\Filament\Pages\SettingsPage;
@@ -294,7 +295,7 @@ class PengaturanUmum extends SettingsPage
                 ->success()
                 ->send();
 
-            $this->redirect(static::getUrl(), navigate: FilamentView::hasSpaMode() && is_app_url(static::getUrl()));
+            $this->redirect(Dashboard::getUrl(), navigate: FilamentView::hasSpaMode() && is_app_url(Dashboard::getUrl()));
         } catch (\Throwable $th) {
             throw $th;
         }

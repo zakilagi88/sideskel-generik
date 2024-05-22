@@ -10,7 +10,7 @@ class GeneralSettings extends Settings
     public ?string $brand_logo;
     public string $brand_logoHeight;
     public ?string $brand_logo_dark;
-    public bool $site_init;
+    public array $site_init;
     public bool $site_active;
     public ?string $site_favicon;
     public array $site_theme;
@@ -23,10 +23,10 @@ class GeneralSettings extends Settings
     public string $singkatan_kabkota;
     public string $singkatan_kec;
     public string $singkatan_nipd;
+    public array $sebutan_wilayah;
 
     public static function group(): string
     {
         return 'general';
     }
 }
-

@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Exports\TemplateImport;
+use App\Exports\UserWilayahExport;
 use App\Facades\Deskel;
 use App\Filament\Clusters\{HalamanArsip, HalamanBerita, HalamanKesehatan, HalamanStatistik, HalamanWilayah};
 use App\Filament\Clusters\HalamanDesa;
@@ -15,16 +16,20 @@ use App\Filament\Clusters\HalamanDesa\Resources\PeraturanResource;
 use App\Filament\Clusters\HalamanDesa\Resources\SaranaPrasaranaResource;
 use App\Filament\Pages\{DeskelProfile, Dashboard, Auth\AuthLogin, Auth\AuthProfile};
 use App\Filament\Clusters\HalamanKependudukan\Resources\{KartuKeluargaResource, PendudukResource, DinamikaResource, BantuanResource, TambahanResource};
+use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\Pages\ListKartukeluargas;
+use App\Filament\Clusters\HalamanPengaturan\Resources\{RoleResource, UserResource};
 use App\Filament\Clusters\HalamanPotensi\Resources\PotensiSDAResource;
-use App\Filament\Clusters\HalamanStatistik\Resources\StatSDMResource;
 use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource;
+use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource\Pages\ListWilayahs;
 use App\Filament\Pages\Settings\PengaturanUmum;
-use App\Filament\Resources\Shield\{RoleResource, UserResource};
-use App\Models\Deskel\Peraturan;
+use App\Filament\Resources\Shield\RoleResource as ShieldRoleResource;
+use App\Filament\Resources\Shield\UserResource as ShieldUserResource;
 use App\Models\Deskel\DesaKelurahanProfile;
+use App\Models\Penduduk;
+use App\Models\User;
+use App\Models\Wilayah;
 use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use Filament\Forms\Components\FileUpload;
 use Filament\Http\Middleware\{Authenticate, DisableBladeIconComponents, DispatchServingFilamentEvent};
 use Filament\Navigation\{NavigationBuilder, NavigationItem, NavigationGroup};
 use Filament\{Panel, PanelProvider};
@@ -35,19 +40,15 @@ use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\{AddQueuedCookiesToResponse, EncryptCookies};
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Route;
 use Illuminate\Session\Middleware\{AuthenticateSession, StartSession};
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Route as FacadesRoute;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\HtmlString;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Maatwebsite\Excel\Facades\Excel;
-use phpDocumentor\Reflection\PseudoTypes\False_;
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
-use Tapp\FilamentAuthenticationLog\{FilamentAuthenticationLogPlugin, Resources\AuthenticationLogResource};
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -76,11 +77,11 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearchKeyBindings([
                 'command+f', 'ctrl+f'
             ])
-            // ->routes(
-            //     fn () => Route::get('/downloadtemplate', function () {
-            //         return Excel::download(new TemplateImport, 'template_imports.xlsx');
-            //     })->name('downloadtemplate')
-            // )
+            ->routes(
+                fn () => FacadesRoute::get('/downloads', function () {
+                    return response()->download(storage_path('app/public/deskel/exports/' . 'akun_pengguna.xlsx'));
+                })->name('downloads'),
+            )
             ->spa()
             ->unsavedChangesAlerts()
             ->databaseNotifications()
@@ -104,8 +105,12 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
 
+                $deskel = Deskel::getFacadeRoot();
+                $pdd = Penduduk::exists();
+                $wilayah = Wilayah::exists();
                 $settings = app(GeneralSettings::class)->toArray();
                 $cek = $settings['site_active'];
+                $step = $settings['site_init'];
                 /** @var \App\Models\User */
                 $auth = Filament::auth()->user();
 
@@ -116,32 +121,32 @@ class AdminPanelProvider extends PanelProvider
                             ->icon('fas-cogs')
                             ->visible(fn (): bool => $auth->can('page_PengaturanUmum') && $cek == false)
                             ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.pengaturan-umum'))
+                            ->badge(fn (): string => $step[0] ? '✓' : '✕', $step[0] ? 'success' : 'danger')
                             ->url(fn (): string => PengaturanUmum::getUrl()),
                         NavigationItem::make(fn (): string => 'Profil ' . $settings['sebutan_deskel'])
                             ->icon('fas-city')
                             ->visible(fn (): bool => $auth->can('view_deskel::profile') && $cek == false)
-                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.deskel.resources.profil.edit', ['record' => DesaKelurahanProfile::first()]))
-                            ->url(fn (): string => DeskelProfileResource::getUrl('edit', ['record' => DesaKelurahanProfile::first()])),
+                            ->badge(fn (): string => $step[1] && $deskel->deskel_id != null ? '✓' : '✕', $step[1] && $deskel->deskel_id != null ? 'success' : 'danger')
+                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.deskel.resources.profil.edit', ['record' => $deskel->id]))
+                            ->url(fn (): string => DeskelProfileResource::getUrl('edit', ['record' => $deskel->id])),
                         NavigationItem::make(fn (): string => 'Wilayah ' . $settings['sebutan_deskel'])
                             ->icon('fas-map-marked-alt')
+                            ->badge(fn (): string => $step[2] && $wilayah ? '✓' : '✕', $step[2] && $wilayah ? 'success' : 'danger')
                             ->visible(fn (): bool => $auth->can('page_HalamanWilayah') && $cek == false)
                             ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.wilayah.resources.wilayahs.index'))
                             ->url(fn (): string => WilayahResource::getUrl()),
                         NavigationItem::make('Kependudukan')
                             ->icon('fas-people-roof')
+                            ->badge(fn (): string => $step[3] && $pdd ? '✓' : '✕', $step[3] && $pdd ? 'success' : 'danger')
                             ->visible(fn (): bool => $auth->can('page_HalamanKependudukan') && $cek == false)
                             ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.kependudukan'))
                             ->url(fn (): string => KartukeluargaResource::getUrl()),
-                        NavigationItem::make('Peran')
-                            ->icon('fas-user-tag')
+                        NavigationItem::make('Peran dan Pengguna')
+                            ->icon('fas-users-gear')
+                            ->badge(fn (): string => $step[4] && $step[3] ? '✓' : '✕', $step[4] && $step[3] ? 'success' : 'danger')
                             ->visible(fn (): bool => $auth->can('view_shield::role') && $cek == false)
-                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.shield.roles.index'))
-                            ->url(fn (): string => RoleResource::getUrl()),
-                        NavigationItem::make('Pengguna')
-                            ->icon('fas-users')
-                            ->visible(fn (): bool => $auth->can('view_shield::user') && $cek == false)
-                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.shield.users.index'))
-                            ->url(fn (): string => UserResource::getUrl()),
+                            ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pengaturan.resources.peran.index'))
+                            ->url(fn (): string => ShieldRoleResource::getUrl()),
                     ]);
                 return $builder->groups([
 
@@ -282,12 +287,12 @@ class AdminPanelProvider extends PanelProvider
                                 ->icon('fas-user-shield')
                                 ->visible(fn (): bool => $auth->can('view_shield::role') && $cek == true)
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.peran.index'))
-                                ->url(fn (): string => RoleResource::getUrl()),
+                                ->url(fn (): string => ShieldRoleResource::getUrl()),
                             NavigationItem::make('Pengaturan Pengguna')
                                 ->icon('fas-user-gear')
                                 ->visible(fn (): bool => $auth->can('view_shield::user') && $cek == true)
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.pengguna.index'))
-                                ->url(fn (): string => UserResource::getUrl()),
+                                ->url(fn (): string => ShieldUserResource::getUrl()),
                             NavigationItem::make('Pengaturan Aplikasi')
                                 ->icon('fas-gear')
                                 ->visible(fn (): bool => $auth->can('page_PengaturanUmum') && $cek == true)

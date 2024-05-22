@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Shield;
 
+use App\Filament\Clusters\HalamanPengaturan;
 use App\Filament\Resources\Shield\UserResource\Pages;
-use App\Filament\Resources\Shield\UserResource\RelationManagers\AutentikasiLogRelationManager;
 use App\Models\User;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
@@ -27,14 +27,22 @@ class UserResource extends Resource implements HasShieldPermissions
 
     protected static ?string $modelLabel = 'Pengguna';
 
-
     protected static ?string $navigationIcon = 'fas-user-gear';
 
-    protected static ?string $navigationLabel = 'Pengaturan Pengguna';
+    protected static ?string $navigationLabel = 'Pengguna';
+
+    protected static ?string $navigationGroup = 'Pengaturan Hak Akses';
 
     protected static ?string $slug = 'pengguna';
 
     protected static ?string $breadcrumb = 'Pengguna';
+
+    protected static ?string $cluster = HalamanPengaturan::class;
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function getPermissionPrefixes(): array
     {
@@ -94,10 +102,12 @@ class UserResource extends Resource implements HasShieldPermissions
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 TextColumn::make('username')
                     ->searchable(),
                 TextColumn::make('email')
+                    ->placeholder('Belum ada email')
                     ->searchable(),
                 // TextColumn::make('email_verified_at')
                 //     ->dateTime()
@@ -111,6 +121,7 @@ class UserResource extends Resource implements HasShieldPermissions
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('roles.name')
+                    ->label('Peran')
                     ->badge()
                     ->formatStateUsing(fn ($state): string => Str::headline($state))
                     ->colors(['primary'])

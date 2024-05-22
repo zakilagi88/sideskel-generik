@@ -29,12 +29,12 @@ class SistemPreparation extends Widget
     public $totalSteps = 5;
 
     public $deskel;
-    private $deskelCount;
+    private $deskelId;
     private $wilayahCount;
     private $pendudukCount;
     private $accountCount;
 
-    public bool $initSetup = false;
+    public array $initSetup = [];
     public array $completedSteps = [];
     public bool $allStepsCompleted = false;
 
@@ -89,19 +89,18 @@ class SistemPreparation extends Widget
         $set = app(GeneralSettings::class)->toArray();
 
         $this->initSetup = $set['site_init'];
-        $this->deskelCount = $this->deskel->deskel_id;
-        $this->wilayahCount = Wilayah::count();
-        $this->pendudukCount = Penduduk::count();
+        $this->deskelId = $this->deskel?->deskel_id;
+        $this->wilayahCount = Wilayah::exists();
+        $this->pendudukCount = Penduduk::exists();
         $this->accountCount = User::count();
 
         $conditions = [
-            0 => $this->initSetup == true,
-            1 => !(is_null($this->deskelCount)),
-            2 => $this->wilayahCount > 0,
-            3 => $this->pendudukCount > 0,
+            0 => $this->initSetup[0] == true,
+            1 => $this->initSetup[1] == true && !(is_null($this->deskelId)),
+            2 => $this->initSetup[2] == true && $this->wilayahCount == true,
+            3 => $this->initSetup[3] == true && $this->pendudukCount == true,
+            4 => $this->initSetup[4] == true && $this->accountCount > 2,
         ];
-
-        $this->completedSteps[4] = $this->completedSteps[3] && $this->completedSteps[4];
 
         $this->completedSteps[5] = $this->completedSteps[4];
 
@@ -128,11 +127,17 @@ class SistemPreparation extends Widget
     {
         $set = app(GeneralSettings::class);
 
-        if ($stepId == 0) {
-            $set->fill(['site_init' => true])->save();
-            $this->completedSteps[0] = true;
-        } elseif ($stepId == 4) {
-            $this->completedSteps[4] = true;
+        $stepCheck = [];
+        for ($i = 0; $i < $this->totalSteps; $i++) {
+            if ($i == $stepId) {
+                $stepCheck[$i] = true;
+            } else {
+                $stepCheck[$i] = $this->initSetup[$i];
+            }
+        }
+
+        if ($this->completedSteps[$stepId] == false) {
+            $set->fill(['site_init' => $stepCheck])->save();
         }
 
         $this->dispatch('update-step');
@@ -149,7 +154,7 @@ class SistemPreparation extends Widget
                     'description' => 'Selamat datang di SIDeskel Generik. Silahkan Masuk ke Pengaturan Aplikasi untuk memulai konfigurasi sistem.',
                     'href' => route('filament.admin.pages.pengaturan-umum'),
                     'completed' => $this->completedSteps[0],
-                    'icon' => 'fas-city',
+                    'icon' => 'fas-cogs',
                 ],
                 [
                     'id' => 1,
@@ -165,7 +170,7 @@ class SistemPreparation extends Widget
                     'description' => 'Inisiasi Wilayah sesuai kebutuhan Desa/Kelurahan Anda.',
                     'href' => route('filament.admin.index.resources.wilayah.index'),
                     'completed' => $this->completedSteps[2],
-                    'icon' => 'fas-map-location',
+                    'icon' => 'fas-map-marked-alt',
                 ],
                 [
                     'id' => 3,
@@ -173,13 +178,13 @@ class SistemPreparation extends Widget
                     'description' => 'Kelola Data Kependudukan dengan mengelola Kartu Keluarga dan Penduduk.',
                     'href' => route('filament.admin.kependudukan.resources.keluarga.index'),
                     'completed' => $this->completedSteps[3],
-                    'icon' => 'fas-users',
+                    'icon' => 'fas-people-roof',
                 ],
                 [
                     'id' => 4,
                     'label' => 'Peran dan Pengguna',
                     'description' => 'Atur kesesuaian peran dan akun yang diperlukan',
-                    'href' => route('filament.admin.resources.peran.index'),
+                    'href' => route('filament.admin.pengaturan.resources.peran.index'),
                     'completed' => $this->completedSteps[4],
                     'icon' => 'fas-users-gear',
                 ],

@@ -11,7 +11,14 @@ return new class extends SettingsMigration
         $this->migrator->add('general.brand_logo_dark', 'sites/logo-dark.png');
         $this->migrator->add('general.brand_logoHeight', '6rem');
         $this->migrator->add('general.site_favicon', 'sites/logo.png');
-        $this->migrator->add('general.site_init', false);
+        $this->migrator->add('general.site_init', [
+            0 => false,
+            1 => false,
+            2 => false,
+            3 => false,
+            4 => false,
+            5 => false,
+        ]);
         $this->migrator->add('general.site_active', false);
         $this->migrator->add('general.site_theme', [
             "primary" => "rgb(19, 83, 196)",
@@ -31,5 +38,10 @@ return new class extends SettingsMigration
         $this->migrator->add('general.singkatan_kabkota', 'Kota.');
         $this->migrator->add('general.singkatan_kec', 'Kec.');
         $this->migrator->add('general.singkatan_nipd', 'NIPD');
+        $this->migrator->add('general.sebutan_wilayah', [
+            "Khusus" => ["Nagari"],
+            "Dasar" => ["RW", "RT"],
+            "Lengkap" => ["Dusun", "RW", "RT"]
+        ]);
     }
 };

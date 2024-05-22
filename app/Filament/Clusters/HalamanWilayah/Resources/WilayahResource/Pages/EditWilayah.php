@@ -14,6 +14,8 @@ class EditWilayah extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('Kembali')
+                ->url($this->getResource()::getUrl('index')),
             Actions\DeleteAction::make(),
         ];
     }

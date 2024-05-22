@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Shield\UserResource\Pages;
 
 use App\Filament\Resources\Shield\UserResource;
+use App\Filament\Pages\Dashboard;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
@@ -14,6 +15,7 @@ class ListUsers extends ListRecords
     {
         return [
             Actions\CreateAction::make()->button()->label('Tambah Pengguna'),
+            Actions\Action::make('Kembali ke Beranda')->url(Dashboard::getUrl())->color('danger')
         ];
     }
 

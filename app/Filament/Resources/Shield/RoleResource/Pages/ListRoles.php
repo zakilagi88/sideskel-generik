@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Shield\RoleResource\Pages;
 
+use App\Filament\Pages\Dashboard;
 use App\Filament\Resources\Shield\RoleResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -14,6 +15,7 @@ class ListRoles extends ListRecords
     {
         return [
             Actions\CreateAction::make()->button()->label('Tambah Peran'),
+            Actions\Action::make('Kembali ke Beranda')->url(Dashboard::getUrl())->color('danger')
         ];
     }
 }

@@ -104,17 +104,20 @@ class ListKartukeluargas extends ListRecords
                 ->modalFooterActionsAlignment(Alignment::End)
                 ->action(
                     function (array $data) {
+
                         self::import($data['file']);
+
                         Notification::make()
                             ->success()
                             ->title('Import Data Kartu Keluarga')
                             ->body('Data kartu keluarga berhasil di impor')
                             ->sendToDatabase(User::role('Admin')->get('id'))
                             ->send();
+
+                        return redirect()->route('filament.admin.pages.dashboard');
                     }
 
                 )
-                ->successRedirectUrl(route('filament.admin.kependudukan.resources.keluarga.index')),
         ];
     }
 

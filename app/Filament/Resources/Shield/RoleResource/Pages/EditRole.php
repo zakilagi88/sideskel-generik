@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Shield\RoleResource\Pages;
 
+use App\Filament\Pages\Dashboard;
 use App\Filament\Resources\Shield\RoleResource;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Actions;
@@ -18,7 +19,8 @@ class EditRole extends EditRecord
     protected function getActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()->hidden(fn () => $this->record->name === 'Admin'),
+            Actions\Action::make('Kembali')->url(Dashboard::getUrl())->color('info')
         ];
     }
 

@@ -11,6 +11,7 @@ use App\Models\Penduduk;
 use App\Models\RT;
 use App\Models\RW;
 use App\Models\Wilayah;
+use App\Settings\GeneralSettings;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Collection;
@@ -29,13 +30,14 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 class KartuKeluargaImport implements ToCollection, WithHeadingRow
 {
 
-    private $wilayah, $deskel;
+    private $wilayah, $deskel, $settings;
 
     public function __construct()
     {
 
         $this->deskel = Deskel::getFacadeRoot();
         $this->wilayah = Wilayah::tree()->get();
+        $this->settings = app(GeneralSettings::class)->toArray();
 
         switch ($this->deskel->struktur) {
             case 'Khusus':
@@ -57,13 +59,13 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
     {
         switch ($this->deskel->struktur) {
             case 'Khusus':
-                return $parent;
+                return $this->settings['sebutan_wilayah']['Khusus'][0] . ' ' . $parent;
                 break;
             case 'Dasar':
-                return $child . ' / ' . $parent;
+                return $this->settings['sebutan_wilayah']['Dasar'][1] . ' ' . $child . ' / ' . $this->settings['sebutan_wilayah']['Dasar'][0] . ' ' . $parent;
                 break;
             case 'Lengkap':
-                return $child . ' / ' . $sub_parent . ' / ' . $parent;
+                return $this->settings['sebutan_wilayah']['Lengkap'][2] . ' ' . $child . ' / ' . $this->settings['sebutan_wilayah']['Lengkap'][1] . ' ' . $sub_parent . ' / ' . $this->settings['sebutan_wilayah']['Lengkap'][0] . ' ' . $parent;
                 break;
             default:
                 return null;
@@ -88,13 +90,13 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
 
             switch ($this->deskel->struktur) {
                 case 'Khusus':
-                    $concatenated = $this->concatWilayah(parent: $row['dusun']);
+                    $concatenated = $this->concatWilayah(parent: $row[strtolower($this->settings['sebutan_wilayah']['Khusus'][0])]);
                     break;
                 case 'Dasar':
-                    $concatenated = $this->concatWilayah(parent: $row['rw'], child: $row['rt']);
+                    $concatenated = $this->concatWilayah(parent: $row[strtolower($this->settings['sebutan_wilayah']['Dasar'][0])], child: $row[strtolower($this->settings['sebutan_wilayah']['Dasar'][1])]);
                     break;
                 case 'Lengkap':
-                    $concatenated = $this->concatWilayah(parent: $row['dusun'], sub_parent: $row['rw'], child: $row['rt']);
+                    $concatenated = $this->concatWilayah(parent: $row[strtolower($this->settings['sebutan_wilayah']['Lengkap'][0])], sub_parent: $row[strtolower($this->settings['sebutan_wilayah']['Lengkap'][1])], child: $row[strtolower($this->settings['sebutan_wilayah']['Lengkap'][2])]);
                     break;
                 default:
                     $concatenated = null;

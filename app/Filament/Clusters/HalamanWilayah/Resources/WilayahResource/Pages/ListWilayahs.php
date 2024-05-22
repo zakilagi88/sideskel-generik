@@ -2,8 +2,10 @@
 
 namespace App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource\Pages;
 
+use App\Exports\UserWilayahExport;
 use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource;
 use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource\Widgets\WilayahOverview;
+use App\Filament\Pages\Dashboard;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Enums\MaxWidth;
@@ -11,11 +13,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\{User, Wilayah};
 use App\Models\Deskel\DesaKelurahanProfile;
+use App\Settings\GeneralSettings;
 use Filament\Actions;
 use Filament\Forms\Components\{Grid, Group, Hidden, Placeholder, Repeater, TextInput, ToggleButtons};
 use Filament\Forms\{Get, Set};
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ListWilayahs extends ListRecords
 {
@@ -23,6 +30,8 @@ class ListWilayahs extends ListRecords
     use ExposesTableToWidgets;
 
     protected $queuedRWData = [], $queuedRTData = [], $queuedWilayahData = [], $queuedUserRWData = [], $queuedUserRTData = [], $queuedUserData = [];
+
+    public $exports = [];
 
     public DesaKelurahanProfile $deskel;
 
@@ -46,13 +55,24 @@ class ListWilayahs extends ListRecords
                     function (array $data) {
                         DB::beginTransaction();
                         try {
-                            $this->processWilayah($data);
+
+                            app(GeneralSettings::class)->fill([
+                                'sebutan_wilayah' => [
+                                    $data['type'] => $this->getTypeWilayah($data)
+                                ]
+                            ]);
+
+                            $userWilayah =  $this->processWilayah($data);
+
+                            $userWilayah->storeExcel('deskel/exports/akun_pengguna.xlsx', 'public', \Maatwebsite\Excel\Excel::XLSX, true);
 
                             DB::commit();
 
+                            $this->redirect(Dashboard::getUrl());
+
                             self::notifyAdmin(
                                 'Generate Wilayah Berhasil',
-                                'Silahkan cek data wilayah di menu wilayah'
+                                'Silahkan cek data wilayah di menu wilayah',
                             );
                         } catch (\Throwable $th) {
                             DB::rollBack();
@@ -70,15 +90,45 @@ class ListWilayahs extends ListRecords
         ];
     }
 
-    private function notifyAdmin(string $title, string $body): void
+    protected function getTypeWilayah(array $data): array
+    {
+        switch ($data['type']) {
+            case 'Khusus':
+                return [$data['nama_1']];
+                break;
+            case 'Dasar':
+                return [$data['nama_1'], $data['nama_2']];
+                break;
+            case 'Lengkap':
+                return [$data['nama_1'], $data['nama_2'], $data['nama_3']];
+                break;
+            default:
+                return '';
+                break;
+        }
+    }
+
+    public function notifyAdmin(string $title, string $body): void
     {
         $admin = User::role('Admin')->get('id');
         Notification::make()
             ->success()
             ->title($title)
             ->body($body)
+            ->actions([
+                Action::make('Download Akun Pengguna')
+                    ->color('primary')
+                    ->button()
+                    ->url(route('filament.admin.downloads'), shouldOpenInNewTab: true)
+            ])
             ->sendToDatabase($admin)
             ->send();
+    }
+
+    public function export()
+    {
+        $export = new UserWilayahExport($this->exports);
+        return  Excel::download($export, 'akun_pengguna.xlsx');
     }
 
     public function generateWilayahForm(): array
@@ -189,9 +239,7 @@ class ListWilayahs extends ListRecords
                                         TextInput::make('tingkat_1')
                                             ->label('RW')
                                             ->hiddenLabel()
-                                            ->placeholder(
-                                                fn (Get $get): ?string => 'Masukkan Nomor ' . $get('../../nama_1') ?? null
-                                            )
+                                            ->placeholder(fn (Get $get): ?string => 'Masukkan Nomor ' . $get('../../nama_1') ?? null)
                                             ->mask('999')
                                             ->prefix(fn (Get $get): ?string => $get('../../nama_1') ?? null)
                                             ->numeric()
@@ -213,7 +261,6 @@ class ListWilayahs extends ListRecords
                                                 ->hiddenLabel()
                                                 ->placeholder('Sampai dengan ')
                                                 ->minValue(1)
-                                                ->prefix('-')
                                                 ->mask('999')
                                                 ->numeric(),
 
@@ -369,7 +416,7 @@ class ListWilayahs extends ListRecords
         return $roles;
     }
 
-    public function processWilayah(array $data): void
+    public function processWilayah(array $data): Collection
     {
         $parentUser = [];
         $subparent = [];
@@ -386,10 +433,12 @@ class ListWilayahs extends ListRecords
                     'tingkatan' => 1,
                 ];
                 $parent = $this->insertParentWilayah($parents);
+                $pass = Str::random(4) . rand(10, 99);
                 $parentUser[] = [
                     'name' => $this->generateWilayahName(1, $data['nama_1'], $dataTingkatan['tingkat_1']),
                     'username' => $this->generateUsername(1, $data['nama_1'], $dataTingkatan['tingkat_1']),
-                    'password' => Hash::make(strtolower($this->deskel->dk->deskel_nama)),
+                    'plain_password' => $pass,
+                    'password' => Hash::make($pass),
                     'wilayah_id' => $parent->wilayah_id,
                 ];
                 $wilayah_id_counter = 1;
@@ -403,10 +452,12 @@ class ListWilayahs extends ListRecords
                             'parent_id' => $parent->wilayah_id,
                             'tingkatan' => 2,
                         ];
+                        $pass = Str::random(4) . rand(10, 99);
                         $childrenUser[] = [
                             'name' => $this->generateWilayahName(2, $data['nama_2'], $childNumber, $data['nama_1'], $dataTingkatan['tingkat_1']),
                             'username' => $this->generateUsername(2, $data['nama_2'], $childNumber, $data['nama_1'], $dataTingkatan['tingkat_1']),
-                            'password' => Hash::make(strtolower($this->deskel->dk->deskel_nama)),
+                            'plain_password' => $pass,
+                            'password' => Hash::make($pass),
                             'wilayah_id' => $parent->wilayah_id + $wilayah_id_counter,
                         ];
                         $wilayah_id_counter++;
@@ -423,10 +474,12 @@ class ListWilayahs extends ListRecords
 
                         ];
                         $subparent = $this->insertParentWilayah($sub_parent);
+                        $pass = Str::random(4) . rand(10, 99);
                         $subparentUser[] = [
                             'name' => $this->generateWilayahName(2, $data['nama_2'], $subParent['tingkat_2'], $data['nama_1'], $dataTingkatan['tingkat_1']),
                             'username' => $this->generateUsername(2, $data['nama_2'], $subParent['tingkat_2'], $data['nama_1'], $dataTingkatan['tingkat_1']),
-                            'password' => Hash::make(strtolower($this->deskel->dk->deskel_nama)),
+                            'plain_password' => $pass,
+                            'password' => Hash::make($pass),
                             'wilayah_id' => $parent->wilayah_id + $wilayah_id_counter,
                         ];
                         $children = [];
@@ -439,10 +492,12 @@ class ListWilayahs extends ListRecords
                                 'tingkatan' => 3,
 
                             ];
+                            $pass = Str::random(4) . rand(10, 99);
                             $childrenUser[] = [
                                 'name' => $this->generateWilayahName(3, $data['nama_3'], $childNumber, $data['nama_2'], $subParent['tingkat_2'], $data['nama_1'], $dataTingkatan['tingkat_1']),
                                 'username' => $this->generateUsername(3, $data['nama_3'], $childNumber, $data['nama_2'], $subParent['tingkat_2'], $data['nama_1'], $dataTingkatan['tingkat_1']),
-                                'password' => Hash::make(strtolower($this->deskel->dk->deskel_nama)),
+                                'plain_password' => $pass,
+                                'password' => Hash::make($pass),
                                 'wilayah_id' => $subparent->wilayah_id + $wilayah_id_counter,
                             ];
                             $wilayah_id_counter++;
@@ -455,21 +510,66 @@ class ListWilayahs extends ListRecords
         $this->updateDeskeltipe($data['type']);
         switch ($data['type']) {
             case 'Khusus':
-                $this->insertUsers($parentUser);
+                $users = collect(array_merge($parentUser));
+                // Collection of users with password
+                $usersPartitioned = $users->map(function ($user) {
+                    return [
+                        'with_hash' => collect($user)->except(['plain_password'])->toArray(),
+                        'without_hash' => collect($user)->except(['password', 'wilayah_id'])->toArray(),
+                    ];
+                });
+
+                $usersWithHash = $usersPartitioned->pluck('with_hash');
+                $usersWithoutHash = $usersPartitioned->pluck('without_hash');
+
+                $this->insertUsers($usersWithHash->toArray());
                 $this->insertRoles($this->generateRoles($this->getUserIds($parentUser), 3));
+
+                return $usersWithoutHash;
                 break;
             case 'Dasar':
-                $this->insertUsers(array_merge($parentUser, $childrenUser));
+                $users = collect(array_merge($parentUser, $childrenUser));
+
+                $usersPartitioned = $users->map(function ($user) {
+                    return [
+                        'with_hash' => collect($user)->except(['plain_password'])->toArray(),
+                        'without_hash' => collect($user)->except(['password', 'wilayah_id'])->toArray(),
+                    ];
+                });
+
+                $usersWithHash = $usersPartitioned->pluck('with_hash');
+                $usersWithoutHash = $usersPartitioned->pluck('without_hash');
+
+                $this->insertUsers($usersWithHash->toArray());
                 $this->insertRoles(array_merge($this->generateRoles($this->getUserIds($parentUser), 3), $this->generateRoles($this->getUserIds($childrenUser), 4)));
+
+                return $usersWithoutHash;
+
                 break;
             case 'Lengkap':
-                $this->insertUsers(array_merge($parentUser, $childrenUser, $subparentUser));
+                $users = collect(array_merge($parentUser, $childrenUser, $subparentUser));
+
+                $usersPartitioned = $users->map(function ($user) {
+                    return [
+                        'with_hash' => collect($user)->except(['plain_password'])->toArray(),
+                        'without_hash' => collect($user)->except(['password', 'wilayah_id'])->toArray(),
+                    ];
+                });
+
+                $usersWithHash = $usersPartitioned->pluck('with_hash');
+                $usersWithoutHash = $usersPartitioned->pluck('without_hash');
+
+                $this->insertUsers($usersWithHash->toArray());
                 $this->insertRoles(array_merge($this->generateRoles($this->getUserIds(array_merge($parentUser, $subparentUser)), 3), $this->generateRoles($this->getUserIds($childrenUser), 4)));
+
+                return $usersWithoutHash;
                 break;
             default:
                 break;
         }
     }
+
+
 
     private function updateDeskeltipe($tipe)
     {
@@ -488,16 +588,19 @@ class ListWilayahs extends ListRecords
             [
                 'deskel_id' => $dk->deskel_id,
                 'type' => 'Dasar',
-                'tingkatan' =>
-                [
-                    'tingkat_1' => 'RW',
-                    'Mulai' => '',
-                    'Sampai' => '',
-                ],
-                [
-                    'tingkat_2' => 'RT',
-                    'Mulai' => '',
-                    'Sampai' => '',
+                'nama_1' => 'RW',
+                'nama_2' => 'RT',
+                'tingkatan' => [
+                    [
+                        'tingkat_1' => '001',
+                        'Mulai' => '001',
+                        'Sampai' => '010',
+                    ],
+                    [
+                        'tingkat_1' => '002',
+                        'Mulai' => '001',
+                        'Sampai' => '010',
+                    ]
                 ]
             ];
     }
