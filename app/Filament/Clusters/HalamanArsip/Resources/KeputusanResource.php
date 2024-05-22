@@ -164,18 +164,15 @@ class KeputusanResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 Tables\Actions\Action::make('Preview File')
-                    ->label('')
+                    ->hiddenLabel()
+                    ->button()
+                    ->modalContent(function (Keputusan $record) {
+                        return view('filament.pages.preview-file', ['record' => $record]);
+                    })
+                    ->modalSubmitAction(false)
                     ->color('success')
                     ->icon('fas-eye')
-                    ->button()
-                    ->infolist([
-                        ViewEntry::make('dokumens')
-                            ->view('filament.pages.preview-file'),
-                    ])
-                    ->iconSize('md')
-                    ->extraAttributes([
-                        'class' => 'text-green-500 hover:text-green-700 mr-2',
-                    ]),
+                    ->iconSize('md'),
                 Tables\Actions\EditAction::make()->label('')->button(),
             ], ActionsPosition::BeforeColumns)
             ->bulkActions([

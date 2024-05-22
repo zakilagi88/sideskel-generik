@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\Kependudukan\{AgamaType, EtnisSukuType, GolonganDarahType, JenisKelaminType, KewarganegaraanType, PekerjaanType, StatusPengajuanType, PerkawinanType, PendidikanType, StatusDasarType, StatusHubunganType, StatusTempatTinggalType};
 use App\Facades\Deskel;
+use App\Models\Deskel\Dokumen;
+use App\Models\Deskel\Lembaga;
 use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;

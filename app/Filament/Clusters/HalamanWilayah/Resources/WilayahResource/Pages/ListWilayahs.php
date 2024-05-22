@@ -56,11 +56,7 @@ class ListWilayahs extends ListRecords
                         DB::beginTransaction();
                         try {
 
-                            app(GeneralSettings::class)->fill([
-                                'sebutan_wilayah' => [
-                                    $data['type'] => $this->getTypeWilayah($data)
-                                ]
-                            ]);
+                            app(GeneralSettings::class)->fill(['sebutan_wilayah' => [$data['type'] => $this->getTypeWilayah($data)]]);
 
                             $userWilayah =  $this->processWilayah($data);
 
@@ -72,7 +68,7 @@ class ListWilayahs extends ListRecords
 
                             self::notifyAdmin(
                                 'Generate Wilayah Berhasil',
-                                'Silahkan cek data wilayah di menu wilayah',
+                                'Silahkan cek data wilayah di Menu Wilayah',
                             );
                         } catch (\Throwable $th) {
                             DB::rollBack();
@@ -123,12 +119,6 @@ class ListWilayahs extends ListRecords
             ])
             ->sendToDatabase($admin)
             ->send();
-    }
-
-    public function export()
-    {
-        $export = new UserWilayahExport($this->exports);
-        return  Excel::download($export, 'akun_pengguna.xlsx');
     }
 
     public function generateWilayahForm(): array

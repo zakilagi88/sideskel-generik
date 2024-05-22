@@ -149,7 +149,6 @@ class AdminPanelProvider extends PanelProvider
                             ->url(fn (): string => ShieldRoleResource::getUrl()),
                     ]);
                 return $builder->groups([
-
                     NavigationGroup::make()
                         ->items([
                             NavigationItem::make('Beranda')
