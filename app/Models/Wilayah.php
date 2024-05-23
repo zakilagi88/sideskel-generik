@@ -20,6 +20,8 @@ class Wilayah extends Model
     use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
     use HasTableAlias;
     use BelongsToThrough;
+
+
     /**
      * The attributes that are mass assignable.
      *

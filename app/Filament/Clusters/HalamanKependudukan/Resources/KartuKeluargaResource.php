@@ -29,13 +29,18 @@ use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\BaseFilter;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use Termwind\Components\Dd;
 
 class KartuKeluargaResource extends Resource implements HasShieldPermissions
 {
@@ -152,7 +157,9 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
-
+            ->modifyQueryUsing(
+                fn (Builder $query) => $query->with(['kepalaKeluarga', 'penduduks', 'wilayah', 'parentWilayah'])
+            )
             ->columns([
                 TextColumn::make('kk_id')
                     ->label('No KK')
@@ -165,7 +172,14 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                     ->label('Kepala Keluarga')
                     ->copyable()
                     ->searchable()
-
+                    ->placeholder('Belum ada Kepala Keluarga')
+                    ->copyMessage('Telah Disalin!')
+                    ->copyMessageDuration(500),
+                TextColumn::make('wilayah.wilayah_nama')
+                    ->label('Wilayah')
+                    ->placeholder('Belum ada Wilayah')
+                    ->searchable()
+                    ->copyable()
                     ->copyMessage('Telah Disalin!')
                     ->copyMessageDuration(500),
 
@@ -197,17 +211,64 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                     }),
             ])
             ->filters([
-
-                // SelectFilter::make('wilayah_id')
-                //     ->label('RT')
-                //     ->options(
-                //         function () {
-                //             return (Wilayah::with('rt')->get()->pluck('rt.rt_nama', 'rt.rt_id'));
-                //         }
-                //     )
-                //     ->default(null)
-                //     ->preload()
-                //     ->multiple(),
+                Filter::make('parentWilayah')
+                    ->form([
+                        Group::make([
+                            Select::make('parent_id')
+                                ->relationship('parentWilayah', 'wilayah_nama')
+                                ->hiddenLabel()
+                                ->placeholder('Filter Wilayah RW')
+                                ->live()
+                                ->afterStateUpdated(
+                                    function (Set $set) {
+                                        $set('children_id', null);
+                                    }
+                                )
+                                ->searchable()
+                                ->preload(),
+                            Select::make('children_id')
+                                ->hiddenLabel()
+                                ->placeholder('Filter Wilayah RT')
+                                ->searchable()
+                                ->options(
+                                    fn (Get $get): Collection =>
+                                    empty($get('parent_id')) ? Wilayah::where('tingkatan', 2)->pluck('wilayah_nama', 'wilayah_id') :
+                                        Wilayah::where('parent_id', $get('parent_id'))->pluck('wilayah_nama', 'wilayah_id')
+                                ),
+                        ])->columns(2)->columnSpanFull(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['parent_id'],
+                                fn (Builder $query): Builder => $query->whereHas('parentWilayah', fn (Builder $query) => $query->where('alias.parent_id', $data['parent_id']))
+                            )
+                            ->when(
+                                $data['children_id'],
+                                fn (Builder $query): Builder => $query->where('wilayah_id', $data['children_id'])
+                            );
+                    }),
+                TernaryFilter::make('kepalaKeluarga')
+                    ->label('')
+                    ->placeholder('Filter Kepala Keluarga')
+                    ->trueLabel('Ada kepala keluarga')
+                    ->falseLabel('Tidak ada kepala keluarga')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereHas('kepalaKeluarga'),
+                        false: fn (Builder $query) => $query->whereDoesntHave('kepalaKeluarga'),
+                        blank: fn (Builder $query) => $query,
+                    ),
+            ], FiltersLayout::AboveContent)
+            ->filtersFormColumns(2)
+            ->filtersFormSchema(fn (array $filters): array => [
+                Group::make()
+                    ->extraAttributes(['class' => 'mb-4'])
+                    ->schema([
+                        $filters['parentWilayah'],
+                        $filters['kepalaKeluarga'],
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
             ])
             ->actions(
                 [
@@ -237,10 +298,9 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                     ->label('Kelompokkan'),
             )
             ->emptyStateHeading('Kartu Keluarga belum ada')
-            ->emptyStateDescription('Silahkan buat Kartu Keluarga baru dengan menekan tombol berikut:')
+            ->emptyStateDescription('Silahkan tambahkan Kartu Keluarga baru dengan menekan tombol tambah di atas')
+            ->recordClasses(fn (Model $record) => empty($record->kepalaKeluarga?->nama_lengkap) ? 'bg-red-100' : '')
             ->striped()
-            ->defaultPaginationPageOption(10)
-            ->paginated([10, 25, 50, 100, 'all'])
             ->poll('60s')
             ->deferLoading();
     }
@@ -265,6 +325,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                                 ->copyMessageDuration(1000),
                                             Components\TextEntry::make('kepalaKeluarga.nama_lengkap')
                                                 ->label('Kepala Keluarga')
+                                                ->placeholder('Belum ada Kepala Keluarga')
                                                 ->copyable()
                                                 ->copyMessage('Telah Disalin!')
                                                 ->copyMessageDuration(1000),
@@ -465,6 +526,6 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
     public static function getRecordTitle(?Model $record): Htmlable | string
     {
 
-        return $record->kepalaKeluarga->nama_lengkap . ' - ' . $record->kk_id;
+        return ($record->kepalaKeluarga?->nama_lengkap ?? 'Belum ada Kepala') . ' - ' . $record->kk_id;
     }
 }

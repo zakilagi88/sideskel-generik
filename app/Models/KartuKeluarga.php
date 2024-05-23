@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Traits\Dumpable;
 use OwenIt\Auditing\Contracts\Auditable;
+use Staudenmeir\EloquentHasManyDeep\HasManyDeep;
 use Znck\Eloquent\Relations\BelongsToThrough;
 use Znck\Eloquent\Traits\BelongsToThrough as TraitsBelongsToThrough;
 
@@ -28,6 +29,9 @@ class KartuKeluarga extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
 
     use TraitsBelongsToThrough;
+
+    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
+
 
     /**
      * The attributes that are mass assignable.
@@ -115,7 +119,6 @@ class KartuKeluarga extends Model implements Auditable
         }
     }
 
-
     public function penduduks(): HasMany
     {
         return $this->hasMany(Penduduk::class, 'kk_id', 'kk_id');
@@ -124,6 +127,11 @@ class KartuKeluarga extends Model implements Auditable
     public function wilayah(): BelongsTo
     {
         return $this->belongsTo(Wilayah::class, 'wilayah_id', 'wilayah_id');
+    }
+
+    public function parentWilayah(): HasManyDeep
+    {
+        return $this->hasManyDeepFromRelations($this->wilayah(), (new Wilayah)->setAlias('alias')->parent());
     }
 
     public function kepalaKeluarga(): HasOne

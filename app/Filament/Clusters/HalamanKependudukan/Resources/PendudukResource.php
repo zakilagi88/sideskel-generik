@@ -308,7 +308,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
             ->filters([
                 SelectFilter::make('wilayah')
                     ->relationship('wilayah', 'wilayah_nama')
-                    ->options(JenisKelaminType::class)
+                    ->preload()
                     ->label('Wilayah'),
                 SelectFilter::make('jenis_kelamin')
                     ->options(JenisKelaminType::class)

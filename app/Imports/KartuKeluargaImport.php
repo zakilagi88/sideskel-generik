@@ -103,7 +103,10 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
                     break;
             }
 
-            if ($row['status_hubungan'] === 'KEPALA KELUARGA') {
+            //cek kk sudah ada atau belum di collection
+            $isKkExist = $kartuKeluarga->where('kk_id', $row['nomor_kk'])->first();
+
+            if (!$isKkExist) {
                 $kkData = [
                     'kk_id' => (string)$row['nomor_kk'],
                     'kk_alamat' => (string)$row['alamat_sekarang'],
@@ -112,6 +115,8 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
                     'updated_at' => self::formatTanggal($row['tanggal_update_data']),
                 ];
                 $kartuKeluarga->push($kkData);
+            } else {
+                $kkData = $isKkExist;
             }
 
             $penduduk->push([
@@ -153,7 +158,7 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
             KartuKeluarga::disableAuditing();
             Penduduk::disableAuditing();
 
-            KartuKeluarga::query()->getConnection()->statement('SET FOREIGN_KEY_CHECKS=0;');
+            KartuKeluarga::query()->getConnection()->statement('SET FOREIGN_KEY_CHECKS =0;');
 
             $chunksKeluarga = $kartuKeluarga->chunk(500);
             $chunksPenduduk = $penduduk->chunk(1000);

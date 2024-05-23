@@ -82,7 +82,8 @@ class DinamikaResource extends Resource implements HasShieldPermissions
                     ->description(
                         fn ($record) => $record->penduduk->kartuKeluargas?->kepalaKeluarga?->nama_lengkap
                     )
-                    ->url(fn ($record) => KartuKeluargaResource::getUrl('edit', ['record' => $record->penduduk?->kartuKeluargas?->kk_id]))
+                    ->url(fn ($record) => null)
+                    ->placeholder('Kartu Keluarga Tidak Terdata')
                     ->openUrlInNewTab()
                     ->sortable(),
                 TextColumn::make('jenis_dinamika')
