@@ -278,11 +278,11 @@ class Penduduk extends Model implements Auditable
     {
         return $this->morphMany(Dokumen::class, 'dokumenable');
     }
+
     public function dinamikas(): HasMany
     {
         return $this->hasMany(Dinamika::class, 'nik', 'nik');
     }
-
     public function kematian(): HasOne
     {
         return $this->hasOne(Kematian::class, 'nik', 'nik');

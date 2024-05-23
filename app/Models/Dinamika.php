@@ -35,4 +35,6 @@ class Dinamika extends Model
     {
         return $this->morphTo();
     }
+
+    
 }

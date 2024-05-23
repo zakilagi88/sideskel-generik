@@ -539,6 +539,7 @@ class DeskelProfileResource extends Resource
     {
         $settings = app(GeneralSettings::class)->toArray();
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['prov', 'kabkota', 'kec', 'dk']))
             ->columns([
                 Split::make([
                     TextColumn::make('No')

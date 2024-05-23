@@ -80,9 +80,9 @@ class DinamikaResource extends Resource implements HasShieldPermissions
                     ->html()
                     ->color('primary')
                     ->description(
-                        fn ($record) => $record->penduduk->kartuKeluargas->kepalaKeluarga->nama_lengkap
+                        fn ($record) => $record->penduduk->kartuKeluargas?->kepalaKeluarga?->nama_lengkap
                     )
-                    ->url(fn ($record) => KartuKeluargaResource::getUrl('edit', ['record' => $record->penduduk->kartuKeluargas->kk_id]))
+                    ->url(fn ($record) => KartuKeluargaResource::getUrl('edit', ['record' => $record->penduduk?->kartuKeluargas?->kk_id]))
                     ->openUrlInNewTab()
                     ->sortable(),
                 TextColumn::make('jenis_dinamika')
