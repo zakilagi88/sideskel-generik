@@ -80,7 +80,8 @@ class ListKartukeluargas extends ListRecords
                         ->label('Upload File')
                         ->required()
                         ->disk('local')
-                        ->directory('import')
+                        ->directory('deskel/imports')
+                        ->moveFiles()
                         ->rules([
                             'required',
                             'mimes:xlsx,xls,csv',
