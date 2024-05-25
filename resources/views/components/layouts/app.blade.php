@@ -38,8 +38,6 @@
 
     <x-layouts.partials.footer />
 
-
-
     @livewire('components.footer')
 
     @filamentScripts

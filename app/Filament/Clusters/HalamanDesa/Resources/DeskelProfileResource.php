@@ -119,9 +119,9 @@ class DeskelProfileResource extends Resource
                                                             fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
                                                                 ->prepend('logo-'),
                                                         )
-                                                        ->disk('public')
                                                         ->directory('deskel/profil')
                                                         ->visibility('public')
+                                                        ->moveFiles()
                                                         ->image()
                                                         ->imageEditor()
                                                         ->imageEditorAspectRatios([
@@ -132,7 +132,6 @@ class DeskelProfileResource extends Resource
                                                         ])
                                                         ->alignCenter()
                                                         ->preserveFilenames()
-                                                        ->moveFiles()
                                                         ->loadingIndicatorPosition('center bottom')
                                                         ->imageResizeMode('contain')
                                                         ->imagePreviewHeight('200')

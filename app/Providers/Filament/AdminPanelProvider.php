@@ -323,8 +323,6 @@ class AdminPanelProvider extends PanelProvider
             )
             ->plugins([
                 FilamentFullCalendarPlugin::make()
-                    // ->selectable()
-                    // ->editable()
                     ->plugins(['dayGrid', 'timeGrid'])
                     ->locale('id')
                     ->config([]),

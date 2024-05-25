@@ -62,9 +62,6 @@ class AppServiceProvider extends ServiceProvider
             }
         );
 
-
-        // dd($logoPath);
-
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_START,
             fn (): string => new HtmlString(
