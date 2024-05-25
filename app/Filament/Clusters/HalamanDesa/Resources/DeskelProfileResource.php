@@ -80,6 +80,7 @@ class DeskelProfileResource extends Resource
                                 )
                                 ->disk('public')
                                 ->directory('deskel/profil')
+                                ->visibility('public')
                                 ->preserveFilenames()
                                 ->moveFiles()
                                 ->image()
@@ -113,14 +114,14 @@ class DeskelProfileResource extends Resource
                                             ->schema([
                                                 GroupForm::make([
                                                     FileUpload::make('logo')
-
                                                         ->label('Gambar Logo Desa/Kelurahan')
                                                         ->getUploadedFileNameForStorageUsing(
                                                             fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
                                                                 ->prepend('logo-'),
                                                         )
                                                         ->disk('public')
-                                                        ->directory('deskel')
+                                                        ->directory('deskel/profil')
+                                                        ->visibility('public')
                                                         ->image()
                                                         ->imageEditor()
                                                         ->imageEditorAspectRatios([
@@ -655,6 +656,7 @@ class DeskelProfileResource extends Resource
                                                 ->circular()
                                                 ->columnSpan(1)
                                                 ->size(150)
+                                                ->visibility('public')
                                                 ->defaultImageUrl(url('images/logo.png'))
                                                 ->extraAttributes([
                                                     'class' => 'justify-center',

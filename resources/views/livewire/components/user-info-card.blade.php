@@ -1,3 +1,17 @@
+@php
+    $nama_deskel =
+        $data['sebutan_deskel'] . ' ' . ucwords(strtolower($deskel->dk?->deskel_nama)) ?? 'Nama Desa/Kelurahan';
+    $nama_kabkota =
+        $data['singkatan_kabkota'] .
+            ' ' .
+            ucwords(strtolower(str_replace('KOTA ', '', $deskel->kabkota?->kabkota_nama))) ??
+        'Nama Kabupaten/Kota';
+    $nama_kec = $data['singkatan_kec'] . ' ' . ucwords(strtolower($deskel->kec?->kec_nama)) ?? 'Nama Kecamatan';
+
+@endphp
+
+
+
 <div class=" gap-2 mt-2 flex items-center justify-center" x-show="$store.sidebar.isOpen">
     <div class="bg-transparent relative overflow-hidden rounded-xl p-1">
         <div class="flex justify-between items-center">
@@ -10,12 +24,12 @@
                         {{ Auth::user()->name }}</p>
                 </div>
                 <h2 class="text-gray-400 dark:text-gray-300 font-bold text-sm">
-                    {{ $data['sebutan_deskel'] . ' ' . ucwords(strtolower($deskel->dk?->deskel_nama)) }}</h2>
+                    {{ $nama_deskel }}</h2>
                 <p class="text-xs text-gray-400">
-                    {{ $data['singkatan_kabkota'] . ' ' . ucwords(strtolower(str_replace('KOTA ', '', $deskel->kabkota?->kabkota_nama))) }}
+                    {{ $nama_kabkota }}</p>
                 </p>
                 <p class="text-xs text-gray-400">
-                    {{ $data['singkatan_kec'] . ' ' . ucwords(strtolower($deskel->kec?->kec_nama)) }}</p>
+                    {{ $nama_kec }}</p>
 
             </div>
         </div>

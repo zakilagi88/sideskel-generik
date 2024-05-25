@@ -11,6 +11,7 @@ use Filament\Facades\Filament;
 use Filament\Pages\Dashboard as BasePage;
 use Filament\Pages\Dashboard\Concerns\HasFiltersAction;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
 
 class Dashboard extends BasePage
@@ -19,14 +20,6 @@ class Dashboard extends BasePage
     use HasFiltersAction;
 
     protected static string $routePath = 'beranda';
-
-    protected ?string $user, $kelurahan;
-
-
-    public function __construct()
-    {
-        $this->user = ucwords(Filament::auth()->user()->name);
-    }
 
     protected function getHeaderWidgets(): array
     {
@@ -51,15 +44,15 @@ class Dashboard extends BasePage
         return 2;
     }
 
-    // public function getTitle(): string | Htmlable
-    // {
-    //     return __("{$this->user} Dashboard");
-    // }
+    public function getTitle(): string | Htmlable
+    {
+        return __("Beranda");
+    }
 
-    // public function getSubheading(): string|Htmlable|null
-    // {
-    //     return __('Selamat Datang');
-    // }
+    public function getSubheading(): string|Htmlable|null
+    {
+        return __('Halaman Beranda');
+    }
 
     public function getColumns(): int | string | array
     {
@@ -68,12 +61,11 @@ class Dashboard extends BasePage
 
     public function getFooter(): ?View
     {
-        return view('filament.pages.custom-footer');
+        return view('filament.pages.components.footer');
     }
 
-
-    // public function getMaxContentWidth(): ?string
-    // {
-    //     return '8xl';
-    // }
+    public function getMaxContentWidth(): ?string
+    {
+        return '8xl';
+    }
 }

@@ -7,6 +7,7 @@ use App\Models\Penduduk;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Aparatur extends Model
 {
@@ -36,11 +37,13 @@ class Aparatur extends Model
         'keterangan',
     ];
 
-    protected $casts = [];
+    protected $casts = [
+        'foto' => 'array',
+    ];
 
-    public function getFotoUrlAttribute()
+    public function getFotoUrl()
     {
-        return $this->foto ? asset('storage/' . $this->foto) : null;
+        return $this->foto ? Storage::url($this->foto) : 'https://ui-avatars.com/api/?name=' . urlencode($this->nama) . '&background=random';
     }
 
     public function jabatan(): BelongsTo

@@ -21,6 +21,7 @@ class DinamikaTable extends TableWidget
         $wilayah = null;
         return $table
             ->query(RekapitulasiBulanan::getRekapitulasi($bulan, $tahun, $wilayah))
+            ->heading('Dinamika Penduduk Bulan Ini')
             ->queryStringIdentifier('dinamika')
             ->columns([
                 TextColumn::make('id')
@@ -45,7 +46,6 @@ class DinamikaTable extends TableWidget
             ->persistFiltersInSession()
             ->persistColumnSearchesInSession()
             ->persistSearchInSession()
-            ->paginated(false)
-            ->striped();
+            ->paginated(false);
     }
 }

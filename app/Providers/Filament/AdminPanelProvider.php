@@ -76,7 +76,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->routes(
                 fn () => FacadesRoute::get('/downloads', function () {
-                    return response()->download(storage_path('app/public/deskel/exports/' . 'akun_pengguna.xlsx'));
+                    return response()->download(storage_path('app/private/deskel/exports/' . 'akun_pengguna.xlsx'));
                 })->name('downloads'),
             )
             ->spa()

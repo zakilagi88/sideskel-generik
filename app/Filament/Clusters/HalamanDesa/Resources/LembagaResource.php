@@ -83,6 +83,7 @@ class LembagaResource extends Resource
                             ->preserveFilenames()
                             ->disk('public')
                             ->directory('deskel/lembaga')
+                            ->visibility('public')
                             ->image()
                             ->imageEditor()
                             ->imageEditorAspectRatios([
@@ -117,6 +118,11 @@ class LembagaResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('logo_url')
+                    ->label('Logo')
+                    ->defaultImageUrl(fn (Lembaga $record) => $record->getLogoUrl())
+                    ->alignCenter()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('nama')
                     ->alignLeft()
                     ->searchable(),

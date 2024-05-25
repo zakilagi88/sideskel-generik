@@ -124,7 +124,7 @@ class BeritaResource extends Resource implements HasShieldPermissions
                                             ->preserveFilenames()
                                             ->moveFiles()
 
-
+                                            ->visibility('public')
                                             ->image()
                                             ->imageEditor()
                                             ->imageEditorAspectRatios([
@@ -194,6 +194,7 @@ class BeritaResource extends Resource implements HasShieldPermissions
                     ->rowIndex(),
                 Tables\Columns\ImageColumn::make('gambar')
                     ->label('Gambar')
+                    ->defaultImageUrl(fn (Berita $record) => $record->getThumbnail())
                     ->alignCenter(),
 
                 Tables\Columns\TextColumn::make('title')

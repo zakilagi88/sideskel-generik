@@ -65,6 +65,8 @@ class DesaKelurahanProfile extends Model
     ];
 
     protected $casts = [
+        'logo' => 'array',
+        'gambar' => 'array',
         'luaswilayah' => 'array',
         'orbitrasi' => 'array',
         'jmlh_pdd' => 'integer',

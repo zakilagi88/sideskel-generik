@@ -60,7 +60,7 @@ class ListWilayahs extends ListRecords
 
                             $userWilayah =  $this->processWilayah($data);
 
-                            $userWilayah->storeExcel('deskel/exports/akun_pengguna.xlsx', 'public', \Maatwebsite\Excel\Excel::XLSX, true);
+                            $userWilayah->storeExcel('deskel/exports/akun_pengguna.xlsx', 'private', \Maatwebsite\Excel\Excel::XLSX, true);
 
                             DB::commit();
 

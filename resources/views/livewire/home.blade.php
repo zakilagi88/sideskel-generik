@@ -7,12 +7,12 @@
                     <h1 class="text-3xl font-bold  sm:text-4xl lg:text-5xl mt-10 ">
                         <span class="dark:text-slate-400"> {{ $data['web_title'] }} <br>
                             {{ $data['sebutan_deskel'] }}</span>
-                        <span class="dark:text-slate-400">{{ ucwords(strtolower($deskel->dk->deskel_nama)) }}</span>
+                        <span class="dark:text-slate-400">{{ ucwords(strtolower($deskel->dk?->deskel_nama)) }}</span>
                     </h1>
                     <p class="mt-6 mb-8 text-lg sm:mb-12 ">
-                        {{ $data['sebutan_kec'] . ' ' . ucwords(strtolower($deskel->kec->kec_nama)) }},
-                        {{ $data['sebutan_kabkota'] . ' ' . ucwords(strtolower(str_replace('KOTA ', '', $deskel->kabkota->kabkota_nama))) }}
-                        <br> {{ $data['sebutan_prov'] . ' ' . ucwords(strtolower($deskel->prov->prov_nama)) }}
+                        {{ $data['sebutan_kec'] . ' ' . ucwords(strtolower($deskel->kec?->kec_nama)) }},
+                        {{ $data['sebutan_kabkota'] . ' ' . ucwords(strtolower(str_replace('KOTA ', '', $deskel->kabkota?->kabkota_nama))) }}
+                        <br> {{ $data['sebutan_prov'] . ' ' . ucwords(strtolower($deskel->prov?->prov_nama)) }}
                     </p>
                 </div>
                 <div class="flex items-center justify-center  ">
@@ -45,7 +45,7 @@
                     <div class="mb-2 mx-auto lg:mx-0 w-3/5 pt-3 border-b-2 border-orange-500 opacity-25"></div>
                     <footer class="m-2">{{ $data['kepala_nama'] }}, <cite
                             class="pl-3 text-red-600 font-bold italic">
-                            {{ $data['sebutan_kepala'] . ' ' . $data['sebutan_deskel'] . ' ' . ucwords(strtolower($deskel->dk->deskel_nama)) }}</cite>
+                            {{ $data['sebutan_kepala'] . ' ' . $data['sebutan_deskel'] . ' ' . ucwords(strtolower($deskel->dk?->deskel_nama)) }}</cite>
                     </footer>
                     </blockqoute>
             </div>

@@ -96,6 +96,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                     )
                                     ->disk('public')
                                     ->directory('deskel/aparatur')
+                                    ->visibility('public')
                                     ->image()
                                     ->imageEditor()
                                     ->imageEditorAspectRatios([
