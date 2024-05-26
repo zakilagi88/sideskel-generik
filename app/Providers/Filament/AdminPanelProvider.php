@@ -39,6 +39,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Route;
 use Illuminate\Session\Middleware\{AuthenticateSession, StartSession};
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route as FacadesRoute;
 use Illuminate\Support\Facades\Storage;
@@ -77,7 +78,7 @@ class AdminPanelProvider extends PanelProvider
             ->routes(
                 fn () => FacadesRoute::get('/downloads', function () {
                     return response()->download(storage_path('app/private/deskel/exports/' . 'akun_pengguna.xlsx'));
-                })->name('downloads'),
+                })->name('downloads')->middleware([Authenticate::class]),
             )
             ->spa()
             ->unsavedChangesAlerts()
