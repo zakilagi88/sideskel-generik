@@ -140,6 +140,7 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
                 'etnis_suku' => $row['etnis_suku'] ?? null,
                 'golongan_darah' => $row['golongan_darah'] ?? null,
                 'status_penduduk' => $row['status_penduduk'] ?? 'TETAP',
+                'status_pengajuan' => 'DIVERIFIKASI',
                 'status_dasar' => $row['status_dasar'] ?? 'HIDUP',
                 'status_perkawinan' => $row['status_perkawinan'],
                 'status_hubungan' => $row['status_hubungan'],

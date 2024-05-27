@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         TextEntry::configureUsing(function (TextEntry $textEntry): void {
-            $textEntry->extraAttributes(['class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100']);
+            $textEntry->extraAttributes(['class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100'])->placeholder('Belum Diketahui');
         });
 
         FilamentColor::register(fn (GeneralSettings $settings) => $settings->site_theme);

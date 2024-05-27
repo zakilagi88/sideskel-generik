@@ -446,32 +446,15 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
             ]);
     }
 
-    public static function getKartuKeluargaFormSchema(): array
-    {
-        return [];
-    }
-
     public static function getAnggotaKeluargaFormSchema(): Repeater
     {
         return Repeater::make('anggotaKeluarga')
             ->key('anggotaKeluarga')
-            ->defaultItems(
-                function (Get $get) {
-                    $count = 0;
-                    ($get('cek_anggota') === 'Tidak') ? $count  : $count++;
-
-                    return $count;
-                }
-            )
-            ->reactive()
-            ->hiddenLabel()
+            ->schema(PendudukResource::getPendudukFormSchema())
             ->collapsible()
-            ->schema(
-                PendudukResource::getPendudukFormSchema()
-            )
-            ->collapseAllAction(
-                fn (ActionsAction $action) => $action->label('Tutup Semua'),
-            )
+            ->addActionLabel('Tambah Anggota Keluarga')
+            ->collapseAllAction(fn (ActionsAction $action) => $action->label('Tutup Semua'))
+            ->deleteAction(fn (ActionsAction $action) => $action->requiresConfirmation())
             ->itemLabel(
                 function (array $state): ?string {
                     $nik = $state['nik'] ?? null;
@@ -480,9 +463,6 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                     $nama = $penduduk->nama_lengkap ?? null;
                     return $nama . ' - ' . $nik . ' - ' . $hubungan;
                 }
-            )
-            ->deleteAction(
-                fn (ActionsAction $action) => $action->requiresConfirmation(),
             );
     }
 

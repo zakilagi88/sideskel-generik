@@ -92,6 +92,7 @@ class Penduduk extends Model implements Auditable
         'tanggal_lahir' => 'date',
         'tgl_perkawinan' => 'datetime',
         'tgl_perceraian' => 'datetime',
+        'is_nik_sementara' => 'boolean',
     ];
 
     protected $auditInclude = [

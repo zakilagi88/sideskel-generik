@@ -11,13 +11,13 @@ enum StatusPengajuanType: string implements HasLabel, HasColor, HasIcon
 {
     case BELUM_DIVERIFIKASI = 'BELUM DIVERIFIKASI';
     case DIVERIFIKASI = 'DIVERIFIKASI';
-    case DIBATALKAN = 'DIBATALKAN';
+    case TINJAU_ULANG = 'TINJAU ULANG';
     public function getLabel(): ?string
     {
         return match ($this) {
             self::BELUM_DIVERIFIKASI => 'BELUM DIVERIFIKASI',
             self::DIVERIFIKASI => 'DIVERIFIKASI',
-            self::DIBATALKAN => 'DIBATALKAN',
+            self::TINJAU_ULANG => 'TINJAU ULANG',
         };
     }
 
@@ -26,7 +26,7 @@ enum StatusPengajuanType: string implements HasLabel, HasColor, HasIcon
         return match ($this) {
             self::BELUM_DIVERIFIKASI => 'info',
             self::DIVERIFIKASI => 'success',
-            self::DIBATALKAN => 'danger',
+            self::TINJAU_ULANG => 'danger',
         };
     }
 
@@ -35,7 +35,7 @@ enum StatusPengajuanType: string implements HasLabel, HasColor, HasIcon
         return match ($this) {
             self::BELUM_DIVERIFIKASI => 'fas-spinner',
             self::DIVERIFIKASI => 'fas-check-double',
-            self::DIBATALKAN => 'fas-xmark',
+            self::TINJAU_ULANG => 'fas-xmark',
         };
     }
 }

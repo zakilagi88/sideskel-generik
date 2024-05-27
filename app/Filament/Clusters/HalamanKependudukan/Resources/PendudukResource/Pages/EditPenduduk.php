@@ -2,8 +2,10 @@
 
 namespace App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\Pages;
 
+use App\Enums\Kependudukan\StatusPengajuanType;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource;
 use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Placeholder;
 use Filament\Resources\Pages\EditRecord;
 
@@ -63,34 +65,42 @@ class EditPenduduk extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        /** @var \App\Models\User */
+        $authUser = Filament::auth()->user();
+        if ($authUser->hasRole('Operator Wilayah') && $data['status_pengajuan'] == 'TINJAU ULANG') {
+            $data['status_pengajuan'] = StatusPengajuanType::BELUM_DIVERIFIKASI->value;
+        } elseif ($authUser->hasRole('Admin') && $data['status_pengajuan'] == 'BELUM DIVERIFIKASI') {
+            $data['status_pengajuan'] = StatusPengajuanType::DIVERIFIKASI->value;
+        }
         //cek apakah data telah huruf besar semua jika belum maka ubah ke huruf besar semua
-        if (ctype_upper($data['nama_lengkap']) && ctype_upper($data['alamat_sekarang']) && ctype_upper($data['tempat_lahir'])) {
+        if (ctype_upper($data['nama_lengkap']) && ctype_upper($data['alamat_sekarang']) && ctype_upper($data['tempat_lahir']) && ctype_upper($data['alamat_sebelumnya'])) {
             return $data;
         } else {
             $data['nama_lengkap'] = strtoupper($data['nama_lengkap']);
             $data['alamat_sekarang'] = strtoupper($data['alamat_sekarang']);
+            $data['alamat_sebelumnya'] = strtoupper($data['alamat_sebelumnya']);
             $data['tempat_lahir'] = strtoupper($data['tempat_lahir']);
             return $data;
         }
     }
 
-    protected function mutateFormDataBeforeFill(array $data): array
-    {
-        if ($data['status_pengajuan'] == 'DALAM PROSES') {
-            if ($this->record->audits()->latest()->first() == null) {
-                return $data;
-            } else {
-                foreach ($this->record->audits()->latest()->first()->old_values as $key => $value) {
-                    if (array_key_exists($key, $data)) {
-                        $data[$key] = $value;
-                    }
-                }
-                return $data;
-            }
-        } else {
-            return $data;
-        }
-    }
+    // protected function mutateFormDataBeforeFill(array $data): array
+    // {
+    //     if ($data['status_pengajuan'] == 'BELUM DIVERIFIKASI') {
+    //         if ($this->record->audits()->latest()->first() == null) {
+    //             return $data;
+    //         } else {
+    //             foreach ($this->record->audits()->latest()->first()->old_values as $key => $value) {
+    //                 if (array_key_exists($key, $data)) {
+    //                     $data[$key] = $value;
+    //                 }
+    //             }
+    //             return $data;
+    //         }
+    //     } else {
+    //         return $data;
+    //     }
+    // }
 
     protected $listeners = [
         'auditRestored',

@@ -144,6 +144,9 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                         ->searchingMessage('Mencari Jenis Pekerjaan')
                                         ->searchable()
                                         ->required(),
+                                    Select::make('status_tempat_tinggal')
+                                        ->label('Status Tempat Tinggal')
+                                        ->options(StatusTempatTinggalType::class),
                                 ])->collapsible(),
                         ])->columnSpan(['lg' => 2]),
                     Group::make()
@@ -189,15 +192,30 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 ->description('Keterangan Status Penduduk')
                                 ->schema(
                                     [
-                                        Select::make('status_tempat_tinggal')
-                                            ->label('Status Tempat Tinggal')
-                                            ->options(StatusTempatTinggalType::class),
+                                        Hidden::make('status_pengajuan')
+                                            ->default(fn (Penduduk $record) => $record->status_pengajuan->value),
+                                        Placeholder::make('keterangan')
+                                            ->label('Keterangan')
+                                            ->content(function (Penduduk $record) {
+
+                                                $matchColor = match ($record->status_pengajuan->getColor()) {
+                                                    'info' => 'bg-info-400',
+                                                    'danger' => 'bg-danger-400',
+                                                    'warning' => 'bg-warning-400',
+                                                    default => 'bg-primary-400',
+                                                };
+
+                                                return new HtmlString(
+                                                    '<span class="rounded-lg p-2 text-white ' . $matchColor . '">' . $record->status_pengajuan->getLabel() . '</span>'
+                                                );
+                                            }),
                                         Select::make('status_dasar')
                                             ->disabled()
                                             ->label('Status Dasar')
                                             ->options(StatusDasarType::class),
                                         Toggle::make('is_nik_sementara')
                                             ->label('NIK Sementara')
+                                            ->default(false)
                                             ->onColor('success')
                                             ->offColor('danger'),
                                     ]
@@ -365,34 +383,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
             ])
             ->actions(
                 [
-                    ActionsAction::make('Batalkan')
-                        ->action(
-                            function (Penduduk $record) {
-                                static::restoreAuditSelected($record);
-                                $record->update(['status_pengajuan' => 'SELESAI']);
-                            }
-                        )
-                        ->iconPosition('after')
-                        ->color('danger')->label('Batalkan')->button()
-                        ->requiresConfirmation()->after(fn (Penduduk $record) =>
-                        Notification::make()
-                            ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
-                            ->body($record->nama_lengkap . ' dibatalkan , data penduduk akan dikembalikan ke sebelumnya. Silahkan periksa kembali data penduduk')
-                            ->danger()
-                            ->sendToDatabase(
-                                $record->audits()->latest()->first()->user
-                            )
-                            ->seconds(5)
-                            ->persistent()
-                            ->send())
-                        ->visible(function (Penduduk $record) use ($auth) {
-
-                            $role = $auth->hasRole('Monitor Wilayah');
-                            $pengajuan = $record->status_pengajuan->value;
-
-                            return ($role == 'Monitor Wilayah' && ($pengajuan == 'DALAM PROSES')) ? true : false;
-                        }),
-
                     ActionGroup::make([
                         ActionsAction::make('Ubah Status Dasar')
                             ->icon('fas-pen-to-square')
@@ -565,6 +555,23 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 }
                             ),
                         Tables\Actions\EditAction::make()->iconSize(IconSize::Small),
+                        ActionsAction::make('Verifikasi')
+                            ->action(fn (Penduduk $record) => $record->update(['status_pengajuan' => StatusPengajuanType::DIVERIFIKASI->value]))
+                            ->color('success')->label('Verifikasi')->icon('fas-check')
+                            ->requiresConfirmation()->after(fn (Penduduk $record) => Notification::make()
+                                ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
+                                ->body($record->nama_lengkap . ' sudah diverifikasi')
+                                ->success()
+                                ->sendToDatabase($record->audits()->latest()->first()->user)
+                                ->seconds(5)
+                                ->persistent()
+                                ->send())
+                            ->visible(function (Penduduk $record) use ($auth) {
+                                $role = $auth->hasRole('Admin');
+                                if ($role && $record->status_pengajuan->value == StatusPengajuanType::BELUM_DIVERIFIKASI->value) {
+                                    return true;
+                                }
+                            }),
                         ActionsAction::make('Tinjau')
                             ->form([
                                 TextInput::make('catatan')
@@ -573,27 +580,22 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             ])
                             ->action(
                                 function (Penduduk $record) {
-                                    $record->update(['status_pengajuan' => 'DIBATALKAN']);
+                                    $record->update(['status_pengajuan' => StatusPengajuanType::TINJAU_ULANG->value]);
                                 }
                             )
-                            ->color('danger')
-                            ->label(
-                                'Tinjau Ulang'
-                            )->icon('fas-circle-question')
+                            ->color('danger')->label('Tinjau Ulang')->icon('fas-circle-question')
                             ->requiresConfirmation()->after(fn (Penduduk $record, array $data) => Notification::make()
                                 ->title('Penduduk ' . $record->nama_lengkap . ' perlu ditinjau ulang')
                                 ->body('Catatan : ' . $data['catatan'])
                                 ->danger()
-                                ->sendToDatabase(
-                                    $record->audits()->latest()->first()->user
-                                )
-                                ->seconds(5)
+                                ->sendToDatabase($record->audits()->latest()->first()->user)
+                                ->seconds(10)
                                 ->persistent()
                                 ->send())
                             ->visible(function (Penduduk $record) use ($auth) {
-                                $role = $auth->hasRole('Admin');
+                                $role = $auth->hasRole('Admin') || $auth->hasRole('Monitor Wilayah');
                                 $pengajuan = $record->status_pengajuan->value;
-                                if ($role && ($pengajuan == 'DALAM PROSES' || $pengajuan == 'SELESAI')) {
+                                if ($role && ($pengajuan == StatusPengajuanType::DIVERIFIKASI->value)) {
                                     return true;
                                 }
                             }),
@@ -610,7 +612,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     BulkAction::make('Verifikasi')->label('Verifikasi')->icon('heroicon-m-pencil-square')->color('success')
                         ->action(
                             function (Collection $records) {
-                                $records->each->update(['status_pengajuan' => 'SELESAI']);
+                                $records->each->update(['status_pengajuan' => StatusPengajuanType::DIVERIFIKASI->value]);
                             }
                         )
                         ->visible(
@@ -649,70 +651,54 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                     ComponentsGroup::make([
                                                         TextEntry::make('nik')
                                                             ->label('NIK')
-                                                            ->weight(FontWeight::Bold)
+                                                            ->weight(FontWeight::SemiBold)
+                                                            ->color('primary')
                                                             ->inlineLabel()
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
                                                         TextEntry::make('nama_lengkap')
                                                             ->label('Nama Lengkap')
-                                                            ->weight(FontWeight::Bold)
-                                                            ->formatStateUsing(
-                                                                function ($state) {
-                                                                    return ucwords(strtolower($state));
-                                                                }
-                                                            )
+                                                            ->color('primary')
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->copyable()
                                                             ->inlineLabel()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
-
-                                                        TextEntry::make('alamat_sekarang')
-                                                            ->label('Alamat')
+                                                        TextEntry::make('wilayah.wilayah_nama')
+                                                            ->label('Wilayah')
+                                                            ->color('primary')
                                                             ->inlineLabel()
-                                                            ->weight(FontWeight::Bold)
-                                                            ->formatStateUsing(
-                                                                function ($state) {
-                                                                    return ucwords(strtolower($state));
-                                                                }
-                                                            )
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
                                                         TextEntry::make('pendidikan')
                                                             ->label('Pendidikan')
-                                                            ->weight(FontWeight::Bold)
-                                                            ->formatStateUsing(
-                                                                function ($state) {
-                                                                    return ucwords(strtolower($state->value));
-                                                                }
-                                                            )
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->inlineLabel()
-
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
                                                         TextEntry::make('status_perkawinan')
                                                             ->label('Status Perkawinan')
-                                                            ->weight(FontWeight::Bold)
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->copyable()
-                                                            ->formatStateUsing(
-                                                                function ($state) {
-                                                                    return ucwords(strtolower($state->value));
-                                                                }
-                                                            )
                                                             ->inlineLabel()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
                                                         TextEntry::make('pekerjaan')
                                                             ->label('Pekerjaan')
                                                             ->inlineLabel()
-                                                            ->formatStateUsing(
-                                                                function ($state) {
-                                                                    return ucwords(strtolower($state->value));
-                                                                }
-                                                            )
-                                                            ->weight(FontWeight::Bold)
+                                                            ->weight(FontWeight::SemiBold)
+                                                            ->copyable()
+                                                            ->copyMessage('Telah Disalin!')
+                                                            ->copyMessageDuration(1000),
+                                                        TextEntry::make('status_tempat_tinggal')
+                                                            ->placeholder('Belum Diketahui')
+                                                            ->label('Tempat Tinggal')
+                                                            ->inlineLabel()
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
@@ -721,58 +707,45 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                         TextEntry::make('jenis_identitas')
                                                             ->label('Jenis Identitas')
                                                             ->inlineLabel()
-                                                            ->weight(FontWeight::Bold)
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
                                                         TextEntry::make('kewarganegaraan')
                                                             ->label('Kewarganegaraan')
-                                                            ->weight(FontWeight::Bold)
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->inlineLabel()
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
                                                         TextEntry::make('jenis_kelamin')
                                                             ->inlineLabel()
-                                                            ->weight(FontWeight::Bold)
-                                                            ->formatStateUsing(
-                                                                function ($state) {
-                                                                    return ucwords(strtolower($state->value));
-                                                                }
-                                                            )
-
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->label('Jenis Kelamin'),
                                                         TextEntry::make('tempat_lahir')
                                                             ->inlineLabel()
-                                                            ->weight(FontWeight::Bold)
-                                                            ->formatStateUsing(
-                                                                function ($state) {
-                                                                    return ucwords(strtolower($state));
-                                                                }
-                                                            )
-
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->label('Tempat Lahir'),
                                                         TextEntry::make('tanggal_lahir')
                                                             ->label('Tanggal Lahir')
-                                                            ->weight(FontWeight::Bold)
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->inlineLabel(),
                                                         TextEntry::make('agama')
                                                             ->label('Agama')
-                                                            ->weight(FontWeight::Bold)
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->inlineLabel()
                                                             ->formatStateUsing(
                                                                 function ($state) {
                                                                     return ucwords(strtolower($state->value));
                                                                 }
                                                             )
-
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
                                                         TextEntry::make('status_dasar')
                                                             ->label('Status Dasar')
                                                             ->inlineLabel()
-                                                            ->weight(FontWeight::Bold)
+                                                            ->weight(FontWeight::SemiBold)
                                                             ->copyable()
                                                             ->copyMessage('Telah Disalin!')
                                                             ->copyMessageDuration(1000),
@@ -812,7 +785,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                     TextEntry::make('alamat_sekarang')
                                         ->label('Alamat Sekarang')
                                         ->inlineLabel()
-                                        ->weight(FontWeight::Bold)
+                                        ->weight(FontWeight::SemiBold)
                                         ->formatStateUsing(
                                             function ($state) {
                                                 return ucwords(strtolower($state));
@@ -829,7 +802,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                 return ucwords(strtolower($state));
                                             }
                                         )
-                                        ->weight(FontWeight::Bold)
+                                        ->weight(FontWeight::SemiBold)
                                         ->copyable()
                                         ->copyMessage('Telah Disalin!')
                                         ->copyMessageDuration(1000),
@@ -837,10 +810,10 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             ComponentsSection::make('')
                                 ->schema([
                                     TextEntry::make('status_pengajuan')
-                                        ->label('Pengajuan')
+                                        ->label('Keterangan')
                                         ->inlineLabel()
                                         ->badge()
-                                        ->weight(FontWeight::Bold)
+                                        ->weight(FontWeight::SemiBold)
                                         ->copyable()
                                         ->copyMessage('Telah Disalin!')
                                         ->copyMessageDuration(1000),
@@ -856,55 +829,19 @@ class PendudukResource extends Resource implements HasShieldPermissions
 
                                     Actions::make([
                                         Action::make('Verifikasi')
-                                            ->action(
-                                                fn (Penduduk $record) => $record->update(['status_pengajuan' => 'SELESAI']),
-                                            )->color('success')->label(
-                                                'Verifikasi'
-                                            )->button()
+                                            ->action(fn (Penduduk $record) => $record->update(['status_pengajuan' => StatusPengajuanType::DIVERIFIKASI->value]))
+                                            ->color('success')->label('Verifikasi')->button()->icon('fas-check')
                                             ->requiresConfirmation()->after(fn (Penduduk $record) => Notification::make()
                                                 ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
                                                 ->body($record->nama_lengkap . ' sudah diverifikasi')
                                                 ->success()
-                                                ->sendToDatabase(
-                                                    $record->audits()->latest()->first()->user
-                                                )
+                                                ->sendToDatabase($record->audits()->latest()->first()->user)
                                                 ->seconds(5)
                                                 ->persistent()
                                                 ->send())
                                             ->visible(function (Penduduk $record) use ($auth) {
                                                 $role = $auth->hasRole('Admin');
-                                                if ($role && $record->status_pengajuan->value == 'DALAM PROSES') {
-                                                    return true;
-                                                } else {
-                                                    return false;
-                                                }
-                                            }),
-                                        Action::make('Batalkan')
-                                            ->action(
-                                                function (Penduduk $record) {
-                                                    static::restoreAuditSelected($record);
-                                                    $record->update(['status_pengajuan' => 'SELESAI']);
-                                                }
-                                            )
-                                            ->color('danger')->label(
-                                                'Batalkan'
-                                            )->button()
-                                            ->requiresConfirmation()
-                                            ->after(fn (Penduduk $record) => Notification::make()
-                                                ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
-                                                ->body($record->nama_lengkap . ' dibatalkan , data penduduk akan dikembalikan ke sebelumnya. Silahkan periksa kembali data penduduk')
-                                                ->danger()
-                                                ->sendToDatabase(
-                                                    // kirim ke rt yang dengan wilayah id penduduk ini
-                                                    $record->audits()->latest()->first()->user
-                                                )
-                                                ->seconds(5)
-                                                ->persistent()
-                                                ->send())
-                                            ->visible(function (Penduduk $record) use ($auth) {
-                                                $role = $auth->hasRole('Monitor Wilayah');
-                                                $pengajuan = $record->status_pengajuan->value;
-                                                if ($role == 'Monitor Wilayah' && ($pengajuan == 'DALAM PROSES')) {
+                                                if ($role && $record->status_pengajuan->value == StatusPengajuanType::BELUM_DIVERIFIKASI->value) {
                                                     return true;
                                                 }
                                             }),
@@ -916,28 +853,24 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                             ])
                                             ->action(
                                                 function (Penduduk $record) {
-                                                    $record->update(['status_pengajuan' => 'DIBATALKAN']);
+                                                    $record->update(['status_pengajuan' => StatusPengajuanType::TINJAU_ULANG->value]);
                                                 }
                                             )
-                                            ->color('danger')->label(
-                                                'Tinjau Ulang'
-                                            )->button()
+                                            ->color('danger')->label('Tinjau Ulang')->button()->icon('fas-circle-question')
                                             ->requiresConfirmation()
                                             ->after(fn (Penduduk $record, array $data) => Notification::make()
                                                 ->title('Penduduk ' . $record->nama_lengkap . ' perlu ditinjau ulang')
                                                 ->body('Catatan : ' . $data['catatan'])
                                                 ->danger()
-                                                ->sendToDatabase(
-                                                    $record->audits()->latest()->first()->user
-                                                )
-                                                ->seconds(5)
+                                                ->sendToDatabase($record->audits()->latest()->first()->user)
+                                                ->seconds(15)
                                                 ->persistent()
                                                 ->send())
                                             ->visible(function (Penduduk $record) use ($auth) {
-                                                $role = $auth->hasRole('Admin');
+                                                $role = $auth->hasRole('Admin') || $auth->hasRole('Monitor Wilayah');
                                                 $pengajuan = $record->status_pengajuan->value;
 
-                                                if ($role == 'Admin' && ($pengajuan == 'DALAM PROSES' || $pengajuan == 'SELESAI')) {
+                                                if ($role && ($pengajuan == StatusPengajuanType::DIVERIFIKASI->value)) {
                                                     return true;
                                                 }
                                             }),
@@ -1378,12 +1311,12 @@ class PendudukResource extends Resource implements HasShieldPermissions
                         DatePicker::make('tanggal_dinamika')
                             ->label('Tanggal Dinamika')
                             ->placeholder('Pilih Tanggal Dinamika')
-                            ->hint('( Tanggal Dinamika Masuk/Kelahiran )')
+                            ->hint('( Tanggal Pindah Masuk/Kelahiran )')
                             ->required(),
                         DatePicker::make('tanggal_lapor')
                             ->label('Tanggal Lapor')
                             ->placeholder('Pilih Tanggal Lapor')
-                            ->hint('( Tanggal Dinamika Lapor Masuk/Kelahiran )')
+                            ->hint('( Tanggal Lapor Pindah Masuk/Kelahiran )')
                             ->required(),
                         Textarea::make('catatan_dinamika')
                             ->label('Catatan Dinamika')

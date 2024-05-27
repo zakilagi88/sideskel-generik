@@ -3,10 +3,14 @@
 namespace App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\Pages;
 
 use App\Enums\Kependudukan\StatusDasarType;
+use App\Enums\Kependudukan\StatusPengajuanType;
+use App\Facades\Deskel;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource;
 use App\Models\{Bantuan, KartuKeluarga, Kelahiran, Pendatang, Penduduk, Wilayah};
+use App\Settings\GeneralSettings;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\{Group, Placeholder, Section, Select, Textarea, TextInput, ToggleButtons, Wizard, Wizard\Step};
 use Filament\Forms\{Form, Get, Set};
@@ -58,17 +62,6 @@ class CreateKartukeluarga extends CreateRecord
             ->columns(null);
     }
 
-    // protected function handleRecordCreation(array $data): Model
-    // {
-
-    //     return static::getModel()::create([
-    //         'kk_id' => $data['kk_id'],
-    //         'wilayah_id' => $data['children_id'],
-    //         'kk_alamat' => $data['kk_alamat'],
-    //         'kk_kepala' => null,
-    //     ]);
-    // }
-
     protected function getCreatedNotificationTitle(): ?string
     {
         return 'Data berhasil ditambahkan';
@@ -80,7 +73,8 @@ class CreateKartukeluarga extends CreateRecord
         $authUser = Filament::auth()->user();
         $descendants = ($authUser->hasRole('Monitor Wilayah')) ? Wilayah::tree()->find($authUser->wilayah_id)->descendants->pluck('wilayah_id') : null;
 
-        // $wilayah = Wilayah::tree()->find($authUser->wilayah_id);
+        $settings = app(GeneralSettings::class)->toArray();
+        $deskel = Deskel::getFacadeRoot()->struktur;
 
         return [
             Step::make('KartuKeluarga')
@@ -153,13 +147,13 @@ class CreateKartukeluarga extends CreateRecord
                                                 )
                                                 ->required(fn (string $operation): bool => $operation === 'create'),
                                             Select::make('parent_id')
-                                                ->label('RW')
+                                                ->label(fn () => $settings['sebutan_wilayah'][$deskel][0])
                                                 ->searchable()
                                                 ->preload()
                                                 ->required()
                                                 ->live(onBlur: true)
                                                 ->afterStateUpdated(
-                                                    fn (Set $set, Get $get) => $set('children_id', null)
+                                                    fn (Set $set) => $set('children_id', null)
                                                 )
                                                 ->options(
                                                     function () {
@@ -168,7 +162,7 @@ class CreateKartukeluarga extends CreateRecord
                                                 )
                                                 ->columnStart(1),
                                             Select::make('children_id')
-                                                ->label('RT')
+                                                ->label(fn () => $settings['sebutan_wilayah'][$deskel][1])
                                                 ->reactive()
                                                 ->searchable()
                                                 ->preload()
@@ -192,12 +186,9 @@ class CreateKartukeluarga extends CreateRecord
                         ]),
                     Group::make()
                         ->extraAttributes(['class' => 'flex justify-center bg-primary-400 p-2 rounded-lg'])
-                        ->hidden(
-                            fn (Get $get): bool => $get('cek_kk') === 'Ya'
-                        )
+                        ->hidden(fn (Get $get): bool => $get('cek_kk') === 'Ya')
                         ->schema([
                             Placeholder::make('')
-
                                 ->content(
                                     new HtmlString(
                                         '<p class="text-lg text-center text-white">Informasi Kepala Keluarga</p>'
@@ -206,9 +197,7 @@ class CreateKartukeluarga extends CreateRecord
                         ]),
                     Group::make()
                         ->key('kepalakeluarga')
-                        ->hidden(
-                            fn (Get $get): bool => $get('cek_kk') === 'Ya'
-                        )
+                        ->hidden(fn (Get $get): bool => $get('cek_kk') === 'Ya')
                         ->schema(PendudukResource::getPendudukFormSchema())->columnSpanFull(),
 
                 ]),
@@ -228,18 +217,18 @@ class CreateKartukeluarga extends CreateRecord
                     Group::make()
                         ->key('anggotakeluarga')
                         ->schema([
-                            ToggleButtons::make('cek_anggota')
-                                ->label('Apakah ada anggota keluarga lain?')
-                                ->inline()
-                                ->live()
-                                ->options([
-                                    'Ya' => 'Ya',
-                                    'Tidak' => 'Tidak',
-                                ])
-                                ->default('Ya')
-                                ->key('cek_anggota')
-                                ->columnSpanFull(),
-                            KartukeluargaResource::getAnggotaKeluargaFormSchema(),
+                            Placeholder::make('')
+                                ->content(
+                                    fn (Get $get): Htmlable => $get('cek_kk') === 'Ya' ? new HtmlString(
+                                        '<p class="text-lg text-center">Untuk Menambah Anggota Keluarga, Klik <span class="font-bold">Tambah Anggota Keluarga</span> pada Bagian Bawah Formulir</p>'
+                                    ) :
+                                        new HtmlString(
+                                            '<p class="text-lg text-center">Jika ada Anggota Keluarga, Klik <span class="font-bold">Tambah Anggota Keluarga</span></p>'
+                                        )
+                                ),
+
+                            KartukeluargaResource::getAnggotaKeluargaFormSchema()
+                                ->defaultItems(fn (Get $get) => $get('cek_kk') === 'Ya' ? 1 : 0),
                         ]),
                 ]),
         ];
@@ -274,16 +263,16 @@ class CreateKartukeluarga extends CreateRecord
         ]);
     }
 
-    public function addKepalaKK(array $data, KartuKeluarga $kartuKeluarga): Model
+    public function addKepalaKK(array $data, KartuKeluarga $kartuKeluarga, $authUser): Model
     {
         return $kartuKeluarga->penduduks()->create(
             [
                 'nik' => $data['nik'],
-                'nama_lengkap' => $data['nama_lengkap'],
+                'nama_lengkap' => strtoupper($data['nama_lengkap']),
                 'is_nik_sementara' => $data['is_nik_sementara'] ?? false,
                 'jenis_identitas' => $data['jenis_identitas'] ?? 'KTP',
-                'alamat_sekarang' => $data['alamat_sekarang'],
-                'alamat_sebelumnya' => $data['alamat_sebelumnya'] ?? null,
+                'alamat_sekarang' => strtoupper($data['alamat_sekarang']),
+                'alamat_sebelumnya' => strtoupper($data['alamat_sebelumnya']) ?? null,
                 'agama' => $data['agama'],
                 'jenis_kelamin' => $data['jenis_kelamin'],
                 'tempat_lahir' => $data['tempat_lahir'],
@@ -299,6 +288,7 @@ class CreateKartukeluarga extends CreateRecord
                 'nik_ayah' => $data['nik_ayah'] ?? null,
                 'nik_ibu' => $data['nik_ibu'] ?? null,
                 'status_dasar' => StatusDasarType::HIDUP,
+                'status_pengajuan' => $authUser->hasRole('Admin') ? StatusPengajuanType::DIVERIFIKASI : StatusPengajuanType::BELUM_DIVERIFIKASI,
                 'status_penduduk' => $data['status_penduduk'] ?? 'TETAP',
                 'status_tempat_tinggal' => $data['status_tempat_tinggal'] ?? null,
                 'status_hubungan' => $data['status_hubungan'] ?? null,
@@ -308,15 +298,15 @@ class CreateKartukeluarga extends CreateRecord
         );
     }
 
-    public function createAnggotaKK(array $data, KartuKeluarga $kartuKeluarga): Model
+    public function createAnggotaKK(array $data, KartuKeluarga $kartuKeluarga, $authUser): Model
     {
         return $kartuKeluarga->penduduks()->create([
             'nik' => $data['nik'],
-            'nama_lengkap' => $data['nama_lengkap'],
+            'nama_lengkap' => strtoupper($data['nama_lengkap']),
             'is_nik_sementara' => $data['is_nik_sementara'] ?? false,
             'jenis_identitas' => $data['jenis_identitas'] ?? 'KTP',
-            'alamat_sekarang' => $data['alamat_sekarang'],
-            'alamat_sebelumnya' => $data['alamat_sebelumnya'] ?? null,
+            'alamat_sekarang' => strtoupper($data['alamat_sekarang']),
+            'alamat_sebelumnya' => strtoupper($data['alamat_sebelumnya']) ?? null,
             'agama' => $data['agama'],
             'jenis_kelamin' => $data['jenis_kelamin'],
             'tempat_lahir' => $data['tempat_lahir'],
@@ -333,6 +323,7 @@ class CreateKartukeluarga extends CreateRecord
             'nik_ibu' => $data['nik_ibu'] ?? null,
             'status_dasar' => StatusDasarType::HIDUP,
             'status_penduduk' => $data['status_penduduk'] ?? 'Tetap',
+            'status_pengajuan' => $authUser->hasRole('Admin') ? StatusPengajuanType::DIVERIFIKASI : StatusPengajuanType::BELUM_DIVERIFIKASI,
             'status_tempat_tinggal' => $data['status_tempat_tinggal'] ?? null,
             'status_hubungan' => $data['status_hubungan'] ?? null,
             'email' => $data['email'] ?? null,
@@ -362,6 +353,8 @@ class CreateKartukeluarga extends CreateRecord
 
     protected function createData(array $data): void
     {
+        /** @var \App\Models\User */
+        $authUser = Filament::auth()->user();
 
         if ($data['cek_kk'] === 'Ya') {
             $kartuKeluarga = KartuKeluarga::where('kk_id', $data['kk_id'])->first();
@@ -376,7 +369,7 @@ class CreateKartukeluarga extends CreateRecord
             }
         } else {
             $kartuKeluarga = $this->createKK($data);
-            $kk_kepala = $this->addKepalaKK($data, $kartuKeluarga);
+            $kk_kepala = $this->addKepalaKK($data, $kartuKeluarga, $authUser);
             $pendatang = $this->createPendatang($data, $kk_kepala);
             $kk_kepala->dinamikas()->create([
                 'dinamika_type' => Pendatang::class,
@@ -395,7 +388,7 @@ class CreateKartukeluarga extends CreateRecord
 
         if (isset($data['anggotaKeluarga'])) {
             foreach ($data['anggotaKeluarga'] as $anggota) {
-                $penduduk = $this->createAnggotaKK($anggota, $kartuKeluarga);
+                $penduduk = $this->createAnggotaKK($anggota, $kartuKeluarga, $authUser);
 
                 if (isset($anggota['bantuans'])) {
                     $bantuan = Bantuan::find($anggota['bantuans']);
