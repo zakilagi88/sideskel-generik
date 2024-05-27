@@ -24,9 +24,11 @@ use Filament\Infolists\{Infolist, Components};
 use Filament\Infolists\Components\Actions\Action as InfoAction;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Enums\FiltersLayout;
@@ -44,7 +46,12 @@ use Termwind\Components\Dd;
 
 class KartuKeluargaResource extends Resource implements HasShieldPermissions
 {
+    protected static ?string $breadcrumb = 'keluarga';
+
+
     protected static ?string $model = KartuKeluarga::class;
+
+    protected static ?string $modelLabel = 'Keluarga';
 
     protected static ?string $recordTitleAttribute = 'kepalaKeluarga.nama_lengkap';
 
@@ -170,33 +177,19 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                     ->sortable(),
                 TextColumn::make('kepalaKeluarga.nama_lengkap')
                     ->label('Kepala Keluarga')
-                    ->copyable()
                     ->searchable()
-                    ->placeholder('Belum ada Kepala Keluarga')
-                    ->copyMessage('Telah Disalin!')
-                    ->copyMessageDuration(500),
+                    ->placeholder('Belum ada Kepala Keluarga'),
                 TextColumn::make('wilayah.wilayah_nama')
                     ->label('Wilayah')
                     ->placeholder('Belum ada Wilayah')
-                    ->searchable()
-                    ->copyable()
-                    ->copyMessage('Telah Disalin!')
-                    ->copyMessageDuration(500),
-
+                    ->searchable(),
                 TextColumn::make('penduduks_count')
                     ->label('Anggota Keluarga')
-                    ->copyable()
-                    ->copyMessage('Telah Disalin!')
-                    ->copyMessageDuration(500)
                     ->counts('penduduks')
                     ->alignCenter(),
-
                 TextColumn::make('kk_alamat')
                     ->label('Alamat KK')
                     ->searchable()
-                    ->copyable()
-                    ->copyMessage('Telah Disalin!')
-                    ->copyMessageDuration(500)
                     ->sortable()
                     ->limit(30)
                     ->tooltip(function (TextColumn $column): ?string {
@@ -272,14 +265,12 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
             ])
             ->actions(
                 [
-                    Tables\Actions\ViewAction::make()->label('')->color('primary')->iconButton()->iconSize('md')->extraAttributes([
-                        'class' => 'text-green-500 hover:text-green-700 mr-2',
-                    ]),
-                    Tables\Actions\EditAction::make()->label('')->color('success')->iconButton()->iconSize('md')->extraAttributes([
-                        'class' => 'text-yellow-500 hover:text-yellow-700 ',
-                    ]),
+                    ActionGroup::make([
+                        Tables\Actions\ViewAction::make()->color('primary')->iconSize(IconSize::Small),
+                        Tables\Actions\EditAction::make()->color('info')->iconSize(IconSize::Small),
+                    ])->icon("fas-gears")->iconPosition('after')->color('success')->button()->label('Aksi'),
                 ],
-                position: ActionsPosition::BeforeColumns
+                position: ActionsPosition::AfterColumns
             )
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -299,6 +290,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
             )
             ->emptyStateHeading('Kartu Keluarga belum ada')
             ->emptyStateDescription('Silahkan tambahkan Kartu Keluarga baru dengan menekan tombol tambah di atas')
+            ->recordUrl(fn (KartuKeluarga $record) => static::getUrl('edit', ['record' => $record->nik]))
             ->recordClasses(fn (Model $record) => empty($record->kepalaKeluarga?->nama_lengkap) ? 'bg-red-100' : '')
             ->striped()
             ->poll('60s')
@@ -346,7 +338,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                                 ->formatStateUsing(
                                                     function (Kartukeluarga $record) {
                                                         if ($record->editor) {
-                                                            return $record->updated_at->diffForHumans() . ' oleh ' . $record->editor->name;
+                                                            return $record->updated_at->diffForHumans() . ' oleh ' . $record->editor?->name;
                                                         } else {
                                                             return 'Belum ada yang mengubah';
                                                         }

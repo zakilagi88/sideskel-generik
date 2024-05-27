@@ -396,6 +396,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ActionGroup::make([
                         ActionsAction::make('Ubah Status Dasar')
                             ->icon('fas-pen-to-square')
+                            ->iconSize(IconSize::Small)
                             ->color('success')
                             ->form([
                                 Select::make('status_dasar')
@@ -621,6 +622,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                         ->requiresConfirmation(),
                 ]),
             ])
+            ->recordUrl(fn (Penduduk $record) => static::getUrl('edit', ['record' => $record->nik]))
             ->recordClasses(fn (Model $record) => empty($record->wilayah?->wilayah_nama) ? 'bg-red-100' : '')
             ->emptyStateActions([])
             ->deferLoading()

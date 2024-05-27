@@ -46,13 +46,14 @@ class ListKartukeluargas extends ListRecords
                     }
                 ),
 
-            Actions\CreateAction::make()->label('Tambah Kartu Keluarga')
-                ->label('Tambah Kartu Keluarga')
+            Actions\CreateAction::make()->label('Tambah Keluarga')
+                ->label('Tambah Keluarga')
                 ->size(ActionSize::Small)
                 ->color('primary')
                 ->button(),
 
             ActionsAction::make('Import')
+                ->label('Import Data')
                 ->size(ActionSize::Small)
                 ->form([
                     FileUpload::make('file')
@@ -80,7 +81,6 @@ class ListKartukeluargas extends ListRecords
                 //         ),
 
                 // ])
-                ->label('Import File')
                 ->modalFooterActionsAlignment(Alignment::End)
                 ->action(
                     function (array $data) {
