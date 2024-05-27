@@ -70,30 +70,3 @@
 
 </div>
 </div>
-<script>
-    AOS.init({
-        offset: 200,
-        delay: 100,
-        duration: 2000,
-    });
-</script>
-<script>
-    const $backTop = $(".back-to-top");
-    const isHidden = "is-hidden";
-
-    $(window).on("scroll", function() {
-        const $this = $(this);
-        if ($this.scrollTop() + $this.height() == $(document).height()) {
-            $backTop.removeClass(isHidden);
-        } else {
-            $backTop.addClass(isHidden);
-        }
-    });
-
-    $backTop.on("click", () => {
-        $("html, body").animate({
-            scrollTop: 0
-        }, "slow");
-        return false;
-    });
-</script>

@@ -22,7 +22,6 @@
 
     @filamentStyles
     @vite('resources/css/app.css')
-    @vite('resources/css/filament/admin/theme.css')
 
 </head>
 
@@ -38,14 +37,16 @@
 
     <x-layouts.partials.footer />
 
-    @livewire('components.footer')
-
     @filamentScripts
     @vite('resources/js/app.js')
 
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
-        AOS.init();
+        AOS.init({
+            offset: 200,
+            delay: 100,
+            duration: 2000,
+        });
     </script>
 </body>
 

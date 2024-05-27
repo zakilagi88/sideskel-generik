@@ -38,7 +38,7 @@ class AnggotaRelationManager extends RelationManager
                                 $modifiedKeyValue[$normalizedKey] = $kategori;
                             }
                             return $modifiedKeyValue;
-                    }
+                        }
                     )
                     ->dehydrateStateUsing(fn (string $state): string => ucwords($state)),
                 Forms\Components\TextInput::make('keterangan')
@@ -69,6 +69,7 @@ class AnggotaRelationManager extends RelationManager
                     ->label('Nama Lengkap'),
                 Tables\Columns\TextColumn::make('jabatan')
                     ->label('Jabatan')
+                    ->formatStateUsing(fn ($state) => str_replace('-', ' ', ucwords($state)))
                     ->badge(),
                 Tables\Columns\TextColumn::make('keterangan')
                     ->label('Keterangan')
@@ -128,7 +129,8 @@ class AnggotaRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->hidden($this->hideIndexPage()),
-                Tables\Actions\DeleteAction::make()
+                Tables\Actions\DetachAction::make()
+                    ->label('Lepaskan')
                     ->hidden($this->hideIndexPage()),
             ])
             ->bulkActions([

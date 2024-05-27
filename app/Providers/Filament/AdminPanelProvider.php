@@ -74,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
             ->profile(AuthProfile::class, isSimple: false)
             ->globalSearchKeyBindings([
                 'command+f', 'ctrl+f'
-            ])
+            ])  
             ->routes(
                 fn () => FacadesRoute::get('/downloads', function () {
                     return response()->download(storage_path('app/private/deskel/exports/' . 'akun_pengguna.xlsx'));

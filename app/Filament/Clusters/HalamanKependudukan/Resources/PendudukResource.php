@@ -287,10 +287,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
-                TextColumn::make('alamatKK')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable(),
                 TextColumn::make('status_dasar')
                     ->searchable()
                     ->badge()
@@ -301,9 +297,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ->badge()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
-
-
-
             ])
             ->filters([
                 SelectFilter::make('wilayah')
