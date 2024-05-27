@@ -266,8 +266,8 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
             ->actions(
                 [
                     ActionGroup::make([
-                        Tables\Actions\ViewAction::make()->color('primary')->iconSize(IconSize::Small),
-                        Tables\Actions\EditAction::make()->color('info')->iconSize(IconSize::Small),
+                        Tables\Actions\EditAction::make()->iconSize(IconSize::Small),
+                        Tables\Actions\ViewAction::make()->color('info')->iconSize(IconSize::Small),
                     ])->icon("fas-gears")->iconPosition('after')->color('success')->button()->label('Aksi'),
                 ],
                 position: ActionsPosition::AfterColumns

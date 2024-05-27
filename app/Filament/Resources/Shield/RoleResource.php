@@ -13,6 +13,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -112,8 +113,8 @@ class RoleResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->hidden(fn ($record) => $record->name === 'Admin'),
-                Tables\Actions\DeleteAction::make()->hidden(fn ($record) => $record->name === 'Admin'),
+                Tables\Actions\EditAction::make()->hidden(fn ($record) => $record->name === 'Admin')->button()->iconSize(IconSize::Small),
+                Tables\Actions\DeleteAction::make()->hidden(fn ($record) => $record->name === 'Admin')->button()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

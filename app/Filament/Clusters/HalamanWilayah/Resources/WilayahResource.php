@@ -14,6 +14,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
@@ -91,8 +92,6 @@ class WilayahResource extends Resource
         /** @var \App\Models\User */
         $auth = Filament::auth()->user();
 
-        $parentUser = Wilayah::find(1);
-        $parentAnak = Wilayah::find(18);
         return $table
             ->query(
                 static::$model::tree()->depthFirst()->withCount(['penduduks'])->with(['descendantsKks'])
@@ -146,10 +145,11 @@ class WilayahResource extends Resource
                     ->columnSpanFull(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->button(),
+                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
                 Tables\Actions\Action::make('wilayah_kepala')
                     ->label('Kepala Wilayah')
                     ->button()
+                    ->iconSize(IconSize::Small)
                     ->color('info')
                     ->icon('fas-user')
                     ->form([

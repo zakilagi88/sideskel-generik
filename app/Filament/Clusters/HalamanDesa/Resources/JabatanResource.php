@@ -11,6 +11,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -59,8 +60,8 @@ class JabatanResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
+                Tables\Actions\DeleteAction::make()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

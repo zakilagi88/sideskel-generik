@@ -27,7 +27,7 @@ class StatSDMWidgets extends Component implements HasForms
 
     public function render()
     {
-        return view('livewire.stat.filter-form');
+        return view('livewire.pages.stat.filters-form');
     }
 
     public function mount(int | string $record): void

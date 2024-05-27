@@ -16,6 +16,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -316,7 +317,7 @@ class BeritaResource extends Resource implements HasShieldPermissions
 
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

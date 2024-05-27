@@ -15,4 +15,17 @@ class HalamanBerita extends Cluster
     protected static ?string $navigationGroup = 'Berita';
 
     protected static ?string $navigationLabel = 'Berita';
+
+    public function mount(): void
+    {
+        foreach ($this->getCachedSubNavigation() as $navigationGroup) {
+            foreach ($navigationGroup->getItems() as $navigationItem) {
+                redirect($navigationItem->getUrl());
+
+                return;
+            }
+        }
+
+        $this->redirect((static::getClusteredComponents()[0]::getUrl()));
+    }
 }

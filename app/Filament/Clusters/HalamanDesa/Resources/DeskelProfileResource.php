@@ -28,6 +28,7 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\IconSize;
 use Filament\Support\Enums\VerticalAlignment;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
@@ -597,8 +598,8 @@ class DeskelProfileResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make()->iconSize(IconSize::Small)->button(),
+                Tables\Actions\ViewAction::make()->iconSize(IconSize::Small)->button()->color('info'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

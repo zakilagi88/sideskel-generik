@@ -13,6 +13,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
@@ -164,17 +165,17 @@ class KeputusanResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 Tables\Actions\Action::make('Preview File')
-                    ->hiddenLabel()
+                    ->label('Lihat')
                     ->button()
                     ->modalContent(function (Keputusan $record) {
                         return view('filament.pages.preview-file', ['record' => $record]);
                     })
                     ->modalSubmitAction(false)
-                    ->color('success')
+                    ->color('info')
                     ->icon('fas-eye')
-                    ->iconSize('md'),
-                Tables\Actions\EditAction::make()->label('')->button(),
-            ], ActionsPosition::BeforeColumns)
+                    ->iconSize(IconSize::Small),
+                Tables\Actions\EditAction::make()->label('Ubah')->button()->iconSize(IconSize::Small),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

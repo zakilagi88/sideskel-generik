@@ -9,6 +9,7 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Form;
 use Filament\Forms\Components\{DateTimePicker, Grid, TextInput, Select};
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
@@ -109,9 +110,6 @@ class UserResource extends Resource implements HasShieldPermissions
                 TextColumn::make('email')
                     ->placeholder('Belum ada email')
                     ->searchable(),
-                // TextColumn::make('email_verified_at')
-                //     ->dateTime()
-                //     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -126,13 +124,12 @@ class UserResource extends Resource implements HasShieldPermissions
                     ->formatStateUsing(fn ($state): string => Str::headline($state))
                     ->colors(['primary'])
                     ->sortable()
-                // ->defaultView('filament::tables.actions'),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->hidden(fn ($record) => $record->username === 'admin')->button()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -150,13 +147,6 @@ class UserResource extends Resource implements HasShieldPermissions
                 Tables\Actions\CreateAction::make(),
             ]);
     }
-
-    // public static function getRelations(): array
-    // {
-    //     return [
-    //         AutentikasiLogRelationManager::class,
-    //     ];
-    // }
 
     public static function getPages(): array
     {

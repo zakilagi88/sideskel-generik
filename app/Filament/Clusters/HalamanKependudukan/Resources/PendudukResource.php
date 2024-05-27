@@ -397,7 +397,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                         ActionsAction::make('Ubah Status Dasar')
                             ->icon('fas-pen-to-square')
                             ->iconSize(IconSize::Small)
-                            ->color('success')
+                            ->color('primary')
                             ->form([
                                 Select::make('status_dasar')
                                     ->options(
@@ -564,6 +564,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                     }
                                 }
                             ),
+                        Tables\Actions\EditAction::make()->iconSize(IconSize::Small),
                         ActionsAction::make('Tinjau')
                             ->form([
                                 TextInput::make('catatan')
@@ -597,9 +598,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 }
                             }),
 
-                        Tables\Actions\DeleteAction::make(),
-                        Tables\Actions\ViewAction::make()->color('primary')->iconSize(IconSize::Small),
-                        Tables\Actions\EditAction::make()->color('info')->iconSize(IconSize::Small),
+                        Tables\Actions\DeleteAction::make()->iconSize(IconSize::Small),
+                        Tables\Actions\ViewAction::make()->color('info')->iconSize(IconSize::Small),
                     ])->icon("fas-gears")->iconPosition('after')->color('success')->button()->label('Aksi'),
                 ],
                 position: ActionsPosition::AfterColumns

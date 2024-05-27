@@ -4,6 +4,7 @@ namespace App\Livewire\Pages;
 
 use App\Filament\Clusters\HalamanArsip\Resources\KeputusanResource;
 use App\Livewire\Templates\TablePage;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables\Table;
 use Filament\Tables;
 use Filament\Tables\Enums\ActionsPosition;
@@ -20,15 +21,15 @@ class KeputusanPage extends TablePage
         return parent::table($table)
             ->actions([
                 Tables\Actions\Action::make('Preview File')
-                    ->hiddenLabel()
+                    ->label('Lihat')
                     ->button()
                     ->modalContent(function (Model $record) {
                         return view('filament.pages.preview-file', ['record' => $record]);
                     })
                     ->modalSubmitAction(false)
-                    ->color('success')
+                    ->color('info')
                     ->icon('fas-eye')
-                    ->iconSize('md'),
+                    ->iconSize(IconSize::Small),
             ], ActionsPosition::AfterColumns);
     }
 }
