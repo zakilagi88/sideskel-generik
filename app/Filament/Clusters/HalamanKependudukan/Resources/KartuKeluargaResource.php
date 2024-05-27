@@ -290,7 +290,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
             )
             ->emptyStateHeading('Kartu Keluarga belum ada')
             ->emptyStateDescription('Silahkan tambahkan Kartu Keluarga baru dengan menekan tombol tambah di atas')
-            ->recordUrl(fn (KartuKeluarga $record) => static::getUrl('edit', ['record' => $record->nik]))
+            ->recordUrl(fn (KartuKeluarga $record) => static::getUrl('edit', ['record' => $record->kk_id]))
             ->recordClasses(fn (Model $record) => empty($record->kepalaKeluarga?->nama_lengkap) ? 'bg-red-100' : '')
             ->striped()
             ->poll('60s')
