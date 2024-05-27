@@ -46,7 +46,7 @@ use Termwind\Components\Dd;
 
 class KartuKeluargaResource extends Resource implements HasShieldPermissions
 {
-    protected static ?string $breadcrumb = 'keluarga';
+    protected static ?string $breadcrumb = 'Keluarga';
 
 
     protected static ?string $model = KartuKeluarga::class;
