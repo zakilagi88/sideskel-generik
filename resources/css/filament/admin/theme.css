@@ -5,6 +5,12 @@
 
 @layer components {
 
+    .container.home {
+            max-width: 95%;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
     .fi-body {
         @apply bg-secondary-100 pt-2 px-2 dark:bg-gray-950 !important;
     } 

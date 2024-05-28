@@ -16,12 +16,9 @@
         }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-    <link rel="stylesheet" href="assets('css/all.css')">
-
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    {{-- <link rel="stylesheet" href="assets('css/all.css')"> --}}
 
     @filamentStyles
-    @vite('resources/css/app.css')
     @vite('resources/css/filament/admin/theme.css')
 
 </head>
@@ -30,7 +27,7 @@
 
     <x-layouts.partials.header />
 
-    <main class="container my-10">
+    <main class="container home my-10">
 
         {{ $slot }}
 
