@@ -21,20 +21,20 @@
                 </div>
             </div>
             <div class="space-y-2 text-sm">
-                <p class="text-base font-bold tracking-wide text-white dark:text-gray-400 mb-2">Informasi Kontak Penting
+                <p class="text-base font-bold tracking-wide text-white dark:text-gray-400 mb-2">Informasi Penting
                 </p>
                 <div class="flex">
-                    <p class="mr-1 text-white">Telepon:</p>
+                    <p class="mr-1 text-white">Telepon :</p>
                     <a href="tel:{{ $deskel->telepon }}" aria-label="Our phone" title="Our phone"
                         class="transition-colors duration-300  font-semibold text-white hover:text-secondary-100">{{ $deskel->telepon }}</a>
                 </div>
                 <div class="flex">
-                    <p class="mr-1 text-white">Email:</p>
+                    <p class="mr-1 text-white">Email &nbsp&nbsp&nbsp :</p>
                     <a href="mailto:{{ $deskel->email }}" aria-label="Our email" title="Our email"
                         class="transition-colors duration-300  font-semibold text-white hover:text-secondary-100">{{ $deskel->email }}</a>
                 </div>
                 <div class="flex">
-                    <p class="mr-1 text-white">Alamat:</p>
+                    <p class="mr-1 text-white">Alamat &nbsp:</p>
                     <a href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer"
                         aria-label="Our address" title="Our address"
                         class="transition-colors duration-300 font-semibold text-white hover:text-secondary-100">

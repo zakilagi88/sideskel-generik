@@ -63,9 +63,10 @@
             </div>
 
             <livewire:widgets.jadwal-kegiatan-publik />
+
+            <livewire:pages.berita.berita-grid :data="$data" />
         </div>
     </div>
-    <livewire:pages.berita.berita-grid :data="$data" />
 </div>
 
 </div>

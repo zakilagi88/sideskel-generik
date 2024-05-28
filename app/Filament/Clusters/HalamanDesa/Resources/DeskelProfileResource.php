@@ -694,7 +694,7 @@ class DeskelProfileResource extends Resource
                                                         ->weight(FontWeight::Medium)
                                                         ->getStateUsing(
                                                             fn ($record) => new HtmlString(
-                                                                $settings['singkatan_prov'] . " " . ucwords(strtolower($record->prov->prov_nama)) . '<br/>' . $settings['singkatan_kabkota'] . " " . ucwords(strtolower($record->kabkota->kabkota_nama)) . '<br/>' . " " . $settings['singkatan_kec'] . ucwords(strtolower($record->kec->kec_nama))
+                                                                $settings['singkatan_prov'] . " " . ucwords(strtolower($record->prov?->prov_nama)) . '<br/>' . $settings['singkatan_kabkota'] . " " . ucwords(strtolower($record->kabkota->kabkota_nama)) . '<br/>' . " " . $settings['singkatan_kec'] . ucwords(strtolower($record->kec->kec_nama))
                                                             )
                                                         )
                                                         ->columnSpanFull()
@@ -712,51 +712,26 @@ class DeskelProfileResource extends Resource
                                                 ->schema([
                                                     TextEntry::make('telepon')
                                                         ->hiddenLabel()
-                                                        ->alignCenter()
-
-                                                        ->placeholder(
-                                                            fn (): string => 'Telepon ' . ucwords(
-                                                                strtolower($settings['sebutan_deskel'])
-                                                            )
-                                                        )
+                                                        ->placeholder(fn (): string => 'Telepon ' . ucwords(strtolower($settings['sebutan_deskel'])))
                                                         ->icon('fas-phone')
-                                                        ->iconColor('')
+                                                        ->iconColor('white')
                                                         ->size(TextEntrySize::Medium)
                                                         ->weight(FontWeight::Medium)
+                                                        ->color('white')
                                                         ->columnSpanFull()
-                                                        ->extraAttributes([
-                                                            'class' => 'deskel-profile-section',
-                                                            'style' => 'font-weight: 700; font-size: 1.5rem;',
-                                                        ])
-                                                        ->formatStateUsing(
-                                                            function (string $state): string {
-                                                                return ucwords(strtolower($state));
-                                                            }
-                                                        ),
+                                                        ->extraAttributes(['class' => 'deskel-profile-section text-white flex justify-center md:justify-start'])
+                                                        ->formatStateUsing(fn (string $state): string => ucwords(strtolower($state))),
                                                     TextEntry::make('email')
-                                                        ->label('Telepon')
                                                         ->hiddenLabel()
-                                                        ->placeholder(
-                                                            fn (): string => 'Email ' . ucwords(
-                                                                strtolower($settings['sebutan_deskel'])
-                                                            )
-                                                        )
+                                                        ->placeholder(fn (): string => 'Email ' . ucwords(strtolower($settings['sebutan_deskel'])))
                                                         ->icon('far-envelope')
-                                                        ->iconColor('')
+                                                        ->iconColor('white')
                                                         ->size(TextEntrySize::Medium)
                                                         ->weight(FontWeight::Medium)
+                                                        ->color('white')
                                                         ->columnSpanFull()
-                                                        ->alignCenter()
-
-                                                        ->extraAttributes([
-                                                            'class' => 'deskel-profile-section',
-                                                            'style' => 'font-weight: 700; font-size: 1.5rem;',
-                                                        ])
-                                                        ->formatStateUsing(
-                                                            function (string $state): string {
-                                                                return ucwords(strtolower($state));
-                                                            }
-                                                        ),
+                                                        ->extraAttributes(['class' => 'deskel-profile-section text-white flex justify-center md:justify-start'])
+                                                        ->formatStateUsing(fn (string $state): string => ucwords(strtolower($state))),
                                                 ])
                                         ])
                                             ->verticalAlignment(VerticalAlignment::Center)

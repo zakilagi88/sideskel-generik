@@ -1,7 +1,7 @@
 <div class="bg-transparent ">
     <div class="mx-auto max-w-8xl px-6 lg:px-4">
         <section class="pt-20 lg:pt-[120px]">
-            <div class="container">
+            <div class="container home">
                 <div class="w-full px-4">
                     <div class="text-center mx-auto mb-[60px] lg:mb-20 max-w-[510px]">
                         <span class="font-semibold text-lg text-primary mb-2 block">
