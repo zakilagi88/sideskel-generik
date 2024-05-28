@@ -216,7 +216,6 @@ class DeskelProfileResource extends Resource
                                                                 )
                                                                 ->dehydrated()
                                                                 ->live()
-                                                                ->searchable()
                                                                 ->preload(),
                                                             Select::make('kec_id')
                                                                 ->label('Kecamatan')

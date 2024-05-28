@@ -329,7 +329,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ->label('Agama'),
                 SelectFilter::make('pekerjaan')
                     ->options(PekerjaanType::class)
-                    ->label('Pendidikan'),
+                    ->label('Pekerjaan'),
                 SelectFilter::make('umur')
                     ->options(UmurType::class)
                     ->label('Umur'),

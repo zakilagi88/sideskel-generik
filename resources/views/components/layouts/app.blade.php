@@ -22,6 +22,7 @@
 
     @filamentStyles
     @vite('resources/css/app.css')
+    @vite('resources/css/filament/admin/theme.css')
 
 </head>
 
