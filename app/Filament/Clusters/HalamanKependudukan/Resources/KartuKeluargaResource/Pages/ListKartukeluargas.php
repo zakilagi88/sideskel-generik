@@ -4,6 +4,8 @@ namespace App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResou
 
 use App\Exports\TemplateImport;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource;
+use App\Imports\Import;
+use App\Imports\KartuKeluargaImport;
 use App\Jobs\ImportJob;
 use App\Models\{KartuKeluarga, Penduduk, User,};
 use Filament\Actions;
@@ -20,8 +22,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ListKartukeluargas extends ListRecords
 {
-    use WithFileUploads;
-
     protected static string $resource = KartukeluargaResource::class;
 
     public $file;
@@ -85,14 +85,20 @@ class ListKartukeluargas extends ListRecords
                 ->action(
                     function (array $data) {
 
-                        self::import($data['file']);
-
                         Notification::make()
-                            ->success()
+                            ->icon('fas-stopwatch')
+                            ->iconColor('primary')
                             ->title('Import Data Kartu Keluarga')
-                            ->body('Data kartu keluarga berhasil di impor')
-                            ->sendToDatabase(User::role('Admin')->get('id'))
+                            ->body('Data Keluarga sedang diimport, silahkan tunggu beberapa saat.')
+                            ->seconds(1)
                             ->send();
+
+                        Excel::import(new Import, $data['file']);
+
+
+                        // self::import($data['file']);
+
+
 
                         return redirect()->route('filament.admin.pages.dashboard');
                     }
@@ -152,43 +158,41 @@ class ListKartukeluargas extends ListRecords
     public function import($data)
     {
         $this->importFilePath = $data;
-        $this->isImporting = true;
-        $batch = Bus::batch([
-            new ImportJob($this->importFilePath),
-        ])->dispatch();
+        // $this->isImporting = true;
+        $batch = Bus::batch([new ImportJob($this->importFilePath)])->dispatch();
 
-        $this->batchId = $batch->id;
+        // $this->batchId = $batch->id;
     }
 
-    public function cancelImport()
-    {
-        if ($this->batchId) {
-            Bus::findBatch($this->batchId)->cancel();
-        }
-    }
+    // public function cancelImport()
+    // {
+    //     if ($this->batchId) {
+    //         Bus::findBatch($this->batchId)->cancel();
+    //     }
+    // }
 
-    public function getImportBatchProperty()
-    {
-        if (!$this->batchId) {
-            return null;
-        }
-        return Bus::findBatch($this->batchId);
-    }
+    // public function getImportBatchProperty()
+    // {
+    //     if (!$this->batchId) {
+    //         return null;
+    //     }
+    //     return Bus::findBatch($this->batchId);
+    // }
 
 
-    public function updateImportProgress()
-    {
-        if (!$this->importBatch) {
-            return;
-        } else {
-            $this->importProgress = $this->importBatch->progress();
-            $this->importFinished = $this->importBatch->finished();
-            if ($this->importFinished) {
-                Storage::delete($this->importFilePath);
-                $this->isImporting = false;
-                $this->importFilePath = null;
-                $this->batchId = null;
-            }
-        }
-    }
+    // public function updateImportProgress()
+    // {
+    //     if (!$this->importBatch) {
+    //         return;
+    //     } else {
+    //         $this->importProgress = $this->importBatch->progress();
+    //         $this->importFinished = $this->importBatch->finished();
+    //         if ($this->importFinished) {
+    //             Storage::delete($this->importFilePath);
+    //             $this->isImporting = false;
+    //             $this->importFilePath = null;
+    //             $this->batchId = null;
+    //         }
+    //     }
+    // }
 }

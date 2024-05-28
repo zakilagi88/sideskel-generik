@@ -12,6 +12,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\{AttachAction, BulkActionGroup, DetachAction, DetachBulkAction};
 use Filament\Tables\Columns\{TextColumn};
+use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -85,7 +86,7 @@ class KeluargasRelationManager extends RelationManager
                     ->modalDescription('Data yang tidak valid akan dihapus dari daftar bantuan.')
                     ->button()
                 ->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
-            ])
+            ], ActionsPosition::BeforeColumns)
             ->bulkActions([
                 BulkActionGroup::make([
                     DetachBulkAction::make()->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),

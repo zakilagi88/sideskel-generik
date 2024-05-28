@@ -3,6 +3,9 @@
 namespace App\Imports;
 
 use App\Facades\Deskel;
+use App\Jobs\ImportJob;
+use App\Jobs\InsertsJob;
+use App\Jobs\NotifyJob;
 use App\Models\AnggotaKeluarga;
 use App\Models\DeskelProfil;
 use App\Models\Dusun;
@@ -10,11 +13,14 @@ use App\Models\KartuKeluarga;
 use App\Models\Penduduk;
 use App\Models\RT;
 use App\Models\RW;
+use App\Models\User;
 use App\Models\Wilayah;
 use App\Settings\GeneralSettings;
 use Carbon\Carbon;
 use DateTime;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\OnEachRow;
@@ -39,44 +45,31 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
         $this->wilayah = Wilayah::tree()->get();
         $this->settings = app(GeneralSettings::class)->toArray();
 
-        switch ($this->deskel->struktur) {
-            case 'Khusus':
-                $this->wilayah = $this->wilayah->where('depth', 0)->pluck('wilayah_nama', 'wilayah_id')->toArray();
-                break;
-            case 'Dasar':
-                $this->wilayah = $this->wilayah->where('depth', 1)->pluck('wilayah_nama', 'wilayah_id')->toArray();
-                break;
-            case 'Lengkap':
-                $this->wilayah = $this->wilayah->where('depth', 2)->pluck('wilayah_nama', 'wilayah_id')->toArray();
-                break;
-            default:
-                $this->wilayah = [];
-                break;
-        }
+        $depth = match ($this->deskel->struktur) {
+            'Khusus' => 0,
+            'Dasar' => 1,
+            'Lengkap' => 2,
+            default => null,
+        };
+
+        $this->wilayah = $depth !== null
+            ? $this->wilayah->where('depth', $depth)->pluck('wilayah_nama', 'wilayah_id')->toArray()
+            : [];
     }
 
     public function concatWilayah($parent, $sub_parent = null, $child = null): string
     {
-        switch ($this->deskel->struktur) {
-            case 'Khusus':
-                return $this->settings['sebutan_wilayah']['Khusus'][0] . ' ' . $parent;
-                break;
-            case 'Dasar':
-                return $this->settings['sebutan_wilayah']['Dasar'][1] . ' ' . $child . ' / ' . $this->settings['sebutan_wilayah']['Dasar'][0] . ' ' . $parent;
-                break;
-            case 'Lengkap':
-                return $this->settings['sebutan_wilayah']['Lengkap'][2] . ' ' . $child . ' / ' . $this->settings['sebutan_wilayah']['Lengkap'][1] . ' ' . $sub_parent . ' / ' . $this->settings['sebutan_wilayah']['Lengkap'][0] . ' ' . $parent;
-                break;
-            default:
-                return null;
-                break;
-        }
+        return match ($this->deskel->struktur) {
+            'Khusus' => $this->settings['sebutan_wilayah']['Khusus'][0] . ' ' . $parent,
+            'Dasar' => $this->settings['sebutan_wilayah']['Dasar'][1] . ' ' . $child . ' / ' . $this->settings['sebutan_wilayah']['Dasar'][0] . ' ' . $parent,
+            'Lengkap' => $this->settings['sebutan_wilayah']['Lengkap'][2] . ' ' . $child . ' / ' . $this->settings['sebutan_wilayah']['Lengkap'][1] . ' ' . $sub_parent . ' / ' . $this->settings['sebutan_wilayah']['Lengkap'][0] . ' ' . $parent,
+            default => null,
+        };
     }
 
     public function findWilayahId($concatenated)
     {
-        $wilayah_id = array_search($concatenated, $this->wilayah);
-        return $wilayah_id !== false ? $wilayah_id : null;
+        return array_search($concatenated, $this->wilayah) ?: null;
     }
 
 
@@ -88,22 +81,13 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
 
         foreach ($rows as $row) {
 
-            switch ($this->deskel->struktur) {
-                case 'Khusus':
-                    $concatenated = $this->concatWilayah(parent: $row[strtolower($this->settings['sebutan_wilayah']['Khusus'][0])]);
-                    break;
-                case 'Dasar':
-                    $concatenated = $this->concatWilayah(parent: $row[strtolower($this->settings['sebutan_wilayah']['Dasar'][0])], child: $row[strtolower($this->settings['sebutan_wilayah']['Dasar'][1])]);
-                    break;
-                case 'Lengkap':
-                    $concatenated = $this->concatWilayah(parent: $row[strtolower($this->settings['sebutan_wilayah']['Lengkap'][0])], sub_parent: $row[strtolower($this->settings['sebutan_wilayah']['Lengkap'][1])], child: $row[strtolower($this->settings['sebutan_wilayah']['Lengkap'][2])]);
-                    break;
-                default:
-                    $concatenated = null;
-                    break;
-            }
+            $concatenated = match ($this->deskel->struktur) {
+                'Khusus' => $this->concatWilayah(parent: $row[strtolower($this->settings['sebutan_wilayah']['Khusus'][0])]),
+                'Dasar' => $this->concatWilayah(parent: $row[strtolower($this->settings['sebutan_wilayah']['Dasar'][0])], child: $row[strtolower($this->settings['sebutan_wilayah']['Dasar'][1])]),
+                'Lengkap' => $this->concatWilayah(parent: $row[strtolower($this->settings['sebutan_wilayah']['Lengkap'][0])], sub_parent: $row[strtolower($this->settings['sebutan_wilayah']['Lengkap'][1])], child: $row[strtolower($this->settings['sebutan_wilayah']['Lengkap'][2])]),
+                default => null,
+            };
 
-            //cek kk sudah ada atau belum di collection
             $isKkExist = $kartuKeluarga->where('kk_id', $row['nomor_kk'])->first();
 
             if (!$isKkExist) {
@@ -153,36 +137,18 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
             ]);
         }
 
-        try {
-            DB::beginTransaction();
+        $chunksKeluarga = $kartuKeluarga->chunk(500);
+        $chunksPenduduk = $penduduk->chunk(1000);
 
-            KartuKeluarga::disableAuditing();
-            Penduduk::disableAuditing();
+        $kkCount = $kartuKeluarga->count();
+        $pddCount = $penduduk->count();
 
-            KartuKeluarga::query()->getConnection()->statement('SET FOREIGN_KEY_CHECKS =0;');
-
-            $chunksKeluarga = $kartuKeluarga->chunk(500);
-            $chunksPenduduk = $penduduk->chunk(1000);
-
-            foreach ($chunksKeluarga as $chunk) {
-                KartuKeluarga::insert($chunk->toArray());
-            }
-
-            foreach ($chunksPenduduk as $chunk) {
-                Penduduk::insert($chunk->toArray());
-            }
-
-            KartuKeluarga::query()->getConnection()->statement('SET FOREIGN_KEY_CHECKS=1;');
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error($e->getMessage());
-            dd($e->getMessage());
-        } finally {
-            KartuKeluarga::enableAuditing();
-            Penduduk::enableAuditing();
-        }
+        /** @var \App\Models\User */
+        $authUser = auth()->user()->id;
+        Bus::chain([
+            new InsertsJob($chunksKeluarga, $chunksPenduduk),
+            new NotifyJob($kkCount, $pddCount, $authUser),
+        ])->dispatch();
     }
 
     private function formatTanggal($tgl)

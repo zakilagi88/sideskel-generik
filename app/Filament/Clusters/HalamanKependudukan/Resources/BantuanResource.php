@@ -13,6 +13,7 @@ use Filament\Forms\Components\{DatePicker, Group, Select, Textarea, TextInput, T
 use Filament\Forms\Form;
 use Filament\Forms\FormsComponent;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
 use Filament\Tables\Table;
@@ -130,7 +131,7 @@ class BantuanResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->button(),
+                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
