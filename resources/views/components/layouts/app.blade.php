@@ -16,7 +16,6 @@
         }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-    {{-- <link rel="stylesheet" href="assets('css/all.css')"> --}}
 
     @filamentStyles
     @vite('resources/css/filament/admin/theme.css')
@@ -27,7 +26,7 @@
 
     <x-layouts.partials.header />
 
-    <main class="container home my-10">
+    <main class="container home my-10 mx-auto">
 
         {{ $slot }}
 

@@ -175,6 +175,7 @@ class KeputusanResource extends Resource implements HasShieldPermissions
                     ->icon('fas-eye')
                     ->iconSize(IconSize::Small),
                 Tables\Actions\EditAction::make()->label('Ubah')->button()->iconSize(IconSize::Small),
+                Tables\Actions\DeleteAction::make()->label('Hapus')->button()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

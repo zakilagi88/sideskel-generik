@@ -142,10 +142,8 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                ActionGroup::make([
-                    Tables\Actions\EditAction::make()->iconSize(IconSize::Small),
-                    Tables\Actions\DeleteAction::make()->iconSize(IconSize::Small),
-                ])->icon("fas-gears")->iconPosition('after')->color('success')->button()->label('Aksi'),
+                Tables\Actions\EditAction::make()->iconSize(IconSize::Small)->button(),
+                Tables\Actions\DeleteAction::make()->iconSize(IconSize::Small)->button(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -114,7 +114,7 @@ class RoleResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->hidden(fn ($record) => $record->name === 'Admin')->button()->iconSize(IconSize::Small),
-                Tables\Actions\DeleteAction::make()->hidden(fn ($record) => $record->name === 'Admin')->button()->iconSize(IconSize::Small),
+                Tables\Actions\DeleteAction::make()->hidden(fn ($record) => $record->name === 'Admin' || $record->name === "Admin Web" || $record->name === "Operator Wilayah" || $record->name === "Monitor Wilayah")->button()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

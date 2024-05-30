@@ -130,6 +130,7 @@ class UserResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->hidden(fn ($record) => $record->username === 'admin')->button()->iconSize(IconSize::Small),
+                Tables\Actions\DeleteAction::make()->hidden(fn ($record) => $record->username === 'admin')->button()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

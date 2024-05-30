@@ -54,12 +54,6 @@ class AuthProfile extends EditProfile
                                     ->label('Username'),
                                 $this->getNameFormComponent(),
                                 $this->getEmailFormComponent(),
-                                ColorPicker::make('settings.color')
-                                    ->label('Warna Utama')
-                                    ->formatStateUsing(
-                                        fn (?string $state): string => $state ?? config('filament.theme.colors.primary')
-                                    )
-                                    ->inlineLabel()
                             ]),
 
                         ]),
@@ -77,7 +71,7 @@ class AuthProfile extends EditProfile
 
     protected function getEmailFormComponent(): Component
     {
-        return parent::getEmailFormComponent();
+        return parent::getEmailFormComponent()->required(false);
     }
 
     protected function getPasswordFormComponent(): Component

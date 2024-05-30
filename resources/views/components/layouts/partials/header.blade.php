@@ -5,3 +5,4 @@
 @endphp
 
 @livewire('components.header-nav')
+

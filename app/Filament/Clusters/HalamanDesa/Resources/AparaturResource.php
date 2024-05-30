@@ -311,6 +311,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
+                Tables\Actions\DeleteAction::make()->button()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

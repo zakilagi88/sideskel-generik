@@ -14,6 +14,7 @@ use Filament\Forms;
 use Filament\Forms\Components\{Group, Select, TextInput};
 use Filament\Forms\{Form, Get, Set};
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Enums\FiltersLayout;
@@ -403,8 +404,8 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                     ->columnMapping(),
             ])
             ->actions([
-
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
+                Tables\Actions\DeleteAction::make()->button()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

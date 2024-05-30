@@ -39,7 +39,6 @@ class InsertsJob implements ShouldQueue
 
         $kkCount = 0;
         $pddCount = 0;
-        $success = false;
 
         try {
             DB::beginTransaction();

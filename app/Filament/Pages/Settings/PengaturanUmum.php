@@ -147,7 +147,7 @@ class PengaturanUmum extends SettingsPage
                                             ->moveFiles()
                                             ->required(),
                                         Forms\Components\FileUpload::make('kepala_gambar')
-                                            ->label('Gambar Untuk Beranda Website Publik')
+                                            ->label('Gambar Untuk Kepala Website Publik')
                                             ->inlineLabel()
                                             ->preserveFilenames()
                                             ->image()

@@ -3,7 +3,7 @@
         x-data="{ mobileMenuOpen: false }">
         <div class="flex flex-nowrap md:flex-wrap items-center justify-evenly md:gap-4 max-w-screen-2xl md:mx-auto">
             <div class="flex items-center">
-                <img src="{{ $deskel->getLogo() }}" alt="SIDeskel"
+                <img src="{{ $deskel->getLogo() }}" alt="SIDeskel" width="48" height="48"
                     class="size-12 lg:size-20 bg-transparent object-contain rounded-xl">
                 <div class="flex flex-col ml-4 text-pretty">
                     <a id="nama" href="#"
@@ -20,10 +20,7 @@
                         <li
                             class="flex relative group hover:bg-white mt-2 px-4 pb-2 text-sm xl:text-lg  text-white hover:text-primary-400 rounded-t-lg ">
                             <x-web.nav-link :items="$m" />
-
                             <x-filament::icon icon="fas-chevron-down" class="size-3 mt-2 ml-1 " />
-
-                            <!-- Submenu starts -->
                             <ul
                                 class="absolute bg-white text-lg rounded-tr-lg rounded-b-lg  border-l-[6px] border-l-primary-400  p-3 -ml-4 w-56 top-9 transform scale-0 group-hover:scale-100 transition duration-150 hover:ease-in-out origin-top shadow-lg">
                                 @foreach ($m['submenu'] as $sm)
@@ -36,7 +33,6 @@
 
                         </li>
                     @else
-                        <!-- Submenu ends -->
                         <li
                             class=" hover:bg-white text-sm xl:text-lg text-white hover:text-primary-400 rounded-lg my-2 px-4">
                             <x-web.nav-link :items="$m" />

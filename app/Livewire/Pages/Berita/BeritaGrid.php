@@ -9,8 +9,6 @@ use Illuminate\Support\Str;
 class BeritaGrid extends Component
 {
 
-    public $data;
-
     public function render()
     {
         $beritas = Berita::with(['author', 'kategori', 'tags'])->published()->limit(7)->get();
@@ -19,6 +17,11 @@ class BeritaGrid extends Component
         }
 
         return view('livewire.pages.berita.berita-grid', compact('beritas'));
+    }
+
+    public function placeholder(array $params = [])
+    {
+        return view('livewire.components.skeleton-grid', $params);
     }
 
     public function limitwords($value, $limit = 100, $end = '...')

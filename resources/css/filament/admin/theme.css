@@ -6,9 +6,7 @@
 @layer components {
 
     .container.home {
-            max-width: 95%;
-            margin: 0 auto;
-            padding: 0 1rem;
+            max-width: 85%;
         }
 
     .fi-body {

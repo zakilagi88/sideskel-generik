@@ -16,24 +16,24 @@
                     </p>
                 </div>
                 <div class="flex items-center justify-center  ">
-                    <img src="{{ asset('storage/' . $data['web_gambar']) }}" alt=""
-                        class="object-cover h-72 sm:h-80 lg:h-96 xl:h-112 2xl:h-128">
+                    <img src="{{ asset('storage/' . $data['web_gambar']) }}" alt="SIDeskel" width="288"
+                        height="288" class="object-cover w-fit h-72 sm:h-80 lg:h-96 xl:h-112 2xl:h-128">
                 </div>
             </div>
-            @livewire('components.stat-info')
-
+            <livewire:components.stat-info />
         </div>
     </div>
     <div class="flex flex-col gap-10 justify-center">
         <div class="flex flex-col lg:flex-row items-center pt-24 gap-10 justify-center" data-aos="fade-in">
             <div class="lg:w-3/12 hidden lg:block py-4">
-                <img src="{{ asset('storage/' . $data['kepala_gambar']) }}" class="rounded-tl-lg rounded-br-full"
-                    data-aos="fade-in">
+                <img src="{{ asset('storage/' . $data['kepala_gambar']) }}" width="280" height="280"
+                    class="rounded-tl-lg rounded-br-[140px]" data-aos="fade-in">
             </div>
             <div class="max-w-3xl flex flex-col justify-center p-4 md:p-12">
                 <!-- Image for mobile view-->
-                <div class="block lg:hidden rounded-full shadow-xl mx-auto -mt-16 h-40 w-40 mb-10 bg-cover bg-center"
-                    style="background-image: url({{ asset('storage/' . $data['kepala_gambar']) }})">
+                <div class="block lg:hidden rounded-full shadow-xl mx-auto -mt-16 size-40 mb-10 bg-cover bg-center"
+                    style="background-image: url({{ asset('storage/' . $data['kepala_gambar']) }})" width="160"
+                    height="160">
                 </div>
                 <!-- Blockquote -->
                 <blockquote class="font-serif">
@@ -62,12 +62,29 @@
                 </div>
             </div>
 
-            <livewire:widgets.jadwal-kegiatan-publik />
+            <livewire:widgets.jadwal-kegiatan-publik lazy />
 
-            <livewire:pages.berita.berita-grid :data="$data" />
+            <div class="mx-auto max-w-8xl px-6 lg:px-4">
+                <section class="pt-12 lg:pt-24">
+                    <div class="">
+                        <div class="w-full px-4">
+                            <div class="text-center mx-auto mb-[60px] lg:mb-20 max-w-[510px]">
+                                <span class="font-semibold text-lg text-primary mb-2 block">
+                                    Berita
+                                </span>
+                                <h2 class=" font-bold text-3xl sm:text-4xl md:text-[40px] text-dark mb-4 ">
+                                    {{ $data['berita_judul'] }}
+                                </h2>
+                                <p class="text-base text-body-color">
+                                    {{ $data['berita_deskripsi'] }}
+                                </p>
+                            </div>
+                            <livewire:pages.berita.berita-grid lazy />
+                        </div>
+                    </div>
+                </section>
+            </div>
+
         </div>
     </div>
-</div>
-
-</div>
 </div>
