@@ -74,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
             ->profile(AuthProfile::class, isSimple: false)
             ->globalSearchKeyBindings([
                 'command+f', 'ctrl+f'
-            ])  
+            ])
             ->routes(
                 fn () => FacadesRoute::get('/downloads', function () {
                     return response()->download(storage_path('app/private/deskel/exports/' . 'akun_pengguna.xlsx'));
@@ -175,8 +175,8 @@ class AdminPanelProvider extends PanelProvider
                                 ->visible(fn (): bool => $auth->can('view_deskel::profile'))
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.deskel.resources.profil.index'))
                                 ->url(fn (): string => DeskelProfileResource::getUrl()),
-                            NavigationItem::make(fn (): string => 'Aparat Pemerintah ' . $settings['sebutan_deskel'])
-                                ->label('Aparat Pemerintah ' . $settings['sebutan_deskel'])
+                            NavigationItem::make(fn (): string => 'Aparatur ' . $settings['sebutan_deskel'])
+                                ->label('Aparatur ' . $settings['sebutan_deskel'])
                                 ->icon('fas-user-tie')
                                 ->visible(fn (): bool => $auth->can('view_aparatur'))
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.deskel.resources.aparatur.index'))

@@ -48,14 +48,16 @@ class KeluargasRelationManager extends RelationManager
             ->heading('Data Keluarga Terdaftar Bantuan')
             ->columns([
                 TextColumn::make('no')->label('No')->alignCenter()->rowIndex(),
-                TextColumn::make('tambahanable_ket')->label('Keterangan')->badge()->sortable()->alignJustify(),
                 TextColumn::make('kepalaKeluarga.nama_lengkap')->label('Nama Kepala Keluarga'),
                 TextColumn::make('kepalaKeluarga.nik')->label('NIK'),
                 TextColumn::make('wilayah.wilayah_nama')->label('Wilayah'),
                 TextColumn::make('kepalaKeluarga.alamat_sekarang')->label('Alamat'),
                 TextColumn::make('kepalaKeluarga.jenis_kelamin')->label('Jenis Kelamin'),
                 TextColumn::make('kepalaKeluarga.tempat_lahir')->label('Tempat Lahir'),
-                TextColumn::make('kepalaKeluarga.umur')->sortable()->label('Usia')->suffix(' Tahun')
+                TextColumn::make('kepalaKeluarga.umur')->sortable()->label('Usia')->suffix(' Tahun'),
+                TextColumn::make('kepalaKeluarga.agama')->label('Agama')->placeholder('Belum Diiisi')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('kepalaKeluarga.pendidikan')->label('Pendidikan')->placeholder('Belum Diiisi')->toggleable(isToggledHiddenByDefault: true),
+
             ])
             ->filters([
                 //
@@ -77,7 +79,7 @@ class KeluargasRelationManager extends RelationManager
                     ->recordSelect(
                         fn (Select $select) => $select->placeholder('Pilih Keluarga...'),
                     )
-                ->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
+                    ->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
             ])
             ->actions([
                 DetachAction::make()->label('Tidak Valid')->color('danger')
@@ -85,7 +87,7 @@ class KeluargasRelationManager extends RelationManager
                     ->modalHeading('Apakah Anda Yakin?')
                     ->modalDescription('Data yang tidak valid akan dihapus dari daftar bantuan.')
                     ->button()
-                ->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
+                    ->hidden(fn () => $authUser->hasRole('Monitor Wilayah')),
             ], ActionsPosition::BeforeColumns)
             ->bulkActions([
                 BulkActionGroup::make([

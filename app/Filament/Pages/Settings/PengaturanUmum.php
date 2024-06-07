@@ -439,12 +439,12 @@ class PengaturanUmum extends SettingsPage
 
     public function getTitle(): string|Htmlable
     {
-        return __("page.general_settings.title");
+        return __("Pengaturan Aplikasi");
     }
 
     public function getHeading(): string|Htmlable
     {
-        return __("page.general_settings.heading");
+        return __("Pengaturan Aplikasi");
     }
 
     public function getSubheading(): string|Htmlable|null

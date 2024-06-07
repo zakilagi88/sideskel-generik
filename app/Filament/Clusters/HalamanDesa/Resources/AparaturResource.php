@@ -30,6 +30,7 @@ use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
@@ -47,7 +48,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'fas-user-tie';
 
-    protected static ?string $navigationLabel = 'Aparat Pemerintah Desa';
+    protected static ?string $navigationLabel = 'Aparatur';
 
     protected static ?string $slug = 'aparatur';
 
@@ -157,9 +158,6 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                         ->hiddenOn('edit')
                                         ->columnSpanFull()
                                         ->visible(fn (Get $get) => $get('is_penduduk') === 'terdata')
-                                        // ->hidden(
-                                        //     fn (Get $get) => $get('is_penduduk') === 'tidak-terdata'
-                                        // )
                                         ->label('NIK Penduduk')
                                         ->options(function () {
                                             return Penduduk::pluck('nama_lengkap', 'nik');
@@ -190,13 +188,17 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                         ->preload(),
                                     TextInput::make('niap')
                                         ->inlineLabel()
-                                        ->label('NIAP')
-                                        ->required()
+                                        ->label('NIAP/NIPD')
+                                        ->minLength(18)
+                                        ->required(fn (Get $get): bool => !filled($get('nip')))
+                                        ->live()
                                         ->placeholder('NIAP'),
                                     TextInput::make('nip')
                                         ->inlineLabel()
                                         ->label('NIP')
-                                        ->required()
+                                        ->reactive()
+                                        ->minLength(18)
+                                        ->required(fn (Get $get): bool => !filled($get('niap')))
                                         ->placeholder('NIP'),
                                     Select::make('jabatan_id')
                                         ->inlineLabel()
@@ -210,9 +212,8 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                 Hidden::make('slug')
                                     ->default(fn () => 'd-' . Aparatur::latest()->first()?->id . time()),
                                 TextInput::make('nama')
-                                    ->required()
                                     ->disabled($isPenduduk)
-                                    ->placeholder('Nama'),
+                                    ->required(),
                                 Select::make('pendidikan')
                                     ->disabled($isPenduduk)
                                     ->options(PendidikanType::class)
@@ -232,22 +233,16 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                     ->disabled($isPenduduk)
                                     ->options(AgamaType::class)
                                     ->required(),
-                                TextInput::make('pangkat_golongan')
-                                    ->required(),
+                                TextInput::make('pangkat_golongan'),
                                 TextInput::make('no_kep_pengangkatan')
-                                    ->label('Nomor Keputusan Pengangkatan')
-                                    ->required(),
+                                    ->label('Nomor Keputusan Pengangkatan'),
                                 DatePicker::make('tgl_kep_pengangkatan')
-                                    ->label('Tanggal Keputusan Pengangkatan')
-                                    ->format('d-M-Y')
-                                    ->required(),
+                                    ->label('Tanggal Keputusan Pengangkatan'),
                                 TextInput::make('no_kep_pemberhentian')
-                                    ->label('Nomor Keputusan Pemberhentian')
-                                    ->required(),
+                                    ->label('Nomor Keputusan Pemberhentian'),
                                 DatePicker::make('tgl_kep_pemberhentian')
                                     ->label('Tanggal Keputusan Pemberhentian')
-                                    ->format('d-M-Y')
-                                    ->required(),
+                                    ->format('d-M-Y'),
                                 TextInput::make('keterangan')
                                     ->placeholder('Keterangan'),
 
@@ -264,47 +259,89 @@ class AparaturResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
-                Split::make([
-                    TextColumn::make('No')
-                        ->rowIndex()
-                        ->weight(FontWeight::Bold)
-                        ->size(TextColumnSize::Large)
-                        ->prefix('')
-                        ->suffix('. ')
-                        ->sortable()
-                        ->searchable()
-                        ->grow(false),
-                    ImageColumn::make('foto')
-                        ->alignCenter()
-                        ->size(120)
-                        ->checkFileExistence(false)
-                        ->defaultImageUrl(
-                            fn (Aparatur $record) => strtolower($record->jenis_kelamin) === 'laki-laki' ? url('/images/user-man.png') : url('/images/user-woman.png')
-                        )
-                        ->grow(false),
-                    TextColumn::make('nama')
-                        ->weight(FontWeight::Bold)
-                        ->size(TextColumnSize::Large)
-                        ->alignment(Alignment::Left)
-                        ->searchable()
-                        ->sortable(),
-                    Stack::make([
-                        TextColumn::make('jabatan.nama')
-                            ->prefix('Jabatan: ')
-                            ->size(TextColumnSize::Large)
+                TextColumn::make('No')
+                    ->rowIndex()
+                    ->weight(FontWeight::Bold)
+                    ->prefix('')
+                    ->suffix('. ')
+                    ->sortable()
+                    ->grow(false),
+                ImageColumn::make('foto')
+                    ->alignCenter()
+                    ->size(72)
+                    ->checkFileExistence(false)
+                    ->defaultImageUrl(fn (Aparatur $record) => strtolower($record->jenis_kelamin) === 'laki-laki' ? url('/images/user-man.png') : url('/images/user-woman.png'))
+                    ->grow(false),
+                TextColumn::make('nama')
+                    ->weight(FontWeight::SemiBold)
+                    ->description(fn (Aparatur $record) => 'NIAP/NIPD: ' . $record->niap ?? 'NIP: ' . $record->nip)
+                    ->alignment(Alignment::Left)
+                    ->searchable(),
+                TextColumn::make('jabatan.nama')
+                    ->weight(FontWeight::SemiBold)
+                    ->searchable(),
+                TextColumn::make('pangkat_golongan')
+                    ->label('Pangkat/Golongan')
+                    ->placeholder('Belum Diisi')
+                    ->weight(FontWeight::SemiBold),
+                TextColumn::make('jenis_kelamin')
+                    ->weight(FontWeight::SemiBold)
+                    ->alignment(Alignment::Center),
+                IconColumn::make('status_pegawai')
+                    ->label('Status')
+                    ->alignment(Alignment::Center)
+                    ->boolean(),
+                TextColumn::make('pendidikan')
+                    ->weight(FontWeight::SemiBold)
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignment(Alignment::Center),
+                TextColumn::make('tempat_lahir')
+                    ->weight(FontWeight::SemiBold)
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->alignment(Alignment::Center),
+                TextColumn::make('tanggal_lahir')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->weight(FontWeight::SemiBold)
+                    ->alignment(Alignment::Center)
+                    ->formatStateUsing(function ($state) {
+                        return Carbon::parse($state)->format('d-M-Y');
+                    }),
+                TextColumn::make('agama')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->weight(FontWeight::SemiBold)
+                    ->alignment(Alignment::Center),
+                TextColumn::make('keterangan')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->weight(FontWeight::SemiBold)
+                    ->alignment(Alignment::Center)
+                    ->limit(50),
+                TextColumn::make('no_kep_pengangkatan')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('No. Kep. Pengangkatan')
+                    ->weight(FontWeight::SemiBold)
+                    ->alignment(Alignment::Center),
+                TextColumn::make('tgl_kep_pengangkatan')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Tgl. Kep. Pengangkatan')
+                    ->weight(FontWeight::SemiBold)
+                    ->alignment(Alignment::Center)
+                    ->formatStateUsing(function ($state) {
+                        return Carbon::parse($state)->format('d-M-Y');
+                    }),
+                TextColumn::make('no_kep_pemberhentian')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('No. Kep. Pemberhentian')
+                    ->weight(FontWeight::SemiBold)
+                    ->alignment(Alignment::Center),
+                TextColumn::make('tgl_kep_pemberhentian')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Tgl. Kep. Pemberhentian')
+                    ->weight(FontWeight::SemiBold)
+                    ->alignment(Alignment::Center)
+                    ->formatStateUsing(function ($state) {
+                        return Carbon::parse($state)->format('d-M-Y');
+                    }),
 
-                            ->weight(FontWeight::SemiBold)
-                            ->icon('fas-user-tie')
-                            ->color('primary')
-                            ->inline(),
-                        TextColumn::make('pangkat_golongan')
-                            ->icon('fas-user-tie')
-                            ->size(TextColumnSize::Large)
-                            ->weight(FontWeight::SemiBold)
-                            ->color('info')
-                            ->prefix('Pangkat: ')
-                    ]),
-                ])
             ])
             ->filters([
                 //

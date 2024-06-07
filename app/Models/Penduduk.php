@@ -272,7 +272,7 @@ class Penduduk extends Model implements Auditable
 
     public function scopeKepalaKeluarga($query)
     {
-        return $query->where('status_hubungan', StatusHubunganType::KEPALA_KELUARGA->value);
+        return $query->where('status_hubungan', StatusHubunganType::KEPALA_KELUARGA->value)->where('status_dasar', StatusDasarType::HIDUP->value);
     }
 
     public function dokumens(): MorphMany

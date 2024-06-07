@@ -13,7 +13,9 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconSize;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -100,8 +102,11 @@ class JadwalKegiatanResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
-                Tables\Actions\DeleteAction::make()->button()->iconSize(IconSize::Small),
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make()->iconSize(IconSize::Small)->color('success')->modalWidth(MaxWidth::FiveExtraLarge),
+                    Tables\Actions\EditAction::make()->iconSize(IconSize::Small)->color('primary'),
+                    Tables\Actions\DeleteAction::make()->iconSize(IconSize::Small)->color('danger'),
+                ])->icon("fas-gears")->iconPosition('after')->color('success')->button()->label('Aksi'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

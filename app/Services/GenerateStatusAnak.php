@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Database\Console\DumpCommand;
+
 class GenerateStatusAnak
 {
 
@@ -23,6 +25,7 @@ class GenerateStatusAnak
     {
         $imtData = json_decode(file_get_contents(resource_path('json/imt_u.json')), true)['imt_u'];
         $umurRef = self::getUmurRef($imtData, $umurBulan, $jenisKelamin);
+        dump($imt);
         return self::calculateIndeks($imt, $umurRef);
     }
 
@@ -41,12 +44,12 @@ class GenerateStatusAnak
         return self::calculateIndeks($beratBadan, $tinggiRef);
     }
 
-    private static function getUmurRef($data, $umurBulan, $jenisKelamin)
+    public static function getUmurRef($data, $umurBulan, $jenisKelamin)
     {
         return $jenisKelamin == 'PEREMPUAN' ? $data['pr'][$umurBulan] : $data['lk'][$umurBulan];
     }
 
-    private static function calculateIndeks($value, $umurRef)
+    public static function calculateIndeks($value, $umurRef)
     {
         if ($umurRef == null) {
             return 0;
@@ -70,21 +73,21 @@ class GenerateStatusAnak
         return round($index, 1);
     }
 
-    private static function getImtKurang6Bulan($beratBadan, $umurBulan)
+    public static function getImtKurang6Bulan($beratBadan, $umurBulan)
     {
         return $beratBadan + ($umurBulan * 600); //dalam gram
     }
 
-    private static function getImt7sampai12Bulan($beratBadan, $umurBulan)
+    public static function getImt7sampai12Bulan($beratBadan, $umurBulan)
     {
         return $beratBadan + ($umurBulan * 500); //dalam gram
     }
 
-    private static function getImt1sampai5Tahun($umurBulan)
+    public static function getImt1sampai5Tahun($umurBulan)
     {
         $tahun = floor($umurBulan / 12);
         $bulan = $umurBulan % 12;
-        $usiaDecimal = $tahun + ($bulan / 12);
+        $usiaDecimal = $tahun + ($bulan / 10);
 
         $beratBadanIdeal = 2 * $usiaDecimal + 8;
 

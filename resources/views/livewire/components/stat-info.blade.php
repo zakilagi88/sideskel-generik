@@ -1,8 +1,6 @@
 <x-filament-widgets::widget>
     <div class="bg-primary-400 rounded-3xl  mx-auto transition-all duration-500 ease-in-out">
-
         <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-10 md:justify-center p-10" data-aos="fade-in">
-
             @foreach ($stats as $stat)
                 <div
                     class="grid-cols-1 flex justify-start items-center bg-secondary-100 w-full shadow-lg rounded-lg p-6 lg:p-10 gap-6">

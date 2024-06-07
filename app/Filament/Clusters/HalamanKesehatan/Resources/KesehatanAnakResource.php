@@ -16,6 +16,7 @@ use Filament\Forms\{Form, Get, Set};
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
@@ -123,9 +124,10 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                 Forms\Components\Select::make('nama_lengkap')
                                     ->relationship(name: 'anak', modifyQueryUsing: fn ($query) => $query->with('wilayah')->whereDoesntHave('kesehatanAnak'))
                                     ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->nama_lengkap} {$record->wilayah?->wilayah_nama}")
+                                    ->required()
                                     ->live(onBlur: true)
                                     ->label('Nama Anak')
-                                    ->hiddenOn('edit')
+                                    ->hiddenOn(['view', 'edit'])
                                     ->afterStateUpdated(function (Select $component, Set $set) {
                                         $id = $component->getState();
                                         $relasi = $component->getRelationship()->getRelated()->where('nik', $id)->first();
@@ -144,12 +146,12 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     }),
                                 Forms\Components\Select::make('nama_lengkap')
                                     ->disabled()
+                                    ->required()
                                     ->relationship(name: 'anak', modifyQueryUsing: fn ($query) => $query->with('wilayah'))
                                     ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->nama_lengkap} {$record->wilayah?->wilayah_nama}")
                                     ->live(onBlur: true)
                                     ->label('Nama Anak')
                                     ->hiddenOn('create')
-
                                     ->afterStateUpdated(function (Select $component, Set $set) {
                                         $id = $component->getState();
                                         $relasi = $component->getRelationship()->getRelated()->where('nik', $id)->first();
@@ -201,7 +203,6 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                                 return;
                                             }
 
-
                                             $indeksBbu = GenerateStatusAnak::getBbUIndeks((int) $get('berat_badan'), $umur, $jenisKelamin);
                                             $set('z_score_bbu', $indeksBbu);
                                             $set('kategori_bbu', GenerateStatusAnak::getStatusBbU($indeksBbu));
@@ -211,9 +212,11 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                             }
 
                                             $imt = GenerateStatusAnak::getImt((int) $beratBadan, (int) $tinggiBadan, $umur);
+
                                             $set('imt', $imt);
 
                                             $z_score_imtu = GenerateStatusAnak::getImtUIndeks($imt, $umur, $jenisKelamin);
+
                                             $set('z_score_imtu', $z_score_imtu);
                                             $set('kategori_imtu', GenerateStatusAnak::getStatusImtU($z_score_imtu));
 
@@ -290,6 +293,7 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('nama_ibu')
                     ->label('Ibu')
                     ->placeholder(fn ($record) => $record->anak?->nama_ibu ?? 'Ibu Tidak Diketahui')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('berat_badan')
                     ->numeric()
@@ -404,8 +408,11 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                     ->columnMapping(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
-                Tables\Actions\DeleteAction::make()->button()->iconSize(IconSize::Small),
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make()->iconSize(IconSize::Small)->color('success'),
+                    Tables\Actions\EditAction::make()->iconSize(IconSize::Small)->color('primary'),
+                    Tables\Actions\DeleteAction::make()->iconSize(IconSize::Small)->color('danger'),
+                ])->icon("fas-gears")->iconPosition('after')->color('success')->button()->label('Aksi'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

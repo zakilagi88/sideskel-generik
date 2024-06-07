@@ -84,15 +84,7 @@ Route::name('index.')->group(function () {
     Route::get('/profil-deskel/{record}', ProfilDisplay::class)
         ->name('profil.show')
         ->linkKey(label: 'Profil Desa', model: DesaKelurahanProfile::class, modelLabel: 'nama');
-    // Route::get('/sarana-prasarana', SaranaPrasaranaPage::class)
-    //     ->name('sarana.prasarana')
-    //     ->linkKey(label: 'Sarana Prasarana', model: SaranaPrasarana::class, modelLabel: 'jenis');
 });
-// }
-
-
-
-
 
 
 Route::get('/indeks-desa', function () {
@@ -101,17 +93,8 @@ Route::get('/indeks-desa', function () {
     return view('indeks-desa', compact('htmlContent'));
 });
 
-
-
 Route::get('/tests', function () {
     $default_tables = config('app_data.default_tables');
     // $cek->site_init;
     dd($default_tables);
 });
-
-
-
-// Route::get(
-//     '/article/tag/{tag:slug}',
-//     Tag::class
-// )->name('article.tag');

@@ -3,17 +3,31 @@
 namespace App\Filament\Clusters\HalamanDesa\Resources\DeskelProfileResource\Pages;
 
 use App\Filament\Clusters\HalamanDesa\Resources\DeskelProfileResource;
+use App\Settings\GeneralSettings;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 
 class ListDeskelProfiles extends ListRecords
 {
     protected static string $resource = DeskelProfileResource::class;
 
-    // protected function getHeaderActions(): array
-    // {
-    //     return [
-    //         Actions\CreateAction::make(),
-    //     ];
-    // }
+    protected array $settings;
+
+    public function mount(): void
+    {
+        $this->settings = app(GeneralSettings::class)->toArray();
+    }
+
+    public function getBreadcrumb(): ?string
+    {
+        return 'Identitas ' . $this->settings['sebutan_deskel'];
+    }
+
+
+    public function getTitle(): string | Htmlable
+    {
+        return 'Identitas ' . $this->settings['sebutan_deskel'];
+    }
 }

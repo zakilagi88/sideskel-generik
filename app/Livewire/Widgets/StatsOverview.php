@@ -2,144 +2,124 @@
 
 namespace App\Livewire\Widgets;
 
+use App\Filament\Clusters\HalamanArsip;
 use App\Filament\Clusters\HalamanDesa\Resources\AparaturResource;
 use App\Filament\Clusters\HalamanDesa\Resources\LembagaResource;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource;
 use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource;
-use App\Models\Deskel\{Aparatur, Lembaga};
+use App\Models\Deskel\{Aparatur, Dokumen, Lembaga};
 use App\Models\{Dinamika, KartuKeluarga, Kelahiran, Kematian, Kepindahan, Pendatang, Penduduk, Wilayah};
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Database\Eloquent\Model;
 
 class StatsOverview extends BaseWidget
 {
 
+    public $dinamika, $penduduk, $keluarga;
     protected int | string | array $columnSpan = 2;
+    protected static ?string $pollingInterval = '30s';
+
+
+
+    public function mount()
+    {
+        $this->keluarga = Penduduk::query()->kepalaKeluarga()->count();
+        $this->penduduk = Penduduk::where('status_dasar', 'HIDUP')->count();
+
+        $this->dinamika = Dinamika::whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->whereIn('dinamika_type', [Kematian::class, Pendatang::class, Kepindahan::class])
+            ->selectRaw('
+                CASE 
+                    WHEN dinamika_type = ? THEN "kematian_count" 
+                    WHEN dinamika_type = ? THEN "pendatang_count" 
+                    WHEN dinamika_type = ? THEN "pindah_count" 
+                END as type, 
+                COUNT(*) as count', [
+                Kematian::class, Pendatang::class, Kepindahan::class
+            ])
+            ->groupBy('type')
+            ->get()
+            ->pluck('count', 'type')
+            ->toArray();
+    }
 
     protected function getStats(): array
     {
         return [
-            Stat::make('Aparatur Desa', Aparatur::count())
+            Stat::make('Aparatur', Aparatur::count())
                 ->icon('fas-user-tie')
-                ->description('Jumlah Aparatur Desa')
-                ->chartColor('primary')
+                ->description('Jumlah Aparatur')
                 ->color('primary')
                 ->url(AparaturResource::getUrl('index'))
-                ->chart([
-                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
-                ])
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
-            Stat::make('Lembaga Desa', Lembaga::count())
+            Stat::make('Lembaga', Lembaga::count())
                 ->icon('fas-users')
-                ->description('Jumlah Lembaga Desa')
-                ->chartColor('primary')
+                ->description('Jumlah Lembaga')
                 ->color('primary')
                 ->url(LembagaResource::getUrl('index'))
-                ->chart([
-                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
-                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                ]),
+            Stat::make('Dokumen', Dokumen::count())
+                ->icon('fas-file-alt')
+                ->description('Jumlah Dokumen')
+                ->color('primary')
+                ->url(HalamanArsip::getUrl())
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
             Stat::make('Wilayah', Wilayah::count())
                 ->icon('fas-map')
                 ->description('Jumlah Wilayah')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->descriptionColor('warning')
-                ->chartColor('warning')
                 ->url(WilayahResource::getUrl('index'))
-                ->color('warning')
-                ->chart([
-                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
-                ])
+                ->color('success')
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
 
-            Stat::make('Kartu Keluarga', KartuKeluarga::query()->whereHas('kepalaKeluarga', fn ($query) => $query->where('status_dasar', 'HIDUP'))->count())
+            Stat::make('Keluarga', $this->keluarga)
                 ->icon('fas-people-roof')
-                ->description('Kepala Keluarga')
-                ->chartColor('success')
+                ->description('Jumlah Kepala Keluarga')
                 ->color('success')
                 ->url(KartuKeluargaResource::getUrl('index'))
-                ->chart([
-                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
-                ])
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
-            Stat::make('Penduduk', Penduduk::where('status_dasar', 'HIDUP')->count())
+            Stat::make('Penduduk', $this->penduduk)
                 ->icon('fas-person')
                 ->description('Jumlah Penduduk')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->descriptionColor('info')
-                ->chartColor('info')
+                ->chartColor('success')
                 ->url(PendudukResource::getUrl('index'))
-                ->color('info')
-                ->chart([
-                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
-                ])
+                ->color('success')
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
 
-            Stat::make('Penduduk Masuk', Dinamika::where('dinamika_type', Pendatang::class)->count())
+            Stat::make('Penduduk Masuk', $this->dinamika['pendatang_count'] ?? 0)
                 ->icon('fas-person-circle-plus')
-                ->description('Penduduk Masuk')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->descriptionColor('info')
-                ->chartColor('info')
+                ->description('Jumlah Penduduk Masuk')
                 ->url(PendudukResource::getUrl('index', ['activeTab' => 'Pendatang']))
                 ->color('info')
-                ->chart([
-                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
-                ])
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
-            Stat::make('Penduduk Keluar', Dinamika::where('dinamika_type', Kepindahan::class)->count())
+            Stat::make('Penduduk Keluar', $this->dinamika['pindah_count'] ?? 0)
                 ->icon('fas-person-circle-minus')
-                ->description('Penduduk Keluar')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->descriptionColor('warning')
-                ->chartColor('warning')
+                ->description('Jumlah Penduduk Keluar')
                 ->url(PendudukResource::getUrl('index', ['activeTab' => 'Pindah']))
-
-                ->color('danger')
-                ->chart([
-                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
-                ])
-                ->extraAttributes([
-                    'class' => 'cursor-pointer',
-                ]),
-            Stat::make('Penduduk Meninggal', Dinamika::where('dinamika_type', Kematian::class)->count())
-                ->icon('fas-person-circle-xmark')
-                ->description('Penduduk Meninggal')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->descriptionColor('danger')
-                ->chartColor('danger')
-                ->url(PendudukResource::getUrl('index', ['activeTab' => 'Meninggal']))
-                ->color('danger')
-                ->chart([
-                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
-                ])
-                ->extraAttributes([
-                    'class' => 'cursor-pointer',
-                ]),
-            Stat::make('Penduduk Lahir', Dinamika::where('dinamika_type', Kelahiran::class)->count())
-                ->icon('fas-person-breastfeeding')
-                ->description('Penduduk Lahir')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->descriptionColor('info')
-                ->chartColor('info')
-                ->url(PendudukResource::getUrl('index', ['activeTab' => 'Pendatang']))
                 ->color('info')
-                ->chart([
-                    20, 10, 3, 12, 1, 14, 10, 1, 4, 20
-                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer',
+                ]),
+            Stat::make('Penduduk Meninggal', $this->dinamika['kematian_count'] ?? 0)
+                ->icon('fas-person-circle-xmark')
+                ->description('Jumlah Penduduk Meninggal')
+                ->url(PendudukResource::getUrl('index', ['activeTab' => 'Meninggal']))
+                ->color('info')
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),

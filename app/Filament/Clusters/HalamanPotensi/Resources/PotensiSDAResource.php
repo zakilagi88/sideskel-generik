@@ -680,11 +680,7 @@ class PotensiSDAResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getLabelsByJenis($record)

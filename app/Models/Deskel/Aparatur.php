@@ -13,9 +13,20 @@ class Aparatur extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+
+    protected $guarded = [];
+
     protected $table = 'aparaturs';
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
+        'id', // tambahkan 'id' agar bisa diisi sort
         'nama',
         'slug',
         'niap',

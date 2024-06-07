@@ -14,11 +14,9 @@ export default {
         "./resources/views/filament/**/*.blade.php",
         "./resources/views/livewire/**/*.blade.php",
         "./resources/views/components/**/*.blade.php",
-        "./vendor/bezhansalleh/filament-exceptions/resources/views/**/*.blade.php",
         "./vendor/filament/**/*.blade.php",
         "./vendor/filament/**/*.js",
         "./vendor/filament/**/*.vue",
-        "./vendor/laravel/framework/src/Illuminate/Pagination/resources/views/**/*.blade.php",
         "./vendor/awcodes/filament-table-repeater/resources/**/*.blade.php",
     ],
     theme: {

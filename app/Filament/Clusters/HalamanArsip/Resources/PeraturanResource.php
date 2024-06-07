@@ -182,7 +182,7 @@ class PeraturanResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('no_ditetapkan')
                     ->getStateUsing(
                         function (Peraturan $record) {
-                            return $record->no_ditetapkan . ' / ' . $record->tgl_ditetapkan->format('Y-m-d');
+                            return 'No. ' . $record->no_ditetapkan . ' / ' . $record->tgl_ditetapkan->format('Y-m-d');
                         }
                     )
                     ->label('Nomor/Tanggal Ditetapkan')
@@ -202,7 +202,7 @@ class PeraturanResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('no_dilaporkan')
                     ->getStateUsing(
                         function (Peraturan $record) {
-                            return $record->no_dilaporkan . ' / ' . $record->tgl_dilaporkan;
+                            return 'No. ' . $record->no_dilaporkan . ' / ' . $record->tgl_dilaporkan;
                         }
                     )
                     ->label('Nomor/Tanggal Dilaporkan')
@@ -211,7 +211,7 @@ class PeraturanResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('no_diundangkan_l')
                     ->getStateUsing(
                         function (Peraturan $record) {
-                            return $record->no_diundangkan_l . ' / ' . $record->tgl_diundangkan_l;
+                            return 'No. ' . $record->no_diundangkan_l . ' / ' . $record->tgl_diundangkan_l;
                         }
                     )
                     ->label('Nomor/Tanggal Diundangkan di Lembaran Desa/Kelurahan')
@@ -221,7 +221,7 @@ class PeraturanResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('no_diundangkan_b')
                     ->getStateUsing(
                         function (Peraturan $record) {
-                            return $record->no_diundangkan_b . ' / ' . $record->tgl_diundangkan_b;
+                            return 'No. ' . $record->no_diundangkan_b . ' / ' . $record->tgl_diundangkan_b;
                         }
                     )
                     ->label('Nomor/Tanggal Diundangkan di Berita Desa/Kelurahan')
@@ -251,7 +251,7 @@ class PeraturanResource extends Resource implements HasShieldPermissions
                         return view('filament.pages.preview-file', ['record' => $record]);
                     })
                     ->modalSubmitAction(false)
-                    ->color('info')
+                    ->color('success')
                     ->icon('fas-eye')
                     ->iconSize(IconSize::Small),
                 Tables\Actions\EditAction::make()->label('Ubah')->button()->iconSize(IconSize::Small),

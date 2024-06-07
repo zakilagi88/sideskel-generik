@@ -133,7 +133,7 @@ class KeputusanResource extends Resource implements HasShieldPermissions
                     ->sortable()
                     ->getStateUsing(
                         function (Keputusan $record) {
-                            return $record->no . ' / ' . $record->tgl->format('Y-m-d');
+                            return 'No. ' . $record->no . ' / ' . $record->tgl->format('Y-m-d');
                         }
                     )
                     ->searchable(),
@@ -143,7 +143,7 @@ class KeputusanResource extends Resource implements HasShieldPermissions
                 Tables\Columns\TextColumn::make('no_dilaporkan')
                     ->getStateUsing(
                         function (Keputusan $record) {
-                            return $record->no_dilaporkan . ' / ' . $record->tgl_dilaporkan;
+                            return 'No. ' . $record->no_dilaporkan . ' / ' . $record->tgl_dilaporkan;
                         }
                     )
                     ->label('Nomor/Tanggal Dilaporkan')
@@ -171,7 +171,7 @@ class KeputusanResource extends Resource implements HasShieldPermissions
                         return view('filament.pages.preview-file', ['record' => $record]);
                     })
                     ->modalSubmitAction(false)
-                    ->color('info')
+                    ->color('success')
                     ->icon('fas-eye')
                     ->iconSize(IconSize::Small),
                 Tables\Actions\EditAction::make()->label('Ubah')->button()->iconSize(IconSize::Small),

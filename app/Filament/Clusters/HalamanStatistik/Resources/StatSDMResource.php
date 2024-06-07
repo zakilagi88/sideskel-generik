@@ -21,6 +21,7 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\IconSize;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
@@ -67,6 +68,7 @@ class StatSDMResource extends Resource implements HasShieldPermissions
     public static function form(Form $form): Form
     {
         $key = $form->getRecord();
+        $query = self::getPendudukViewQuery($key);
         return $form
             ->schema([
                 Forms\Components\TextInput::make('nama')
@@ -96,7 +98,7 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                             ->icon('fas-table-columns')
                             ->iconPosition(IconPosition::After)
                             ->schema([
-                                Livewire::make(SDMBarChart::class, ['chartData' => self::getPendudukViewQuery($key)])
+                                Livewire::make(SDMBarChart::class, ['chartData' => $query])
                                     ->hiddenOn('create')
                                     ->hidden(fn (?Model $record): bool => $record === null)
                                     ->label('Grafik Bar Statistik'),
@@ -105,7 +107,7 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                             ->icon('fas-chart-pie')
                             ->iconPosition(IconPosition::After)
                             ->schema([
-                                Livewire::make(SDMPieChart::class, ['chartData' => self::getPendudukViewQuery($key)])
+                                Livewire::make(SDMPieChart::class, ['chartData' => $query])
                                     ->hiddenOn('create')
                                     ->hidden(fn (?Model $record): bool => $record === null)
                                     ->label('Grafik Pie Statistik'),
@@ -142,8 +144,11 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->iconSize(IconSize::Small)->button(),
-                Tables\Actions\DeleteAction::make()->iconSize(IconSize::Small)->button(),
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make()->iconSize(IconSize::Small)->color('success')->modalWidth(MaxWidth::FiveExtraLarge),
+                    Tables\Actions\EditAction::make()->iconSize(IconSize::Small)->color('primary'),
+                    Tables\Actions\DeleteAction::make()->iconSize(IconSize::Small)->color('danger'),
+                ])->icon("fas-gears")->iconPosition('after')->color('success')->button()->label('Aksi'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

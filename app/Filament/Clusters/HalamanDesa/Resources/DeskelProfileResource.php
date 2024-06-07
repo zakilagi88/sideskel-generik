@@ -50,7 +50,7 @@ class DeskelProfileResource extends Resource
 
     protected static ?string $navigationIcon = 'fas-house-chimney';
 
-    protected static ?string $navigationLabel = 'Profil Desa/Kelurahan';
+    protected static ?string $navigationLabel = 'Identitas Desa/Kelurahan';
 
     protected static ?int $navigationSort = 1;
 
@@ -593,17 +593,9 @@ class DeskelProfileResource extends Resource
                     ]),
                 ])
             ])
-            ->filters([
-                //
-            ])
             ->actions([
                 Tables\Actions\EditAction::make()->iconSize(IconSize::Small)->button(),
-                Tables\Actions\ViewAction::make()->iconSize(IconSize::Small)->button()->color('info'),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\ViewAction::make()->iconSize(IconSize::Small)->button()->color('success'),
             ]);
     }
 

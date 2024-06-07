@@ -3,7 +3,7 @@
         <div class="dark:bg-gray-800 dark:text-gray-100 ">
             <div class="grid grid-cols-1 py-20 lg:grid-cols-2 gap-x-10">
                 <div
-                    class="flex flex-col items-center justify-center p-6 text-center whitespace-normal lg:whitespace-nowrap rounded-sm ">
+                    class="flex flex-col   items-center justify-center p-6 text-center whitespace-normal lg:whitespace-nowrap rounded-sm ">
                     <h1 class="text-3xl font-bold  sm:text-4xl lg:text-5xl mt-10 ">
                         <span class="dark:text-slate-400"> {{ $data['web_title'] }} <br>
                             {{ $data['sebutan_deskel'] }}</span>

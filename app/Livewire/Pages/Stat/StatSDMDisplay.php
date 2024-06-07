@@ -51,7 +51,7 @@ class StatSDMDisplay extends SimplePage
             $this->record = $this->resolveRecord($record, 'tambahan');
         } elseif ($bantuan) {
             $this->currentResource = $this->extraResources()['bantuan'];
-            $this->record = $this->resolveRecord($record, 'tambahan');
+            $this->record = $this->resolveRecord($record, 'bantuan');
         } else {
             parent::mount($record, $req);
         }
@@ -109,7 +109,6 @@ class StatSDMDisplay extends SimplePage
 
                                 ])
                                 ->columnSpan(['sm' => 3, 'md' => 3, 'lg' => 3, 'xl' => 4, '2xl' => 4]),
-
                         ]),
                 ]
             );

@@ -121,6 +121,7 @@ class LembagaResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('logo_url')
                     ->label('Logo')
+                    ->circular()
                     ->defaultImageUrl(fn (Lembaga $record) => $record->getLogoUrl())
                     ->alignCenter()
                     ->searchable(),
@@ -140,6 +141,7 @@ class LembagaResource extends Resource
                     ->alignJustify()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('dokumen.dok_nama')
+                    ->placeholder('Belum ada Dokumen')
                     ->alignJustify()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

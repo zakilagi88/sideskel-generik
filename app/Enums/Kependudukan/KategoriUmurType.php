@@ -6,8 +6,8 @@ use Filament\Support\Contracts\HasLabel;
 
 enum KategoriUmurType: string implements HasLabel
 {
-    case BADUTA = 'Baduta';
-    case BALITA = 'Balita';
+    case BADUTA = 'BADUTA';
+    case BALITA = 'BALITA';
     case ANAK_ANAK = 'ANAK-ANAK';
     case REMAJA = 'REMAJA';
     case DEWASA = 'DEWASA';
@@ -16,8 +16,8 @@ enum KategoriUmurType: string implements HasLabel
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::BADUTA => 'Baduta',
-            self::BALITA => 'Balita',
+            self::BADUTA => 'BADUTA',
+            self::BALITA => 'BALITA',
             self::ANAK_ANAK => 'Anak-Anak',
             self::REMAJA => 'Remaja',
             self::DEWASA => 'Dewasa',

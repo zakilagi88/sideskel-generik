@@ -171,8 +171,7 @@ class WilayahResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->reorderable('wilayah_id', $auth->hasRole('Admin'));;
+            ]);
     }
 
     public static function getRelations(): array

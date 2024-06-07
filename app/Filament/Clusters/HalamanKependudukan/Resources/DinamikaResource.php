@@ -11,6 +11,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Group as FormGroup;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
@@ -91,7 +92,6 @@ class DinamikaResource extends Resource implements HasShieldPermissions
                     ->sortable(),
                 TextColumn::make('tanggal_dinamika')
                     ->label('Tanggal Dinamika')
-                    ->grow()
                     ->date('d F Y')
                     ->sortable(),
                 TextColumn::make('tanggal_lapor')
@@ -105,18 +105,13 @@ class DinamikaResource extends Resource implements HasShieldPermissions
             ])
             ->filters([
                 //
-            ])
-            ->actions(
-                [
-                    // Tables\Actions\EditAction::make(),
-                ],
-                position: ActionsPosition::BeforeColumns
-            )
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
+        // ->actions(
+        //     [
+        //         Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
+        //     ],
+        //     position: ActionsPosition::AfterColumns
+        // );
     }
 
     public static function getRelations(): array
