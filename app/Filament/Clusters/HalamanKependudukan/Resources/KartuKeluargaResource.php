@@ -2,10 +2,6 @@
 
 namespace App\Filament\Clusters\HalamanKependudukan\Resources;
 
-use App\Enums\Kependudukan\StatusHubungan;
-use App\Facades\Deskel;
-use App\Facades\DeskelProfile;
-use App\Filament\Clusters\Kependudukan\Kependudukan;
 use App\Filament\Clusters\HalamanKependudukan;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\Pages;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\RelationManagers\PenduduksRelationManager;
@@ -23,7 +19,6 @@ use Filament\Forms\Components\Wizard\Step;
 use Filament\Infolists\{Infolist, Components};
 use Filament\Infolists\Components\Actions\Action as InfoAction;
 use Filament\Resources\Resource;
-use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -32,14 +27,11 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 use Termwind\Components\Dd;
@@ -266,8 +258,8 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
             ->actions(
                 [
                     ActionGroup::make([
-                        Tables\Actions\EditAction::make()->iconSize(IconSize::Small),
-                        Tables\Actions\ViewAction::make()->color('info')->iconSize(IconSize::Small),
+                        Tables\Actions\EditAction::make()->color('primary')->icon('fas-pen-to-square')->iconSize(IconSize::Small),
+                        Tables\Actions\ViewAction::make()->color('success')->icon('fas-eye')->iconSize(IconSize::Small),
                     ])->icon("fas-gears")->iconPosition('after')->color('success')->button()->label('Aksi'),
                 ],
                 position: ActionsPosition::AfterColumns

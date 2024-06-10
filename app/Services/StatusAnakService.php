@@ -4,32 +4,31 @@ namespace App\Services;
 
 use Illuminate\Database\Console\DumpCommand;
 
-class GenerateStatusAnak
+class StatusAnakService
 {
 
-    public static function getBbUIndeks($beratBadan, $umurBulan, $jenisKelamin)
+    public function getBbUIndeks($beratBadan, $umurBulan, $jenisKelamin)
     {
         $bbuData = json_decode(file_get_contents(resource_path('json/bb_u.json')), true)['bb_u'];
         $umurRef = self::getUmurRef($bbuData, $umurBulan, $jenisKelamin);
         return self::calculateIndeks($beratBadan, $umurRef);
     }
 
-    public static function getTbUIndeks($tinggiBadan, $umurBulan, $jenisKelamin)
+    public function getTbUIndeks($tinggiBadan, $umurBulan, $jenisKelamin)
     {
         $tbuData = json_decode(file_get_contents(resource_path('json/tb_u.json')), true)['tb_u'];
         $umurRef = self::getUmurRef($tbuData, $umurBulan, $jenisKelamin);
         return self::calculateIndeks($tinggiBadan, $umurRef);
     }
 
-    public static function getImtUIndeks($imt, $umurBulan, $jenisKelamin)
+    public function getImtUIndeks($imt, $umurBulan, $jenisKelamin)
     {
         $imtData = json_decode(file_get_contents(resource_path('json/imt_u.json')), true)['imt_u'];
         $umurRef = self::getUmurRef($imtData, $umurBulan, $jenisKelamin);
-        dump($imt);
         return self::calculateIndeks($imt, $umurRef);
     }
 
-    public static function getTbBbIndeks($tinggiBadan, $beratBadan, $jenisKelamin)
+    public function getTbBbIndeks($tinggiBadan, $beratBadan, $jenisKelamin)
     {
         $tbBbData = json_decode(file_get_contents(resource_path('json/tb_bb.json')), true)['tb_bb'];
 
@@ -44,12 +43,12 @@ class GenerateStatusAnak
         return self::calculateIndeks($beratBadan, $tinggiRef);
     }
 
-    public static function getUmurRef($data, $umurBulan, $jenisKelamin)
+    public function getUmurRef($data, $umurBulan, $jenisKelamin)
     {
         return $jenisKelamin == 'PEREMPUAN' ? $data['pr'][$umurBulan] : $data['lk'][$umurBulan];
     }
 
-    public static function calculateIndeks($value, $umurRef)
+    public function calculateIndeks($value, $umurRef)
     {
         if ($umurRef == null) {
             return 0;
@@ -73,17 +72,17 @@ class GenerateStatusAnak
         return round($index, 1);
     }
 
-    public static function getImtKurang6Bulan($beratBadan, $umurBulan)
+    public function getImtKurang6Bulan($beratBadan, $umurBulan)
     {
         return $beratBadan + ($umurBulan * 600); //dalam gram
     }
 
-    public static function getImt7sampai12Bulan($beratBadan, $umurBulan)
+    public function getImt7sampai12Bulan($beratBadan, $umurBulan)
     {
         return $beratBadan + ($umurBulan * 500); //dalam gram
     }
 
-    public static function getImt1sampai5Tahun($umurBulan)
+    public function getImt1sampai5Tahun($umurBulan)
     {
         $tahun = floor($umurBulan / 12);
         $bulan = $umurBulan % 12;
@@ -94,7 +93,7 @@ class GenerateStatusAnak
         return $beratBadanIdeal;
     }
 
-    public static function getImt($beratBadan = null, $tinggiBadan = null, $umurBulan)
+    public function getImt($beratBadan = null, $tinggiBadan = null, $umurBulan)
     {
         if ($umurBulan < 6) {
             $imt = self::getImtKurang6Bulan($beratBadan, $umurBulan);
@@ -109,7 +108,7 @@ class GenerateStatusAnak
         return round($imt, 1);
     }
 
-    public static function getStatusBbU($zScore)
+    public function getStatusBbU($zScore)
     {
         if ($zScore < -3) {
             return 'Berat Badan sangat kurang (severely underweight)';
@@ -124,7 +123,7 @@ class GenerateStatusAnak
         }
     }
 
-    public static function getStatusTbU($zScore)
+    public function getStatusTbU($zScore)
     {
         if ($zScore < -3) {
             return 'Sangat pendek (severely stunted)';
@@ -137,7 +136,7 @@ class GenerateStatusAnak
         }
     }
 
-    public static function getStatusImtU($zScore)
+    public function getStatusImtU($zScore)
     {
         if ($zScore < -3) {
             return 'Gizi buruk (severely wasted)';
@@ -154,7 +153,7 @@ class GenerateStatusAnak
         }
     }
 
-    public static function getStatusTbBb($zScore)
+    public function getStatusTbBb($zScore)
     {
         if ($zScore < -3) {
             return 'Gizi buruk (severely wasted)';

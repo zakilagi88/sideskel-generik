@@ -14,6 +14,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Enums\FiltersLayout;
@@ -145,7 +146,7 @@ class WilayahResource extends Resource
                     ->columnSpanFull(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
+                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small)->size(ActionSize::Small),
                 Tables\Actions\Action::make('wilayah_kepala')
                     ->label('Kepala Wilayah')
                     ->button()

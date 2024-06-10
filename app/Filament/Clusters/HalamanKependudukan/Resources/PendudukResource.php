@@ -554,7 +554,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                     }
                                 }
                             ),
-                        Tables\Actions\EditAction::make()->iconSize(IconSize::Small),
+                        Tables\Actions\EditAction::make()->iconSize(IconSize::Small)->color('primary')->icon('fas-pen-to-square'),
                         ActionsAction::make('Verifikasi')
                             ->action(fn (Penduduk $record) => $record->update(['status_pengajuan' => StatusPengajuanType::DIVERIFIKASI->value]))
                             ->color('success')->label('Verifikasi')->icon('fas-check')
@@ -583,7 +583,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                     $record->update(['status_pengajuan' => StatusPengajuanType::TINJAU_ULANG->value]);
                                 }
                             )
-                            ->color('danger')->label('Tinjau Ulang')->icon('fas-circle-question')
+                            ->color('warning')->label('Tinjau Ulang')->icon('fas-circle-question')->iconSize(IconSize::Small)
                             ->requiresConfirmation()->after(fn (Penduduk $record, array $data) => Notification::make()
                                 ->title('Penduduk ' . $record->nama_lengkap . ' perlu ditinjau ulang')
                                 ->body('Catatan : ' . $data['catatan'])
@@ -600,8 +600,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 }
                             }),
 
-                        Tables\Actions\DeleteAction::make()->iconSize(IconSize::Small),
-                        Tables\Actions\ViewAction::make()->color('info')->iconSize(IconSize::Small),
+                        Tables\Actions\DeleteAction::make()->color('danger')->icon('fas-trash-alt')->iconSize(IconSize::Small),
+                        Tables\Actions\ViewAction::make()->color('success')->icon('fas-eye')->iconSize(IconSize::Small),
                     ])->icon("fas-gears")->iconPosition('after')->color('success')->button()->label('Aksi'),
                 ],
                 position: ActionsPosition::AfterColumns
@@ -728,6 +728,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                             ->label('Tempat Lahir'),
                                                         TextEntry::make('tanggal_lahir')
                                                             ->label('Tanggal Lahir')
+                                                            ->date()
                                                             ->weight(FontWeight::SemiBold)
                                                             ->inlineLabel(),
                                                         TextEntry::make('agama')
@@ -830,7 +831,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                     Actions::make([
                                         Action::make('Verifikasi')
                                             ->action(fn (Penduduk $record) => $record->update(['status_pengajuan' => StatusPengajuanType::DIVERIFIKASI->value]))
-                                            ->color('success')->label('Verifikasi')->button()->icon('fas-check')
+                                            ->color('success')->label('Verifikasi')->button()->icon('fas-check')->iconSize(IconSize::Small)
                                             ->requiresConfirmation()->after(fn (Penduduk $record) => Notification::make()
                                                 ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
                                                 ->body($record->nama_lengkap . ' sudah diverifikasi')
@@ -856,7 +857,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                     $record->update(['status_pengajuan' => StatusPengajuanType::TINJAU_ULANG->value]);
                                                 }
                                             )
-                                            ->color('danger')->label('Tinjau Ulang')->button()->icon('fas-circle-question')
+                                            ->label('Tinjau Ulang')->color('warning')->icon('fas-circle-question')->iconSize(IconSize::Small)
                                             ->requiresConfirmation()
                                             ->after(fn (Penduduk $record, array $data) => Notification::make()
                                                 ->title('Penduduk ' . $record->nama_lengkap . ' perlu ditinjau ulang')
@@ -922,36 +923,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
         return [
             PendudukOverview::class,
         ];
-    }
-
-    protected static function restoreAuditSelected($audit)
-    {
-        $oldvalues = $audit->audits()->latest()->first()->old_values;
-
-        Arr::pull($oldvalues, 'id');
-
-        if (is_array($oldvalues)) {
-
-            foreach ($oldvalues as $key => $item) {
-                $decode = json_decode($item);
-
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    $oldvalues[$key] = $decode;
-                }
-            }
-            $audit->update($oldvalues);
-
-            self::restoredAuditNotification();
-        }
-    }
-
-
-    protected static function restoredAuditNotification()
-    {
-        Notification::make()
-            ->title('Data Berhasil di Perbarui')
-            ->success()
-            ->send();
     }
 
     protected static function unchangedAuditNotification()

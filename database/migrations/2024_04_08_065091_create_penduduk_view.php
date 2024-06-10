@@ -62,24 +62,6 @@ return new class extends Migration
 
                 END IF;
 
-                -- Bangun query untuk membuat view berdasarkan jenis enum yang diberikan
-                -- SET @sqlQuery = CONCAT('
-                --     CREATE VIEW penduduk_view AS
-                --     SELECT 
-                --         ROW_NUMBER() OVER (ORDER BY enum_values.', enum_type, ') AS id,
-                --         enum_values.', enum_type, ', 
-                --         COALESCE(SUM(CASE WHEN LOWER(penduduk.jenis_kelamin) = "laki-laki" THEN 1 ELSE 0 END), 0) AS laki_laki,
-                --         COALESCE(SUM(CASE WHEN LOWER(penduduk.jenis_kelamin) = "perempuan" THEN 1 ELSE 0 END), 0) AS perempuan,
-                --         COALESCE(COUNT(penduduk.nik), 0) AS total
-                --     FROM (
-                --         ', enum_query, '
-                --     ) AS enum_values
-                --     LEFT JOIN penduduk ON penduduk.', enum_type, ' = enum_values.', enum_type, '
-                --     LEFT JOIN kartu_keluarga ON penduduk.kk_id = kartu_keluarga.kk_id
-                --     LEFT JOIN wilayah ON kartu_keluarga.wilayah_id = wilayah.wilayah_id
-                --     WHERE (LOWER(penduduk.status_dasar) = "hidup" OR penduduk.', enum_type, ' IS NULL)
-                -- ');
-
                 -- Jika wilayah_id tidak null, tambahkan filter WHERE
                 IF wilayah_id IS NOT NULL THEN
                 -- Ambil semua child wilayah yang terkait dengan parent wilayah

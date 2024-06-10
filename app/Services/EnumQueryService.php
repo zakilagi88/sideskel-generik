@@ -8,7 +8,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class GenerateEnumUnionQuery
+class EnumQueryService
 {
     public static function getSubQuery(string $enumClass, string $key): string
     {

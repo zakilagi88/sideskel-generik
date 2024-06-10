@@ -5,7 +5,6 @@ namespace App\Filament\Clusters\HalamanDesa\Resources;
 use App\Facades\Deskel;
 use App\Filament\Clusters\HalamanDesa;
 use App\Filament\Clusters\HalamanDesa\Resources\SaranaPrasaranaResource\Pages;
-use App\Filament\Clusters\HalamanDesa\Resources\SaranaPrasaranaResource\RelationManagers;
 use App\Models\Deskel\SaranaPrasarana;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
@@ -17,6 +16,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables;
@@ -149,7 +149,7 @@ class SaranaPrasaranaResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
+                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small)->size(ActionSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Illuminate\Support\Str;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -90,8 +91,8 @@ class KategoriBeritaResource extends Resource implements HasShieldPermissions
             ])
             ->actions(
                 [
-                    Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
-                    Tables\Actions\DeleteAction::make()->button()->iconSize(IconSize::Small),
+                    Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small)->size(ActionSize::Small),
+                    Tables\Actions\DeleteAction::make()->button()->iconSize(IconSize::Small)->size(ActionSize::Small),
                 ]
             )
             ->bulkActions([

@@ -26,6 +26,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\IconSize;
@@ -347,8 +348,8 @@ class AparaturResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
-                Tables\Actions\DeleteAction::make()->button()->iconSize(IconSize::Small),
+                Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small)->size(ActionSize::Small),
+                Tables\Actions\DeleteAction::make()->button()->iconSize(IconSize::Small)->size(ActionSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

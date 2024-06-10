@@ -10,7 +10,9 @@ self.addEventListener("install", function (event) {
 });
 
 const filesToCache = [
-    '/',
+    '/panel/beranda',
+    '/panel/kependudukan/keluarga',
+    '/panel/kependudukan/penduduk',
     '/offline.html'
 ];
 

@@ -6,7 +6,7 @@ use App\Filament\Clusters\HalamanKesehatan\Resources\KesehatanAnakResource\Pages
 use App\Filament\Clusters\HalamanKesehatan;
 use App\Filament\Exports\KesehatanAnakExporter;
 use App\Models\KesehatanAnak;
-use App\Services\GenerateStatusAnak;
+use App\Services\StatusAnakService;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Carbon\Carbon;
 use Filament\Actions\Exports\Enums\ExportFormat;
@@ -49,6 +49,7 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
 
     public static function form(Form $form): Form
     {
+        $service = new StatusAnakService();
         return $form
             ->schema([
                 Forms\Components\Grid::make([
@@ -193,7 +194,7 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     ->suffix('Gram')
                                     ->numeric()
                                     ->afterStateUpdated(
-                                        function (Get $get, Set $set) {
+                                        function (Get $get, Set $set) use ($service) {
                                             $tinggiBadan = $get('tinggi_badan');
                                             $umur = (int) $get('umur');
                                             $jenisKelamin = $get('jenis_kelamin');
@@ -203,26 +204,26 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                                 return;
                                             }
 
-                                            $indeksBbu = GenerateStatusAnak::getBbUIndeks((int) $get('berat_badan'), $umur, $jenisKelamin);
+                                            $indeksBbu = $service->getBbUIndeks((int) $get('berat_badan'), $umur, $jenisKelamin);
                                             $set('z_score_bbu', $indeksBbu);
-                                            $set('kategori_bbu', GenerateStatusAnak::getStatusBbU($indeksBbu));
+                                            $set('kategori_bbu', $service->getStatusBbU($indeksBbu));
 
                                             if ($beratBadan === null || $tinggiBadan === null) {
                                                 return;
                                             }
 
-                                            $imt = GenerateStatusAnak::getImt((int) $beratBadan, (int) $tinggiBadan, $umur);
+                                            $imt = $service->getImt((int) $beratBadan, (int) $tinggiBadan, $umur);
 
                                             $set('imt', $imt);
 
-                                            $z_score_imtu = GenerateStatusAnak::getImtUIndeks($imt, $umur, $jenisKelamin);
+                                            $z_score_imtu = $service->getImtUIndeks($imt, $umur, $jenisKelamin);
 
                                             $set('z_score_imtu', $z_score_imtu);
-                                            $set('kategori_imtu', GenerateStatusAnak::getStatusImtU($z_score_imtu));
+                                            $set('kategori_imtu', $service->getStatusImtU($z_score_imtu));
 
-                                            $z_score_tb_bb = GenerateStatusAnak::getTbBbIndeks((int) $tinggiBadan, (int) $beratBadan, $jenisKelamin);
+                                            $z_score_tb_bb = $service->getTbBbIndeks((int) $tinggiBadan, (int) $beratBadan, $jenisKelamin);
                                             $set('z_score_tb_bb', $z_score_tb_bb);
-                                            $set('kategori_tb_bb', GenerateStatusAnak::getStatusTbBb($z_score_tb_bb));
+                                            $set('kategori_tb_bb', $service->getStatusTbBb($z_score_tb_bb));
                                         }
                                     )
                                     ->required(),
@@ -233,7 +234,7 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                     ->required()
                                     ->numeric()
                                     ->afterStateUpdated(
-                                        function (Get $get, Set $set) {
+                                        function (Get $get, Set $set) use ($service) {
                                             $tinggiBadan = $get('tinggi_badan');
                                             $umur = (int) $get('umur');
                                             $jenisKelamin = $get('jenis_kelamin');
@@ -243,24 +244,24 @@ class KesehatanAnakResource extends Resource implements HasShieldPermissions
                                                 return;
                                             }
 
-                                            $indeksTbu = GenerateStatusAnak::getTbUIndeks((int) $tinggiBadan, $umur, $jenisKelamin);
+                                            $indeksTbu = $service->getTbUIndeks((int) $tinggiBadan, $umur, $jenisKelamin);
                                             $set('z_score_tbu', $indeksTbu);
-                                            $set('kategori_tbu', GenerateStatusAnak::getStatusTbU($indeksTbu));
+                                            $set('kategori_tbu', $service->getStatusTbU($indeksTbu));
 
                                             if ($beratBadan === null || $tinggiBadan === null) {
                                                 return;
                                             }
 
-                                            $imt = GenerateStatusAnak::getImt((int) $beratBadan, (int) $tinggiBadan, $umur);
+                                            $imt = $service->getImt((int) $beratBadan, (int) $tinggiBadan, $umur);
                                             $set('imt', $imt);
 
-                                            $z_score_imtu = GenerateStatusAnak::getImtUIndeks($imt, $umur, $jenisKelamin);
+                                            $z_score_imtu = $service->getImtUIndeks($imt, $umur, $jenisKelamin);
                                             $set('z_score_imtu', $z_score_imtu);
-                                            $set('kategori_imtu', GenerateStatusAnak::getStatusImtU($z_score_imtu));
+                                            $set('kategori_imtu', $service->getStatusImtU($z_score_imtu));
 
-                                            $z_score_tb_bb = GenerateStatusAnak::getTbBbIndeks((int) $tinggiBadan, (int) $beratBadan, $jenisKelamin);
+                                            $z_score_tb_bb = $service->getTbBbIndeks((int) $tinggiBadan, (int) $beratBadan, $jenisKelamin);
                                             $set('z_score_tb_bb', $z_score_tb_bb);
-                                            $set('kategori_tb_bb', GenerateStatusAnak::getStatusTbBb($z_score_tb_bb));
+                                            $set('kategori_tb_bb', $service->getStatusTbBb($z_score_tb_bb));
                                         }
 
                                     ),

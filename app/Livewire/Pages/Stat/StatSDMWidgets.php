@@ -7,7 +7,7 @@ use App\Livewire\Widgets\Charts\Stat\SDMBarChart;
 use App\Livewire\Widgets\Charts\Stat\SDMPieChart;
 use App\Livewire\Widgets\Tables\StatSDMTable;
 use App\Models\{Penduduk, Penduduk\PendudukView, Tambahan, Tambahanable, Wilayah};
-use App\Services\GenerateEnumUnionQuery;
+use App\Services\EnumQueryService;
 use Filament\Forms\Components\{Group, Livewire, Section, Select, Tabs, Toggle};
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -60,7 +60,7 @@ class StatSDMWidgets extends Component implements HasForms
                                             if ($this->record instanceof Tambahan) {
                                                 return $this->getTambahanOptions();
                                             } else {
-                                                return GenerateEnumUnionQuery::getEnumClassByKeyName($this->record->key);
+                                                return EnumQueryService::getEnumClassByKeyName($this->record->key);
                                             }
                                         }
                                     ),

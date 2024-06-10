@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Widgets;
 
 use App\Models\Wilayah;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;

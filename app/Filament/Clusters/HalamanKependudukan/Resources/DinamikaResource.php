@@ -6,11 +6,14 @@ use App\Filament\Clusters\HalamanKependudukan\Resources\DinamikaResource\Pages;
 use App\Filament\Clusters\HalamanKependudukan\Resources\DinamikaResource\RelationManagers;
 use App\Models\KartuKeluarga;
 use App\Models\Dinamika;
+use App\Models\User;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Components\Group as FormGroup;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -19,7 +22,9 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Arr;
 use Illuminate\Support\HtmlString;
+use OwenIt\Auditing\Contracts\Audit;
 
 class DinamikaResource extends Resource implements HasShieldPermissions
 {
@@ -105,13 +110,28 @@ class DinamikaResource extends Resource implements HasShieldPermissions
             ])
             ->filters([
                 //
-            ]);
-        // ->actions(
-        //     [
-        //         Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small),
-        //     ],
-        //     position: ActionsPosition::AfterColumns
-        // );
+            ])
+            ->actions(
+                [
+                    Tables\Actions\Action::make('restore')
+                        ->label('Kembalikan Data')
+                        ->color('info')
+                        ->button()
+                        ->size(ActionSize::Medium)
+                        ->icon('fas-undo-alt')
+                        ->action(function (Dinamika $audit) {
+                            self::restoreAuditSelected($audit->penduduk);
+                            $audit->delete();
+                            self::restoredAuditNotification();
+                        })
+                        ->requiresConfirmation()
+                        ->visible(fn (User $user) => $user->can('restoreAudit', Dinamika::class))
+                        ->after(function ($livewire) {
+                            $livewire->dispatch('auditRestored');
+                        }),
+                ],
+                position: ActionsPosition::AfterColumns
+            );
     }
 
     public static function getRelations(): array
@@ -121,12 +141,43 @@ class DinamikaResource extends Resource implements HasShieldPermissions
         ];
     }
 
-    public static function getPages(): array
+    public static function getWidgets(): array
     {
         return [
-            'index' => Pages\ListDinamikas::route('/'),
-            'create' => Pages\CreateDinamika::route('/create'),
-            'edit' => Pages\EditDinamika::route('/{record}/edit'),
+            DinamikaResource\Widgets\FilterDinamika::class,
         ];
+    }
+
+    public static function getPages(): array
+    {
+        return ['index' => Pages\ListDinamikas::route('/')];
+    }
+
+    protected static function restoreAuditSelected($audit)
+    {
+        $oldvalues = $audit->audits()->latest()->first()->old_values;
+
+        Arr::pull($oldvalues, 'id');
+
+        if (is_array($oldvalues)) {
+
+            foreach ($oldvalues as $key => $item) {
+                $decode = json_decode($item);
+
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $oldvalues[$key] = $decode;
+                }
+            }
+            $audit->update($oldvalues);
+        }
+    }
+
+
+    protected static function restoredAuditNotification()
+    {
+        Notification::make()
+            ->title('Data Berhasil di Kembalikan')
+            ->success()
+            ->send();
     }
 }

@@ -10,15 +10,13 @@ class RekapitulasiBulanan extends Model
 {
     use HasFactory;
 
-    protected $table = 'rekapitulasi';
+    protected $table = 'rekapitulasi_view';
 
-    public static function getRekapitulasi($bulan, $tahun, $wilayah_id = null)
-    {
-        // Panggil stored procedure untuk mengisi tabel sementara Rekapitulasi
-        DB::statement('CALL sp_rekapitulasi(?, ?, ?)', [$bulan, $tahun, $wilayah_id]);
-
-        // Ambil hasil dari tabel sementara Rekapitulasi
-        return static::query()
-            ->from('rekapitulasi');
-    }
+    protected $fillable = [
+        'id',
+        'Perincian',
+        'Laki_Laki',
+        'Perempuan',
+        'Total',
+    ];
 }

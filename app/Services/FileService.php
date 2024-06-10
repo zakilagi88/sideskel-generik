@@ -25,8 +25,8 @@ class FileService
         $this->validatePath($path);
 
         if (!File::exists($path)) {
-            Log::error("File does not exist: {$path}");
-            throw new FileException("The file does not exist.");
+            Log::error("File tidak ditemukan: {$path}");
+            throw new FileException("File tidak ditemukan.");
         }
 
         return File::get($path);
@@ -37,8 +37,8 @@ class FileService
         $this->validatePath($path);
 
         if (!File::put($path, $content)) {
-            Log::error("Unable to write to file: {$path}");
-            throw new FileException("Unable to write to file.");
+            Log::error("Gagal Membaca File: {$path}");
+            throw new FileException("Gagal Membaca File.");
         }
 
         return true;
@@ -48,7 +48,7 @@ class FileService
     {
         $realPath = realpath($path);
         if (!$realPath) {
-            throw new \InvalidArgumentException("Invalid path provided.");
+            throw new \InvalidArgumentException("Invalid path.");
         }
 
         $isAllowed = array_reduce($this->allowedPaths, function ($carry, $allowedPath) use ($realPath) {
@@ -56,8 +56,8 @@ class FileService
         }, false);
 
         if (!$isAllowed) {
-            Log::warning("Attempt to access a path not allowed: {$path}");
-            throw new \InvalidArgumentException("Access to this path is not allowed.");
+            Log::warning("Tidak ada Akses: {$path}");
+            throw new \InvalidArgumentException("Akses ditolak.");
         }
 
         $path = $realPath;

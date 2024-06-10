@@ -9,7 +9,7 @@ use App\Livewire\Widgets\Charts\Stat\SDMPieChart;
 use App\Models\Penduduk\PendudukView;
 use App\Models\StatSDM;
 use App\Models\Wilayah;
-use App\Services\GenerateEnumUnionQuery;
+use App\Services\EnumQueryService;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Facades\Filament;
 use Filament\Forms;
@@ -76,7 +76,7 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                     ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state)))
                     ->maxLength(255),
                 Forms\Components\Select::make('key')
-                    ->options(GenerateEnumUnionQuery::getEnumOptions())
+                    ->options(EnumQueryService::getEnumOptions())
                     ->label('Key'),
                 Forms\Components\TextInput::make('slug')
                     ->disabled()
@@ -132,7 +132,7 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                 Tables\Columns\IconColumn::make('status')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime()    
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')

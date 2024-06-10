@@ -8,10 +8,19 @@ use App\Livewire\Widgets\Tables\Dinamika\DinamikaTable;
 
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Livewire\Attributes\On;
 
 class ListDinamikas extends ListRecords
 {
     protected static string $resource = DinamikaResource::class;
+
+    public $filterData = [];
+
+    #[On('filterUpdated')]
+    public function filterUpdated($filterData): void
+    {
+        $this->filterData = $filterData;
+    }
 
     protected function getHeaderActions(): array
     {
@@ -23,7 +32,8 @@ class ListDinamikas extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            DinamikaTable::class,
+            DinamikaResource\Widgets\FilterDinamika::class,
+            DinamikaTable::make(['filterData' => $this->filterData]),
         ];
     }
 }

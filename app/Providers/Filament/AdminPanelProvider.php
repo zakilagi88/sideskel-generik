@@ -14,16 +14,12 @@ use App\Filament\Clusters\HalamanDesa\Resources\LembagaResource;
 use App\Filament\Clusters\HalamanDesa\Resources\SaranaPrasaranaResource;
 use App\Filament\Pages\{DeskelProfile, Dashboard, Auth\AuthLogin, Auth\AuthProfile};
 use App\Filament\Clusters\HalamanKependudukan\Resources\{KartuKeluargaResource, PendudukResource, DinamikaResource, BantuanResource, TambahanResource};
-use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\Pages\ListKartukeluargas;
 use App\Filament\Clusters\HalamanPengaturan\Resources\{RoleResource, UserResource};
 use App\Filament\Clusters\HalamanPotensi\Resources\PotensiSDAResource;
 use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource;
-use App\Filament\Clusters\HalamanWilayah\Resources\WilayahResource\Pages\ListWilayahs;
 use App\Filament\Pages\Settings\PengaturanUmum;
 use App\Filament\Resources\Shield\RoleResource as ShieldRoleResource;
-use App\Filament\Resources\Shield\UserResource as ShieldUserResource;
 use App\Models\Penduduk;
-use App\Models\User;
 use App\Models\Wilayah;
 use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -59,22 +55,21 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->favicon(fn (GeneralSettings $settings) => Storage::url($settings->site_favicon))
             ->brandName(fn (GeneralSettings $settings) => $settings->brand_name)
             ->brandLogo(fn (GeneralSettings $settings) => Storage::url($settings->brand_logo))
             ->brandLogoHeight(fn (GeneralSettings $settings) => $settings->brand_logoHeight)
             ->colors(fn (GeneralSettings $settings) => $settings->site_theme)
-            ->sidebarCollapsibleOnDesktop()
-            ->maxContentWidth(MaxWidth::Full)
             ->darkModeBrandLogo(asset('images/logo-dark.png'))
-            ->login(AuthLogin::class)
-            ->authGuard('web')
+            ->maxContentWidth(MaxWidth::Full)
+            ->sidebarCollapsibleOnDesktop()
             ->passwordReset()
+            ->authGuard('web')
+            ->login(AuthLogin::class)
             ->loginRouteSlug('login')
             ->profile(AuthProfile::class, isSimple: false)
-            ->globalSearchKeyBindings([
-                'command+f', 'ctrl+f'
-            ])
+            ->globalSearchKeyBindings(['command+f', 'ctrl+f'])
             ->routes(
                 fn () => FacadesRoute::get('/downloads', function () {
                     return response()->download(storage_path('app/private/deskel/exports/' . 'akun_pengguna.xlsx'));
@@ -85,7 +80,6 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('60s')
             ->pages([])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([])
             ->middleware([
                 EncryptCookies::class,
@@ -98,9 +92,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->authMiddleware([
-                Authenticate::class,
-            ])
+            ->authMiddleware([Authenticate::class,])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
 
                 $deskel = Deskel::getFacadeRoot();
@@ -163,7 +155,6 @@ class AdminPanelProvider extends PanelProvider
                         $persiapan
                     ]);
                 } else {
-
                     $dataPokok = NavigationGroup::make('DataPokok')
                         ->label('Data Pokok ' . $settings['sebutan_deskel'])
                         ->icon('fas-layer-group')
@@ -206,6 +197,43 @@ class AdminPanelProvider extends PanelProvider
                                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.index.resources.wilayah.index'))
                                 ->url(fn (): string => HalamanWilayah::getUrl()),
 
+                        ]);
+
+                    $dataDasar = NavigationGroup::make('DataDasar')
+                        ->label('Data Dasar Keluarga')
+                        ->icon('fas-house-user')
+                        ->collapsible()
+                        ->items([
+                            NavigationItem::make('Keluarga')
+                                ->icon('fas-people-roof')
+                                ->visible(fn (): bool => $auth->can('view_kartu::keluarga'))
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.kependudukan.resources.keluarga.index'))
+                                ->url(fn (): string => KartukeluargaResource::getUrl()),
+                            NavigationItem::make('Penduduk')
+                                ->icon('fas-people-group')
+                                ->visible(fn (): bool => $auth->can('view_penduduk'))
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.kependudukan.resources.penduduk.index'))
+                                ->url(fn (): string => PendudukResource::getUrl()),
+                            NavigationItem::make('Dinamika Kependudukan')
+                                ->icon('fas-elevator')
+                                ->visible(fn (): bool => $auth->can('view_dinamika'))
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.dinamika.index'))
+                                ->url(fn (): string => DinamikaResource::getUrl()),
+                            NavigationItem::make('Kesehatan Anak')
+                                ->icon('fas-baby')
+                                ->visible(fn (): bool => $auth->can('page_HalamanKesehatan'))
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.kesehatan.resources.anak.index'))
+                                ->url(fn (): string => HalamanKesehatan::getUrl()),
+                            NavigationItem::make('Program Bantuan')
+                                ->icon('fas-hand-holding-hand')
+                                ->visible(fn (): bool => $auth->can('view_bantuan'))
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.bantuan.index'))
+                                ->url(fn (): string => BantuanResource::getUrl()),
+                            NavigationItem::make('Data Tambahan')
+                                ->icon('fas-folder-plus')
+                                ->visible(fn (): bool => $auth->can('view_tambahan'))
+                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.tambahan.index'))
+                                ->url(fn (): string => TambahanResource::getUrl()),
                         ]);
 
                     $potensi = NavigationGroup::make('Potensi')
@@ -269,42 +297,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->url(fn (): string => PengaturanUmum::getUrl()),
                         ]);
 
-                    $dataDasar = NavigationGroup::make('DataDasar')
-                        ->label('Data Dasar Keluarga')
-                        ->icon('fas-house-user')
-                        ->collapsible()
-                        ->items([
-                            NavigationItem::make('Keluarga')
-                                ->icon('fas-people-roof')
-                                ->visible(fn (): bool => $auth->can('view_kartu::keluarga'))
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.kependudukan.resources.keluarga.index'))
-                                ->url(fn (): string => KartukeluargaResource::getUrl()),
-                            NavigationItem::make('Penduduk')
-                                ->icon('fas-people-group')
-                                ->visible(fn (): bool => $auth->can('view_penduduk'))
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.kependudukan.resources.penduduk.index'))
-                                ->url(fn (): string => PendudukResource::getUrl()),
-                            NavigationItem::make('Dinamika Kependudukan')
-                                ->icon('fas-elevator')
-                                ->visible(fn (): bool => $auth->can('view_dinamika'))
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.dinamika.index'))
-                                ->url(fn (): string => DinamikaResource::getUrl()),
-                            NavigationItem::make('Kesehatan Anak')
-                                ->icon('fas-baby')
-                                ->visible(fn (): bool => $auth->can('page_HalamanKesehatan'))
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.kesehatan.resources.anak.index'))
-                                ->url(fn (): string => HalamanKesehatan::getUrl()),
-                            NavigationItem::make('Program Bantuan')
-                                ->icon('fas-hand-holding-hand')
-                                ->visible(fn (): bool => $auth->can('view_bantuan'))
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.bantuan.index'))
-                                ->url(fn (): string => BantuanResource::getUrl()),
-                            NavigationItem::make('Data Tambahan')
-                                ->icon('fas-folder-plus')
-                                ->visible(fn (): bool => $auth->can('view_tambahan'))
-                                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.tambahan.index'))
-                                ->url(fn (): string => TambahanResource::getUrl()),
-                        ]);
+
 
                     return $builder->groups([
                         $beranda,
