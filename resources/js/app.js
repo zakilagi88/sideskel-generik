@@ -1,10 +1,6 @@
 import "./bootstrap";
 
-let attrsKill = [
-    "snapshot",
-    "effects",
-    // 'id'
-];
+let attrsKill = ["snapshot"];
 
 function snapKill() {
     document

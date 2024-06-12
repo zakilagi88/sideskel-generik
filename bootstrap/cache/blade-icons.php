@@ -1,7 +1,7 @@
 <?php return array (
   'heroicons' => 
   array (
-    'C:\\laragon\\www\\kelurahan\\vendor\\blade-ui-kit\\blade-heroicons\\src/../resources/svg' => 
+    'C:\\Sites\\kelurahan\\vendor\\blade-ui-kit\\blade-heroicons\\src/../resources/svg' => 
     array (
       0 => 'c-academic-cap',
       1 => 'c-adjustments-horizontal',
@@ -1183,7 +1183,7 @@
   ),
   'fontawesome-brands' => 
   array (
-    'C:\\laragon\\www\\kelurahan\\vendor\\owenvoke\\blade-fontawesome\\src/../resources/svg/brands' => 
+    'C:\\Sites\\kelurahan\\vendor\\owenvoke\\blade-fontawesome\\src/../resources/svg/brands' => 
     array (
       0 => '42-group',
       1 => '500px',
@@ -1707,7 +1707,7 @@
   ),
   'fontawesome-regular' => 
   array (
-    'C:\\laragon\\www\\kelurahan\\vendor\\owenvoke\\blade-fontawesome\\src/../resources/svg/regular' => 
+    'C:\\Sites\\kelurahan\\vendor\\owenvoke\\blade-fontawesome\\src/../resources/svg/regular' => 
     array (
       0 => 'address-book',
       1 => 'address-card',
@@ -1949,7 +1949,7 @@
   ),
   'fontawesome-solid' => 
   array (
-    'C:\\laragon\\www\\kelurahan\\vendor\\owenvoke\\blade-fontawesome\\src/../resources/svg/solid' => 
+    'C:\\Sites\\kelurahan\\vendor\\owenvoke\\blade-fontawesome\\src/../resources/svg/solid' => 
     array (
       0 => '0',
       1 => '1',
