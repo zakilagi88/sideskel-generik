@@ -87,7 +87,7 @@ class JadwalKegiatanResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('keterangan')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('status')
+                Tables\Columns\IconColumn::make('status')
                     ->boolean()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
