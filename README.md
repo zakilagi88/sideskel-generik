@@ -16,9 +16,7 @@ SIDeskel Generik adalah Sistem Informasi Desa/Kelurahan yang dibangun secara ope
 - **Pengelolaan Data Desa/Kelurahan:** Mengelola data umum desa/kelurahan seperti data penduduk, wilayah, dan administrasi.
 - **Pembaruan Data:** Memfasilitasi proses pembaruan data yang melibatkan banyak pihak.
 - **Akses Informasi Publik:** Menyediakan informasi yang dapat diakses oleh masyarakat luas.
-- **Laporan Bulanan:** Menyediakan formulir khusus untuk laporan bulanan RT yang dikumpulkan setiap bulan di kelurahan.
-- **Data Keuangan:** Memungkinkan pengelolaan data keuangan desa/kelurahan.
-
+  
 ## Langkah Penggunaan
 
 1. **Install dependencies PHP:**
