@@ -115,7 +115,7 @@ class ListWilayahs extends ListRecords
                 Action::make('Download Akun Pengguna')
                     ->color('primary')
                     ->button()
-                    ->url(route('filament.admin.downloads'), shouldOpenInNewTab: true)
+                    ->url(route('filament.panel.downloads'), shouldOpenInNewTab: true)
             ])
             ->sendToDatabase($admin)
             ->send();

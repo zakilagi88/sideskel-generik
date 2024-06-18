@@ -4,19 +4,17 @@ namespace App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResou
 
 use App\Enums\Kependudukan\StatusHubunganType;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource;
+use App\Filament\Exports\PendudukExporter;
 use App\Models\Penduduk;
-use Filament\Facades\Filament;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Enums\ActionSize;
-use Filament\Tables\Actions\DetachAction;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DissociateAction;
 use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Table;
 
@@ -35,40 +33,46 @@ class PenduduksRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return PendudukResource::table($table)
-            ->recordTitle(
-                fn (Penduduk $record): string => "{$record->nama_lengkap} - ({$record->wilayah?->wilayah_nama})"
-            )
+            ->recordTitle(fn (Penduduk $record): string => "{$record->nama_lengkap} - ({$record->wilayah?->wilayah_nama})")
             ->heading('Anggota Keluarga')
             ->selectable(false)
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(PendudukExporter::class)
+                    ->color('primary')
+                    ->label('Ekspor Data')
+                    ->formats([
+                        ExportFormat::Xlsx,
+                        ExportFormat::Csv,
+                    ])
+                    ->columnMapping(),
+                Action::make('penduduk')->label('Tambah Anggota')
+                    ->url(route('filament.panel.kependudukan.resources.keluarga.create')),
+            ])
             ->actions([
                 DissociateAction::make()
                     ->label('Pisahkan dari Keluarga')
                     ->color('danger')
-                    ->size(ActionSize::ExtraSmall)
+                    ->size(ActionSize::Small)
                     ->requiresConfirmation()
                     ->modalHeading('Apakah Anda Yakin?')
                     ->modalDescription('Data yang tidak valid akan dihapus dari daftar tambahan.')
+                    ->hidden(fn ($record) => (($record->status_hubungan->value !== 'KEPALA KELUARGA') || ($this->getOwnerRecord()->penduduks->count() <= 1)))
                     ->button(),
                 EditAction::make('edit_kepala')
                     ->label('Ganti Kepala Keluarga')
                     ->color('info')
-                    ->size(ActionSize::ExtraSmall)
+                    ->size(ActionSize::Small)
                     ->requiresConfirmation()
-                    ->hidden(function ($record) {
-                        return $record->status_hubungan->value !== 'KEPALA KELUARGA';
-                    })
-                    ->modalDescription(
-                        'Jika mengganti keterangan Kepala Keluarga, maka wajib mengganti salah satu anggota keluarga menjadi Kepala Keluarga.'
-                    )
+                    ->hidden(fn ($record) => (($record->status_hubungan->value !== 'KEPALA KELUARGA') || ($this->getOwnerRecord()->penduduks->count() <= 1)))
+                    ->modalDescription('Jika mengganti keterangan Kepala Keluarga, maka wajib mengganti salah satu anggota keluarga menjadi Kepala Keluarga.')
                     ->button()
                     ->using(
                         function ($record, $data) {
-                            $record->update([
-                                'status_hubungan' => $data['status_hubungan'],
-                            ]);
-                            Penduduk::find($data['nik'])->update([
-                                'status_hubungan' => 'KEPALA KELUARGA',
-                            ]);
+                            //update data untuk Kepala Lama
+                            $record->update(['status_hubungan' => $data['status_hubungan']]);
+                            //update data untuk Kepala Baru
+                            Penduduk::find($data['nik'])->update(['status_hubungan' => 'KEPALA KELUARGA']);
                             return $record;
                         }
                     )
@@ -82,27 +86,21 @@ class PenduduksRelationManager extends RelationManager
                             ->dehydrateStateUsing(fn (string $state): string => ucwords($state)),
                         Select::make('nik')
                             ->key('dynamic-form')
-                            ->options(
-                                function () {
-                                    return $this->getOwnerRecord()->penduduks()->whereNot('status_hubungan', 'KEPALA KELUARGA')->pluck('nama_lengkap', 'nik');
-                                }
-                            )
+                            ->options(fn () => $this->getOwnerRecord()->penduduks()->whereNot('status_hubungan', 'KEPALA KELUARGA')->pluck('nama_lengkap', 'nik'))
                             ->dehydrateStateUsing(fn (string $state): string => ucwords($state)),
                     ]),
                 EditAction::make('edit_hubungan')
                     ->label('Ganti Hubungan Keluarga')
                     ->color('warning')
-                    ->size(ActionSize::ExtraSmall)
-                    ->hidden(function ($record) {
-                        return $record->status_hubungan->value === 'KEPALA KELUARGA';
-                    })
+                    ->size(ActionSize::Small)
+                    ->hidden(fn ($record) => $record->status_hubungan->value === 'KEPALA KELUARGA')
                     ->button()
                     ->form([
                         Select::make('status_hubungan')
                             ->options(StatusHubunganType::class)
                             ->dehydrateStateUsing(fn (string $state): string => ucwords($state)),
                     ]),
-            ], ActionsPosition::BeforeCells)
+            ], ActionsPosition::AfterCells)
             ->paginated(false);
     }
 }

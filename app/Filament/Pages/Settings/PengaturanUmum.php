@@ -85,11 +85,11 @@ class PengaturanUmum extends SettingsPage
                                 Forms\Components\Grid::make()
                                     ->schema([
                                         Forms\Components\TextInput::make('brand_name')
+                                            ->inlineLabel()
                                             ->label(fn () => __('Nama Situs'))
-                                            ->hint(fn () => __('Judul situs yang akan ditampilkan di bagian atas halaman'))
-                                            ->hintColor('primary')
                                             ->required(),
                                         Forms\Components\Select::make('site_active')
+                                            ->inlineLabel()
                                             ->label(fn () => __('page.general_settings.fields.site_active'))
                                             ->options([
                                                 0 => "Tidak Aktif",
@@ -121,12 +121,9 @@ class PengaturanUmum extends SettingsPage
                             ]),
                         Forms\Components\Tabs\Tab::make('Web')
                             ->schema([
-
                                 Repeater::make('web_settings')
                                     ->hiddenLabel()
-                                    ->extraAttributes([
-                                        'class' => 'fi-repeater-no-container',
-                                    ])
+                                    ->extraAttributes(['class' => 'fi-repeater-no-container'])
                                     ->addable(false)
                                     ->deletable(false)
                                     ->reorderable(false)

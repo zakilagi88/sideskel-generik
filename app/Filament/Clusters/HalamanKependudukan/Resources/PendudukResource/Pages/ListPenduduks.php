@@ -45,7 +45,7 @@ class ListPenduduks extends ListRecords
     {
         return [
             Actions\CreateAction::make()->label('Tambah Penduduk')
-                ->url(route('filament.admin.kependudukan.resources.keluarga.create')),
+                ->url(route('filament.panel.kependudukan.resources.keluarga.create')),
         ];
     }
 

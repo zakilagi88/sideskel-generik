@@ -8,6 +8,7 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Support\RawJs;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,7 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Reactive;
 
-class SDMBarChart extends ApexChartWidget
+class SDMPyramidChart extends ApexChartWidget
 
 {
     use InteractsWithPageFilters;
@@ -34,7 +35,7 @@ class SDMBarChart extends ApexChartWidget
      * @var string
      */
     protected static ?string $loadingIndicator = 'Loading...';
-    protected static ?string $chartId = 'sdm-bar-chart';
+    protected static ?string $chartId = 'sdm-pyramid-chart';
     protected static bool $deferLoading = true;
     /**
      * Widget Title
@@ -70,14 +71,6 @@ class SDMBarChart extends ApexChartWidget
         ];
     }
 
-    protected function getFilters(): ?array
-    {
-        return [
-            'horizontal' => 'Horizontal Bar',
-            'vertical' => 'Vertical Bar'
-        ];
-    }
-
     /**
      * Chart options (series, labels, types, size, animations...)
      * https://apexcharts.com/docs/options
@@ -95,23 +88,21 @@ class SDMBarChart extends ApexChartWidget
 
         $key = $this->getData($this->chartData);
 
+        array_walk_recursive($key['pr'], function (&$item) {
+            $item = -1 * $item;
+        });
+
         $options =
             [
                 'chart' => [
                     'type' => 'bar',
-                    'height' => 600,
+                    'height' => 1024,
                     'toolbar' => [
                         'show' => true
                     ],
-                    'sparkline' => [
-                        'enabled' => false
-                    ],
+                    'stacked' => true,
                 ],
                 'series' => [
-                    [
-                        'name' => 'Total Penduduk',
-                        'data' => $key['total'],
-                    ],
                     [
                         'name' => 'Laki-laki',
                         'data' => $key['lk'],
@@ -121,104 +112,80 @@ class SDMBarChart extends ApexChartWidget
                         'data' => $key['pr'],
                     ],
                 ],
+                'colors' => ['#6366f1', '#ec4899'],
                 'plotOptions' => [
                     'bar' => [
                         'dataLabels' => [
                             'position' => 'top', // top, center, bottom
                         ],
-                        'horizontal' => $this->filter === 'horizontal' ? true : false,
                         'borderRadius' => 2,
-                        'columnWidth' => '90%',
-                        'endingShape' => 'flat',
+                        'barHeight' => '100%',
+                        'horizontal' => true,
                     ],
                 ],
                 'xaxis' => [
                     'categories' => $key[$this->chartKey()],
-                    'labels' => [
-                        'rotate' => -90,
-                        'offsetY' => 2,
-                        'style' => [
-                            'fontWeight' => 400,
-                            'fontFamily' => 'inherit'
-                        ],
-                    ],
                 ],
                 'yaxis' => [
-
+                    'min' => -25,
+                    'max' => 25,
                     'title' => [
-                        'text' => 'Jumlah Penduduk'
-                    ],
-                    'labels' => [
-                        'style' => [
-                            'fontWeight' => 400,
-                            'fontFamily' => 'inherit'
-                        ],
+                        'text' => 'Umur'
                     ],
                 ],
-                'fill' => [
-                    'gradient' => [
-                        'shade' => 'light',
-                        'type' => 'horizontal',
-                        'shadeIntensity' => 0.5,
-                        'gradientToColors' => [
-                            '#008FFB',
-                            '#00E396',
-                            '#FEB019',
-                            '#FF4560',
-                            '#775DD0',
-                            '#3F51B5',
-                            '#546E7A',
-                            '#D4526E',
-                            '#8D5B4C',
-                            '#F86624',
-                        ],
-                        'inverseColors' => false,
-                        'opacityFrom' => 1,
-                        'opacityTo' => 1,
-                        'stops' => [0, 50, 100],
-                    ],
+                'stroke' => [
+                    'width' => 0.5,
+                    'colors' => ['#fff'],
                 ],
-                'dataLabels' => [
-                    'enabled' => false,
-                    'offsetX' => -1,
-                    'style' => [
-                        'colors' => ['#fff']
-                    ],
-
-                ],
-                'legend' => [
-                    'show' => true,
-                    'position' => 'right',
-                    'horizontalAlign' => 'left',
-                    'floating' => false,
-                    'fontSize' => '14px',
-                    'fontWeight' => 400,
-                    'onItemClick' => [
-                        'toggleDataSeries' => true
-                    ],
-                    'onItemHover' => [
-                        'highlightDataSeries' => true
-                    ],
-                ],
-                'tooltip' => [
-                    'shared' => false,
-                ],
-                'colors' => [
-                    '#008FFB',
-                    '#00E396',
-                    '#FEB019',
-                    '#FF4560',
-                    '#775DD0',
-                    '#3F51B5',
-                    '#546E7A',
-                    '#D4526E',
-                    '#8D5B4C',
-                    '#F86624',
-                ],
-
             ];
 
         return $options;
+    }
+
+    protected function extraJsOptions(): ?RawJs
+    {
+
+        return RawJs::make(
+            <<<'JS'
+        {
+                tooltip: {
+                    shared: false,
+                    x: {
+                        formatter: function (value) {
+                            return value + " Tahun"
+                        }
+                    },
+                    y: {
+                        formatter: function (value) {
+                            return Math.abs(value) + " Orang"
+                        }
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val) {
+                            return Math.abs(Math.round(val))
+                        },
+                    style: {
+                        colors: ['#fff'],
+                        fontSize: '8px',
+                    }
+                },
+                xaxis: {
+                    labels: {
+                        style: {
+                            colors: '#9ca3af',
+                            fontWeight: 600,
+                        },
+                        formatter: function (val) {
+                            return Math.abs(Math.round(val)) + " Orang"
+                        }
+                    },
+                }
+                
+            }
+        JS
+        );
     }
 
     public function updateOptions(): void

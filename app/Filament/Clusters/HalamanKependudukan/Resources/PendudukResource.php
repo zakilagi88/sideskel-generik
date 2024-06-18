@@ -3,7 +3,6 @@
 namespace App\Filament\Clusters\HalamanKependudukan\Resources;
 
 use App\Enums\Kependudukan\{AgamaType, EtnisSukuType, GolonganDarahType, JenisKelaminType, KewarganegaraanType, PendidikanType, PekerjaanType, StatusPengajuanType, PerkawinanType, StatusDasarType, StatusHubunganType, StatusTempatTinggalType, UmurType};
-use App\Facades\Deskel;
 use App\Filament\Clusters\HalamanKependudukan;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\Pages;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\Widgets\PendudukOverview;
@@ -13,11 +12,9 @@ use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Facades\Filament;
-use Filament\Forms\Form;
-use Filament\Forms\Components\{Actions\Action as FormsAction, Checkbox, Component, Group, Section, Select, TextInput, DatePicker, DateTimePicker, Fieldset, FileUpload, Grid as FormsGrid, Hidden, Placeholder, Split as ComponentsSplit, Textarea, TimePicker, Toggle, Wizard};
+use Filament\Forms\{Form, Get, Set};
+use Filament\Forms\Components\{Checkbox, Group, Section, Select, TextInput, DatePicker, Fieldset, FileUpload, Grid as FormsGrid, Hidden, Placeholder, Split as ComponentsSplit, Textarea, TimePicker, Toggle};
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\{Actions, Grid, Group as ComponentsGroup, IconEntry, Section as ComponentsSection, Split, TextEntry};
@@ -32,11 +29,9 @@ use Filament\Tables\Actions\{Action as ActionsAction, ActionGroup, BulkAction, E
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -466,8 +461,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                     ->label('Keterangan')
                                     ->autosize()
                                     ->required(),
-
-
                             ])
                             ->action(
                                 function (Penduduk $record, array $data) {
@@ -901,13 +894,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
             'edit' => Pages\EditPenduduk::route('/{record}/edit'),
         ];
     }
-    public function getTableBulkActions()
-    {
-        return  [
-            // ExportBulkAction::make(),
-
-        ];
-    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -945,12 +931,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                     FileUpload::make('foto')
 
                                         ->hiddenLabel()
-                                        ->extraAttributes(
-                                            ['class' => 'mt-1',]
-                                        )
-                                        ->extraInputAttributes(
-                                            ['class' => 'fi-pond-ta']
-                                        )
+                                        ->extraAttributes(['class' => 'mt-1'])
+                                        ->extraInputAttributes(['class' => 'fi-pond-ta'])
                                         ->getUploadedFileNameForStorageUsing(
                                             fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
                                                 ->prepend('gambar-penduduk-'),
@@ -981,15 +963,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                             Checkbox::make('is_nik_sementara')
                                                 ->label('NIK Sementara')
                                                 ->live()
-                                                ->afterStateUpdated(
-                                                    function (Get $get, Set $set) {
-                                                        if ($get('is_nik_sementara') === true) {
-                                                            $set('nik', (string) rand(1000000000000000, 9999999999999999));
-                                                        } else {
-                                                            $set('nik', '');
-                                                        }
-                                                    }
-                                                )
+                                                ->afterStateUpdated(fn (Get $get, Set $set) => $set('nik', $get('is_nik_sementara') ? (string) rand(1000000000000000, 9999999999999999) : ''))
                                                 ->default(false)
                                                 ->inline(),
                                             TextInput::make('nik')
@@ -999,14 +973,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                 ->reactive()
                                                 ->unique(Penduduk::class, 'nik')
                                                 ->dehydrated()
-                                                ->hint(function (Get $get) {
-                                                    if ($get('is_nik_sementara') === true) {
-                                                        return new HtmlString('<span class="text-red-500">NIK Sementara</span>');
-                                                    } else {
-                                                        return '';
-                                                    }
-                                                })
-
+                                                ->hint(fn (Get $get) => $get('is_nik_sementara') ? new HtmlString('<span class="text-red-500">NIK Sementara</span>') : '')
                                                 ->placeholder('Masukkan NIK')
                                                 ->required(),
                                             Select::make('jenis_identitas')
@@ -1101,31 +1068,19 @@ class PendudukResource extends Resource implements HasShieldPermissions
 
                     ]),
                 Fieldset::make('Status Hubungan dalam Keluaga dan Perkawinan')
-                    ->extraAttributes([
-                        'class' => 'bg-white dark:bg-gray-900'
-                    ])
+                    ->extraAttributes(['class' => 'bg-white dark:bg-gray-900'])
                     ->label('Hubungan Keluarga dan Perkawinan')
                     ->schema([
                         Select::make('status_hubungan')
                             ->label('Status Hubungan dalam Keluarga')
                             ->placeholder('Pilih Status Hubungan dalam Keluarga')
                             ->options(
-                                function (Select $component) {
-                                    $key = $component->getContainer()->getParentComponent()->getContainer()->getParentComponent()->getKey();
-                                    $allCases = collect(StatusHubunganType::cases());
-                                    $cases = [];
-                                    if ($key === 'kepalakeluarga') {
-                                        $cases[StatusHubunganType::KEPALA_KELUARGA->value] = StatusHubunganType::KEPALA_KELUARGA->getLabel();
-                                    } else {
-                                        $cases = $allCases->mapWithKeys(
-                                            fn ($case) => [$case->value => $case->getLabel()]
-                                        )->except(
-                                            StatusHubunganType::KEPALA_KELUARGA->value
-                                        );
-                                    }
-
-                                    return $cases;
-                                }
+                                fn (Select $component) => $component->getContainer()->getParentComponent()->getContainer()->getParentComponent()->getKey() === 'kepalakeluarga'
+                                    ? [StatusHubunganType::KEPALA_KELUARGA->value => StatusHubunganType::KEPALA_KELUARGA->getLabel()]
+                                    : collect(StatusHubunganType::cases())
+                                    ->mapWithKeys(fn ($case) => [$case->value => $case->getLabel()])
+                                    ->except(StatusHubunganType::KEPALA_KELUARGA->value)
+                                    ->toArray()
                             )
                             ->live()
                             ->required(),

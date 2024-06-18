@@ -5,6 +5,7 @@ namespace App\Livewire\Pages\Stat;
 use Livewire\Component;
 use App\Livewire\Widgets\Charts\Stat\SDMBarChart;
 use App\Livewire\Widgets\Charts\Stat\SDMPieChart;
+use App\Livewire\Widgets\Charts\Stat\SDMPyramidChart;
 use App\Livewire\Widgets\Tables\StatSDMTable;
 use App\Models\{Penduduk, Penduduk\PendudukView, Tambahan, Tambahanable, Wilayah};
 use App\Services\EnumQueryService;
@@ -130,7 +131,12 @@ class StatSDMWidgets extends Component implements HasForms
                                                     ->schema([
                                                         Livewire::make(SDMBarChart::class, ['filters' => $this->filters, 'record' => $this->record, 'chartData' => $this->chartData])
                                                             ->key('bar')
-                                                            ->hiddenLabel()
+                                                            ->hidden(fn ($record) => $record->key === 'umur' || $record->key === 'rentang_umur')
+                                                            ->hiddenLabel(),
+                                                        Livewire::make(SDMPyramidChart::class, ['filters' => $this->filters, 'record' => $this->record, 'chartData' => $this->chartData])
+                                                            ->key('pyramid')
+                                                            ->visible(fn ($record) => $record->key === 'umur' || $record->key === 'rentang_umur')
+                                                            ->hiddenLabel(),
                                                     ]),
                                                 Tabs\Tab::make('Pie ')
                                                     ->schema([
@@ -241,6 +247,8 @@ class StatSDMWidgets extends Component implements HasForms
 
         if ($this->record->key === 'rentang_umur') {
             $query->orderByRaw("CAST(SUBSTRING_INDEX(rentang_umur, '-', 1) AS UNSIGNED)");
+        } elseif ($this->record->key === 'umur') {
+            $query->orderByRaw("CAST(umur AS UNSIGNED)");
         }
 
         return $query;

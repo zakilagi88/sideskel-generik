@@ -100,7 +100,7 @@ class ListKartukeluargas extends ListRecords
 
 
 
-                        return redirect()->route('filament.admin.pages.dashboard');
+                        return redirect()->route('filament.panel.pages.dashboard');
                     }
 
                 )

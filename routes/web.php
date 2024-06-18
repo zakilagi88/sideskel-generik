@@ -70,7 +70,8 @@ Route::name('index.')->group(function () {
     Route::get('/lembaga/{record}', LembagaDisplay::class)
         ->name('lembaga.show')
         ->linkKey(label: 'Lembaga', model: Lembaga::class, modelLabel: 'nama');
-    Route::get('/aparatur', AparaturPage::class)->name('aparatur')
+    Route::get('/aparatur', AparaturPage::class)
+        ->name('aparatur')
         ->linkKey(label: 'Aparatur List');
     Route::get('/aparatur/{record}', AparaturDisplay::class)
         ->name('aparatur.show')
@@ -87,14 +88,14 @@ Route::name('index.')->group(function () {
 });
 
 
-Route::get('/indeks-desa', function () {
-    $response = Http::get('https://idm.kemendesa.go.id/open/api/desa/rumusanpokok/6303022016/2023');
-    $htmlContent = $response->body();
-    return view('indeks-desa', compact('htmlContent'));
-});
+// Route::get('/indeks-desa', function () {
+//     $response = Http::get('https://idm.kemendesa.go.id/open/api/desa/rumusanpokok/6303022016/2023');
+//     $htmlContent = $response->body();
+//     return view('indeks-desa', compact('htmlContent'));
+// });
 
-Route::get('/tests', function () {
-    $default_tables = config('app_data.default_tables');
-    // $cek->site_init;
-    dd($default_tables);
-});
+// Route::get('/tests', function () {
+//     $default_tables = config('app_data.default_tables');
+//     // $cek->site_init;
+//     dd($default_tables);
+// });

@@ -152,7 +152,7 @@ class SistemPreparation extends Widget
                     'id' => 0,
                     'label' => 'Pengaturan Aplikasi',
                     'description' => 'Selamat datang di SIDeskel Generik. Silahkan Masuk ke Pengaturan Aplikasi untuk memulai konfigurasi sistem.',
-                    'href' => route('filament.admin.pages.pengaturan-umum'),
+                    'href' => route('filament.panel.pages.pengaturan-umum'),
                     'completed' => $this->completedSteps[0],
                     'icon' => 'fas-cogs',
                 ],
@@ -160,7 +160,7 @@ class SistemPreparation extends Widget
                     'id' => 1,
                     'label' => 'Profil Desa',
                     'description' => 'Langkah selanjutnya adalah mengisi profil Desa/Kelurahan Anda.',
-                    'href' => route('filament.admin.deskel.resources.profil.edit', ['record' => ($this->deskel->first())]),
+                    'href' => route('filament.panel.deskel.resources.profil.edit', ['record' => ($this->deskel->first())]),
                     'completed' => $this->completedSteps[1],
                     'icon' => 'fas-city',
                 ],
@@ -168,7 +168,7 @@ class SistemPreparation extends Widget
                     'id' => 2,
                     'label' => 'Wilayah Administratif',
                     'description' => 'Inisiasi Wilayah sesuai kebutuhan Desa/Kelurahan Anda.',
-                    'href' => route('filament.admin.index.resources.wilayah.index'),
+                    'href' => route('filament.panel.index.resources.wilayah.index'),
                     'completed' => $this->completedSteps[2],
                     'icon' => 'fas-map-marked-alt',
                 ],
@@ -176,7 +176,7 @@ class SistemPreparation extends Widget
                     'id' => 3,
                     'label' => 'Data Kependudukan',
                     'description' => 'Kelola Data Kependudukan dengan mengelola Kartu Keluarga dan Penduduk.',
-                    'href' => route('filament.admin.kependudukan.resources.keluarga.index'),
+                    'href' => route('filament.panel.kependudukan.resources.keluarga.index'),
                     'completed' => $this->completedSteps[3],
                     'icon' => 'fas-people-roof',
                 ],
@@ -184,7 +184,7 @@ class SistemPreparation extends Widget
                     'id' => 4,
                     'label' => 'Peran dan Pengguna',
                     'description' => 'Atur kesesuaian peran dan akun yang diperlukan',
-                    'href' => route('filament.admin.pengaturan.resources.peran.index'),
+                    'href' => route('filament.panel.pengaturan.resources.peran.index'),
                     'completed' => $this->completedSteps[4],
                     'icon' => 'fas-users-gear',
                 ],
@@ -192,7 +192,7 @@ class SistemPreparation extends Widget
                     'id' => 5,
                     'label' => 'Selesai',
                     'description' => 'Langkah-langkah konfigurasi awal sistem telah selesai. Selamat menggunakan sistem!',
-                    'href' => route('filament.admin.pages.dashboard'),
+                    'href' => route('filament.panel.pages.dashboard'),
                     'completed' => $this->completedSteps[5],
                     'icon' => 'fas-check-circle',
                 ],
@@ -207,6 +207,6 @@ class SistemPreparation extends Widget
         app(GeneralSettings::class)->fill(['site_active' => true])->save();
         app(WebSettings::class)->fill(['web_active' => true])->save();
 
-        $this->redirect(route('filament.admin.pages.dashboard'));
+        $this->redirect(route('filament.panel.pages.dashboard'));
     }
 }

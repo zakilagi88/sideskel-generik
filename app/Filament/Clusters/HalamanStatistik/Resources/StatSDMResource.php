@@ -6,6 +6,7 @@ use App\Filament\Clusters\HalamanStatistik;
 use App\Filament\Clusters\HalamanStatistik\Resources\StatSDMResource\Pages;
 use App\Livewire\Widgets\Charts\Stat\SDMBarChart;
 use App\Livewire\Widgets\Charts\Stat\SDMPieChart;
+use App\Livewire\Widgets\Charts\Stat\SDMPyramidChart;
 use App\Models\Penduduk\PendudukView;
 use App\Models\StatSDM;
 use App\Models\Wilayah;
@@ -95,13 +96,17 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                     ->hiddenOn('create')
                     ->tabs([
                         Tab::make('Grafik Bar')
-                            ->icon('fas-table-columns')
+                            ->icon('fas-chart-simple')
                             ->iconPosition(IconPosition::After)
                             ->schema([
                                 Livewire::make(SDMBarChart::class, ['chartData' => $query])
                                     ->hiddenOn('create')
-                                    ->hidden(fn (?Model $record): bool => $record === null)
+                                    ->hidden(fn (?Model $record): bool => $record === null || $record->key === 'umur' || $record->key === 'rentang_umur')
                                     ->label('Grafik Bar Statistik'),
+                                Livewire::make(SDMPyramidChart::class, ['chartData' => $query])
+                                    ->hiddenOn('create')
+                                    ->hidden(fn (?Model $record): bool => $record === null || $record->key !== 'umur' || $record->key !== 'rentang_umur')
+                                    ->label('Grafik Piramida Statistik'),
                             ]),
                         Tab::make('Grafik Pie')
                             ->icon('fas-chart-pie')
@@ -132,7 +137,7 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                 Tables\Columns\IconColumn::make('status')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()    
+                    ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
@@ -181,7 +186,10 @@ class StatSDMResource extends Resource implements HasShieldPermissions
 
             if ($record->key === 'rentang_umur') {
                 $query->orderByRaw("CAST(SUBSTRING_INDEX(rentang_umur, '-', 1) AS UNSIGNED)");
+            } elseif ($record->key === 'umur') {
+                $query->orderByRaw("CAST(umur AS UNSIGNED)");
             }
+
             return $query->get()->toArray();
         }
     }

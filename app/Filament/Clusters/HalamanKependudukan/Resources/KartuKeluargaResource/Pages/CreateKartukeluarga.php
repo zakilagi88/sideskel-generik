@@ -85,9 +85,7 @@ class CreateKartukeluarga extends CreateRecord
                         ->schema([
                             Placeholder::make('')
                                 ->content(
-                                    new HtmlString(
-                                        '<p class="text-lg text-center text-white">Informasi Kartu Keluarga</p>'
-                                    )
+                                    new HtmlString('<p class="text-lg text-center text-white">Informasi Kartu Keluarga</p>')
                                 )
                         ]),
                     Section::make()
@@ -189,11 +187,7 @@ class CreateKartukeluarga extends CreateRecord
                         ->hidden(fn (Get $get): bool => $get('cek_kk') === 'Ya')
                         ->schema([
                             Placeholder::make('')
-                                ->content(
-                                    new HtmlString(
-                                        '<p class="text-lg text-center text-white">Informasi Kepala Keluarga</p>'
-                                    )
-                                )
+                                ->content(new HtmlString('<p class="text-lg text-center text-white">Informasi Kepala Keluarga</p>'))
                         ]),
                     Group::make()
                         ->key('kepalakeluarga')
@@ -254,7 +248,7 @@ class CreateKartukeluarga extends CreateRecord
         $this->redirect($redirectUrl, navigate: FilamentView::hasSpaMode() && is_app_url($redirectUrl));
     }
 
-    public function createKK(array $data): Model
+    private function createKK(array $data): Model
     {
         return KartuKeluarga::create([
             'kk_id' => $data['kk_id'],
@@ -263,42 +257,8 @@ class CreateKartukeluarga extends CreateRecord
         ]);
     }
 
-    public function addKepalaKK(array $data, KartuKeluarga $kartuKeluarga, $authUser): Model
-    {
-        return $kartuKeluarga->penduduks()->create(
-            [
-                'nik' => $data['nik'],
-                'nama_lengkap' => strtoupper($data['nama_lengkap']),
-                'is_nik_sementara' => $data['is_nik_sementara'] ?? false,
-                'jenis_identitas' => $data['jenis_identitas'] ?? 'KTP',
-                'alamat_sekarang' => strtoupper($data['alamat_sekarang']),
-                'alamat_sebelumnya' => strtoupper($data['alamat_sebelumnya']) ?? null,
-                'agama' => $data['agama'],
-                'jenis_kelamin' => $data['jenis_kelamin'],
-                'tempat_lahir' => $data['tempat_lahir'],
-                'tanggal_lahir' => $data['tanggal_lahir'],
-                'golongan_darah' => $data['golongan_darah'],
-                'etnis_suku' => $data['etnis_suku'] ?? null,
-                'pendidikan' => $data['pendidikan'],
-                'status_perkawinan' => $data['status_perkawinan'],
-                'pekerjaan' => $data['pekerjaan'],
-                'kewarganegaraan' => $data['kewarganegaraan'],
-                'nama_ayah' => $data['nama_ayah'] ?? null,
-                'nama_ibu' => $data['nama_ibu'] ?? null,
-                'nik_ayah' => $data['nik_ayah'] ?? null,
-                'nik_ibu' => $data['nik_ibu'] ?? null,
-                'status_dasar' => StatusDasarType::HIDUP,
-                'status_pengajuan' => $authUser->hasRole('Admin') ? StatusPengajuanType::DIVERIFIKASI : StatusPengajuanType::BELUM_DIVERIFIKASI,
-                'status_penduduk' => $data['status_penduduk'] ?? 'TETAP',
-                'status_tempat_tinggal' => $data['status_tempat_tinggal'] ?? null,
-                'status_hubungan' => $data['status_hubungan'] ?? null,
-                'email' => $data['email'] ?? null,
-                'telepon' => $data['telepon'] ?? null
-            ]
-        );
-    }
 
-    public function createAnggotaKK(array $data, KartuKeluarga $kartuKeluarga, $authUser): Model
+    private function createPenduduk(array $data, KartuKeluarga $kartuKeluarga, $authUser): Model
     {
         return $kartuKeluarga->penduduks()->create([
             'nik' => $data['nik'],
@@ -331,7 +291,28 @@ class CreateKartukeluarga extends CreateRecord
         ]);
     }
 
-    public function createKelahiran(array $data, Penduduk $penduduk): Model
+    private function createDinamika($penduduk, $dinamikaType, $dinamikaId, $jenisDinamika, $data)
+    {
+        $penduduk->dinamikas()->create([
+            'dinamika_type' => $dinamikaType,
+            'dinamika_id' => $dinamikaId,
+            'jenis_dinamika' => $jenisDinamika,
+            'catatan_dinamika' => $data['catatan_dinamika'],
+            'tanggal_dinamika' => $data['tanggal_dinamika'],
+            'tanggal_lapor' => $data['tanggal_lapor'],
+        ]);
+    }
+
+    private function createKesehatanAnak($penduduk, $data)
+    {
+        $penduduk->kesehatanAnak()->create([
+            'ibu_id' => $data['nik_ibu'] ?? null,
+            'berat_badan' => $data['berat_lahir'] ?? null,
+            'tinggi_badan' => $data['tinggi_lahir'] ?? null,
+        ]);
+    }
+
+    private function createKelahiran(array $data, Penduduk $penduduk): Model
     {
         return $penduduk->kelahiran()->create([
             'anak_ke' => $data['anak_ke'],
@@ -343,89 +324,128 @@ class CreateKartukeluarga extends CreateRecord
         ]);
     }
 
-    public function createPendatang(array $data, Penduduk $penduduk): Model
+    private function createPendatang(array $data, Penduduk $penduduk): Model
     {
         return $penduduk->pendatang()->create([
             'alamat_sebelumnya' => $data['alamat_sebelumnya'] ?? null,
         ]);
     }
 
-
     protected function createData(array $data): void
     {
         /** @var \App\Models\User */
         $authUser = Filament::auth()->user();
 
-        if ($data['cek_kk'] === 'Ya') {
-            $kartuKeluarga = KartuKeluarga::where('kk_id', $data['kk_id'])->first();
-            $kk_kepala = $kartuKeluarga->with('kepalaKeluarga')->first();
+        // Cek Data Kepala Keluarga
+        $kartuKeluarga = $data['cek_kk'] === 'Ya' ? KartuKeluarga::where('kk_id', $data['kk_id'])->with('kepalaKeluarga')->first() : $this->createKK($data);
+        $kk_kepala = $data['cek_kk'] === 'Ya' ? $kartuKeluarga->kepalaKeluarga : $this->createPenduduk($data, $kartuKeluarga, $authUser);
 
-            if (isset($data['bantuans'])) {
-                $bantuan = Bantuan::find($data['bantuans']);
-                if ($data['bantuan_sasaran'] === 'Penduduk')
-                    $kk_kepala->bantuans()->attach($bantuan);
-                else
-                    $kartuKeluarga->bantuans()->attach($bantuan);
-            }
-        } else {
-            $kartuKeluarga = $this->createKK($data);
-            $kk_kepala = $this->addKepalaKK($data, $kartuKeluarga, $authUser);
-            $pendatang = $this->createPendatang($data, $kk_kepala);
-            $kk_kepala->dinamikas()->create([
-                'dinamika_type' => Pendatang::class,
-                'dinamika_id' => $pendatang->id,
-                'jenis_dinamika' => 'Pindah Masuk',
-                'catatan_dinamika' => $data['catatan_dinamika'],
-                'tanggal_dinamika' => $data['tanggal_dinamika'],
-                'tanggal_lapor' => $data['tanggal_lapor'],
-            ]);
-
-            if (isset($data['bantuans'])) {
-                $bantuan = Bantuan::find($data['bantuans']);
-                $kk_kepala->bantuans()->attach($bantuan);
-            }
+        // Cek Terdaftar Bantuan
+        if (isset($data['bantuans'])) {
+            $bantuan = Bantuan::find($data['bantuans']);
+            $target = $data['bantuan_sasaran'] === 'Penduduk' ? $kk_kepala : $kartuKeluarga;
+            $target->bantuans()->attach($bantuan);
         }
 
+        // Memasukkan ke Pendatang jika Kepala Keluarga belum Ada
+        if ($data['cek_kk'] !== 'Ya') {
+            $pendatang = $this->createPendatang($data, $kk_kepala);
+            $this->createDinamika($kk_kepala, Pendatang::class, $pendatang->id, 'Pindah Masuk', $data);
+        }
+
+        // Cek Data Anggota Keluarga
         if (isset($data['anggotaKeluarga'])) {
             foreach ($data['anggotaKeluarga'] as $anggota) {
-                $penduduk = $this->createAnggotaKK($anggota, $kartuKeluarga, $authUser);
+                $penduduk = $this->createPenduduk($anggota, $kartuKeluarga, $authUser);
 
                 if (isset($anggota['bantuans'])) {
                     $bantuan = Bantuan::find($anggota['bantuans']);
                     $penduduk->bantuans()->attach($bantuan);
                 }
+
                 $umur = Carbon::parse($anggota['tanggal_lahir'])->diffInYears(Carbon::now());
 
                 if ($umur < 5) {
-                    $kelahiran  = $this->createKelahiran($anggota, $penduduk);
-
-                    $penduduk->dinamikas()->create([
-                        'dinamika_type' => Kelahiran::class,
-                        'dinamika_id' => $kelahiran->id,
-                        'jenis_dinamika' => 'Lahir',
-                        'catatan_dinamika' => $anggota['catatan_dinamika'],
-                        'tanggal_dinamika' => $anggota['tanggal_dinamika'],
-                        'tanggal_lapor' => $anggota['tanggal_lapor'],
-                    ]);
-
-                    $penduduk->kesehatanAnak()->create([
-                        'ibu_id' => $anggota['nik_ibu'] ?? null,
-                        'berat_badan' => $anggota['berat_lahir'] ?? null,
-                        'tinggi_badan' => $anggota['tinggi_lahir'] ?? null,
-                    ]);
+                    $kelahiran = $this->createKelahiran($anggota, $penduduk);
+                    $this->createDinamika($penduduk, Kelahiran::class, $kelahiran->id, 'Lahir', $anggota);
+                    $this->createKesehatanAnak($penduduk, $anggota);
                 } else {
                     $pendatang = $this->createPendatang($anggota, $penduduk);
-
-                    $penduduk->dinamikas()->create([
-                        'dinamika_type' => Pendatang::class,
-                        'dinamika_id' => $pendatang->id,
-                        'jenis_dinamika' => 'Pindah Masuk',
-                        'catatan_dinamika' => $anggota['catatan_dinamika'],
-                        'tanggal_dinamika' => $anggota['tanggal_dinamika'],
-                        'tanggal_lapor' => $anggota['tanggal_lapor'],
-                    ]);
+                    $this->createDinamika($penduduk, Pendatang::class, $pendatang->id, 'Pindah Masuk', $anggota);
                 }
             }
         }
+
+        // if ($data['cek_kk'] === 'Ya') {
+        //     $kartuKeluarga = KartuKeluarga::where('kk_id', $data['kk_id'])->first();
+        //     $kk_kepala = $kartuKeluarga->with('kepalaKeluarga')->first();
+
+        //     if (isset($data['bantuans'])) {
+        //         $bantuan = Bantuan::find($data['bantuans']);
+        //         if ($data['bantuan_sasaran'] === 'Penduduk')
+        //             $kk_kepala->bantuans()->attach($bantuan);
+        //         else
+        //             $kartuKeluarga->bantuans()->attach($bantuan);
+        //     }
+        // } else {
+        //     $kartuKeluarga = $this->createKK($data);
+        //     $kk_kepala = $this->createPenduduk($data, $kartuKeluarga, $authUser);
+        //     $pendatang = $this->createPendatang($data, $kk_kepala);
+        //     $kk_kepala->dinamikas()->create([
+        //         'dinamika_type' => Pendatang::class,
+        //         'dinamika_id' => $pendatang->id,
+        //         'jenis_dinamika' => 'Pindah Masuk',
+        //         'catatan_dinamika' => $data['catatan_dinamika'],
+        //         'tanggal_dinamika' => $data['tanggal_dinamika'],
+        //         'tanggal_lapor' => $data['tanggal_lapor'],
+        //     ]);
+
+        //     if (isset($data['bantuans'])) {
+        //         $bantuan = Bantuan::find($data['bantuans']);
+        //         $kk_kepala->bantuans()->attach($bantuan);
+        //     }
+        // }
+
+        // if (isset($data['anggotaKeluarga'])) {
+        //     foreach ($data['anggotaKeluarga'] as $anggota) {
+        //         $penduduk = $this->createPenduduk($anggota, $kartuKeluarga, $authUser);
+
+        //         if (isset($anggota['bantuans'])) {
+        //             $bantuan = Bantuan::find($anggota['bantuans']);
+        //             $penduduk->bantuans()->attach($bantuan);
+        //         }
+        //         $umur = Carbon::parse($anggota['tanggal_lahir'])->diffInYears(Carbon::now());
+
+        //         if ($umur < 5) {
+        //             $kelahiran  = $this->createKelahiran($anggota, $penduduk);
+
+        //             $penduduk->dinamikas()->create([
+        //                 'dinamika_type' => Kelahiran::class,
+        //                 'dinamika_id' => $kelahiran->id,
+        //                 'jenis_dinamika' => 'Lahir',
+        //                 'catatan_dinamika' => $anggota['catatan_dinamika'],
+        //                 'tanggal_dinamika' => $anggota['tanggal_dinamika'],
+        //                 'tanggal_lapor' => $anggota['tanggal_lapor'],
+        //             ]);
+
+        //             $penduduk->kesehatanAnak()->create([
+        //                 'ibu_id' => $anggota['nik_ibu'] ?? null,
+        //                 'berat_badan' => $anggota['berat_lahir'] ?? null,
+        //                 'tinggi_badan' => $anggota['tinggi_lahir'] ?? null,
+        //             ]);
+        //         } else {
+        //             $pendatang = $this->createPendatang($anggota, $penduduk);
+
+        //             $penduduk->dinamikas()->create([
+        //                 'dinamika_type' => Pendatang::class,
+        //                 'dinamika_id' => $pendatang->id,
+        //                 'jenis_dinamika' => 'Pindah Masuk',
+        //                 'catatan_dinamika' => $anggota['catatan_dinamika'],
+        //                 'tanggal_dinamika' => $anggota['tanggal_dinamika'],
+        //                 'tanggal_lapor' => $anggota['tanggal_lapor'],
+        //             ]);
+        //         }
+        //     }
+        // }
     }
 }

@@ -23,33 +23,6 @@ class EditKartukeluarga extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 
-    // protected function mutateFormDataBeforeSave(array $data): array
-    // {
-    // jika kk id parentnya diubah, maka ubah juga kk id parent dari anak2nya yaitu anggota keluarga
-    // if ($data['kk_id'] != $this->record->kk_id) {
-    //     // buat kk id baru dengan data kk id lama
-    //     $kkbaru = new KartuKeluarga(
-    //         [
-    //             'kk_no' => $this->record->kk_no,
-    //             'kk_kepala' => null,
-    //             'kk_alamat' => $this->record->kk_alamat,
-    //             'sls_id' => $this->record->sls_id,
-    //             'kel_id' => $this->record->kel_id,
-
-    //         ]
-    //     );
-    //     $kkbaru->save();
-
-    //     $anggotaKeluarga = \App\Models\AnggotaKeluarga::where('kk_id', $this->record->kk_id)->get();
-    //     foreach ($anggotaKeluarga as $anggota) {
-    //         $anggota->kk_id = null;
-    //         $anggota->save();
-    //     }
-    // }
-
-    // return $data;
-    // }
-
     protected $listeners = [
         'auditRestored',
         'updateAuditsRelationManager',

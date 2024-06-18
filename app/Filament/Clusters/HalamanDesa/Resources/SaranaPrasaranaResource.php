@@ -8,13 +8,10 @@ use App\Filament\Clusters\HalamanDesa\Resources\SaranaPrasaranaResource\Pages;
 use App\Models\Deskel\SaranaPrasarana;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
-use Filament\Forms;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\FontWeight;
@@ -150,11 +147,6 @@ class SaranaPrasaranaResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->button()->iconSize(IconSize::Small)->size(ActionSize::Small),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

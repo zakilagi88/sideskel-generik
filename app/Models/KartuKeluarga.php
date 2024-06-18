@@ -61,42 +61,6 @@ class KartuKeluarga extends Model implements Auditable
         'updated_at'
     ];
 
-    protected static function booted(): void
-    {
-        static::addGlobalScope('wilayah', function (Builder $query) {
-            /** @var \App\Models\User */
-            // $role = Filament::auth()->user();
-            // return $query->whereHas('wilayah', function ($query) use ($authUser) {
-            //     $query->where('parent_id', 116);
-            // });
-
-
-            // $descendants = Wilayah::tree()->find($authUser->wilayah_id)->descendants->pluck('wilayah_id');
-
-
-
-
-
-
-            // return $query;
-            // whereHas('wilayah', function ($query) use ($authUser) {
-            //     $query->where('wilayah_id', $authUser->wilayah_id)->get()->dd();
-            // })->first();
-            // $child = $level->descendants;
-            // if ($child->isEmpty()) {
-            //     return $query->whereIn('wilayah_id', $descendants);
-            // } else {
-            //     return $query->where('wilayah_id', $authUser->wilayah_id);
-            // }
-            // if (auth()->check()) {
-            //     if ($authUser->hasRole('Admin')) {
-            //         return $query;
-            //     } else {
-            //         return $query->byWilayah($authUser);
-            //     }
-            // }
-        });
-    }
 
     public function scopeByWilayah($query, $user, $descendants = null): Builder
     {

@@ -363,7 +363,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                             InfoAction::make('view')
                                                 ->label('Lihat')
                                                 ->icon('heroicon-o-eye')
-                                                ->url(fn (Penduduk $record): string => route('filament.admin.kependudukan.resources.penduduk.view', $record->nik))
+                                                ->url(fn (Penduduk $record): string => route('filament.panel.kependudukan.resources.penduduk.view', $record->nik))
                                                 ->openUrlInNewTab()
                                         ])->alignJustify(),
 
