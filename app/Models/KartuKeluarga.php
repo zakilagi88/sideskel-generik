@@ -50,6 +50,7 @@ class KartuKeluarga extends Model implements Auditable
         'kk_id',
         'kk_alamat',
         'wilayah_id',
+        'created_at',
         'updated_at'
     ];
 
@@ -58,6 +59,7 @@ class KartuKeluarga extends Model implements Auditable
         'kk_id',
         'kk_alamat',
         'wilayah_id',
+        'created_at',
         'updated_at'
     ];
 
@@ -123,6 +125,39 @@ class KartuKeluarga extends Model implements Auditable
             null,
             '',
             [DesaKelurahan::class => 'deskel_id', Wilayah::class => 'wilayah_id'],
+        );
+    }
+
+    public function kec(): BelongsToThrough
+    {
+        return $this->belongsToThrough(
+            Kecamatan::class,
+            [DesaKelurahan::class, Wilayah::class],
+            null,
+            '',
+            [Kecamatan::class => 'kec_id', DesaKelurahan::class => 'deskel_id', Wilayah::class => 'wilayah_id']
+        );
+    }
+
+    public function kabkota(): BelongsToThrough
+    {
+        return $this->belongsToThrough(
+            KabKota::class,
+            [Kecamatan::class, DesaKelurahan::class, Wilayah::class],
+            null,
+            '',
+            [KabKota::class => 'kabkota_id', Kecamatan::class => 'kec_id', DesaKelurahan::class => 'deskel_id', Wilayah::class => 'wilayah_id']
+        );
+    }
+
+    public function prov(): BelongsToThrough
+    {
+        return $this->belongsToThrough(
+            Provinsi::class,
+            [KabKota::class, Kecamatan::class, DesaKelurahan::class, Wilayah::class],
+            null,
+            '',
+            [Provinsi::class => 'prov_id', KabKota::class => 'kabkota_id', Kecamatan::class => 'kec_id', DesaKelurahan::class => 'deskel_id', Wilayah::class => 'wilayah_id']
         );
     }
 }

@@ -15,9 +15,7 @@ use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -54,6 +52,8 @@ class UserResource extends Resource implements HasShieldPermissions
             'update',
             'delete',
             'delete_any',
+            'download_backup',
+            'delete_backup',
         ];
     }
 
@@ -83,14 +83,15 @@ class UserResource extends Resource implements HasShieldPermissions
                             ->label('Email')
                             ->placeholder('Masukkan email pengguna')
                             ->email()
-                            ->required()
                             ->maxLength(255),
-                        DateTimePicker::make('email_verified_at')->label('Email Terverifikasi Pada'),
+                        DateTimePicker::make('email_verified_at')
+                            ->label('Email Terverifikasi Pada'),
                         TextInput::make('password')
+                            ->placeholder('Masukkan kata sandi pengguna')
                             ->password()
-                            ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
-                            ->dehydrated(fn (?string $state): bool => filled($state))
-                            ->required(fn (string $operation): bool => $operation === 'create'),
+                            ->dehydrateStateUsing(fn(string $state): string => Hash::make($state))
+                            ->dehydrated(fn(?string $state): bool => filled($state))
+                            ->required(fn(string $operation): bool => $operation === 'create'),
                         Select::make('roles')
                             ->label('Peran Pengguna')
                             ->relationship('roles', 'name')->preload()
@@ -121,27 +122,20 @@ class UserResource extends Resource implements HasShieldPermissions
                 TextColumn::make('roles.name')
                     ->label('Peran')
                     ->badge()
-                    ->formatStateUsing(fn ($state): string => Str::headline($state))
-                    ->colors(['primary'])
+                    ->formatStateUsing(fn($state): string => Str::headline($state))
+                    ->colors(['primary', 'secondary', 'success', 'danger', 'warning', 'info'])
                     ->sortable()
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->hidden(fn ($record) => $record->username === 'admin')->button()->iconSize(IconSize::Small),
-                Tables\Actions\DeleteAction::make()->hidden(fn ($record) => $record->username === 'admin')->button()->iconSize(IconSize::Small),
+                Tables\Actions\EditAction::make()->hidden(fn($record) => $record->hasRole('Admin'))->button()->iconSize(IconSize::Small),
+                Tables\Actions\DeleteAction::make()->hidden(fn($record) => $record->hasRole('Admin'))->button()->iconSize(IconSize::Small),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    BulkAction::make('Assign RT')
-                        ->label('Assign RT')
-                        ->requiresConfirmation()
-                        ->action(
-                            fn (Collection $records) => $records->each->assignRole('RT')
-                        )
-                        ->deselectRecordsAfterCompletion(),
+                    Tables\Actions\DeleteBulkAction::make()->requiresConfirmation(),
                 ]),
             ])
             ->emptyStateActions([

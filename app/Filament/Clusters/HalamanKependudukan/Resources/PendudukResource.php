@@ -10,6 +10,7 @@ use App\Filament\Exports\PendudukExporter;
 use App\Models\{Bantuan, Kepindahan, Kematian, Penduduk, Dinamika, Wilayah};
 use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Faker\Provider\ar_EG\Text;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Facades\Filament;
 use Filament\Forms\{Form, Get, Set};
@@ -17,7 +18,7 @@ use Filament\Forms\Components\{Checkbox, Group, Section, Select, TextInput, Date
 use Filament\Forms\Contracts\HasForms;
 use Filament\Resources\Resource;
 use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\{Actions, Grid, Group as ComponentsGroup, IconEntry, Section as ComponentsSection, Split, TextEntry};
+use Filament\Infolists\Components\{Actions, Grid, Group as ComponentsGroup, IconEntry, ImageEntry, Section as ComponentsSection, Split, TextEntry};
 use Filament\Infolists\Components\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Support\Enums\FontWeight;
@@ -90,18 +91,70 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 ->heading('Informasi Penduduk')
                                 ->description('Silahkan isi data penduduk dengan benar')
                                 ->schema([
-                                    TextInput::make('nik')
-                                        ->label('NIK')
-                                        ->unique(ignoreRecord: true)
-                                        ->live()
-                                        ->afterStateUpdated(function (HasForms $livewire, TextInput $component) {
-                                            /** @var Livewire $livewire */
-                                            $livewire->validateOnly($component->getStatePath());
-                                        })
-                                        ->required(),
-                                    TextInput::make('nama_lengkap')
-                                        ->label('Nama Lengkap')
-                                        ->required(),
+                                    Group::make()
+                                        ->schema([
+                                            FileUpload::make('foto')
+                                                ->hiddenLabel()
+                                                ->alignCenter()
+                                                ->getUploadedFileNameForStorageUsing(
+                                                    fn(TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
+                                                        ->prepend('gambar-penduduk-'),
+                                                )
+                                                ->disk('public')
+                                                ->directory('penduduk')
+                                                ->moveFiles()
+                                                ->avatar()
+                                                ->image()
+                                                ->imageEditor()
+                                                ->imageEditorAspectRatios([null, '16:9', '4:3', '1:1'])
+                                                ->panelAspectRatio('2:3')
+                                                ->panelLayout('integrated')
+                                                ->imagePreviewHeight('300')
+
+                                                ->loadingIndicatorPosition('right')
+                                                ->removeUploadedFileButtonPosition('right')
+                                                ->uploadProgressIndicatorPosition('left')
+                                                ->columnStart(['lg' => 1, 'md' => 1]),
+                                            Group::make()
+                                                ->schema([
+                                                    TextInput::make('nik')
+                                                        ->label('NIK')
+                                                        ->unique(ignoreRecord: true)
+                                                        ->live()
+                                                        ->afterStateUpdated(function (HasForms $livewire, TextInput $component) {
+                                                            /** @var Livewire $livewire */
+                                                            $livewire->validateOnly($component->getStatePath());
+                                                        })
+                                                        ->required(),
+                                                    TextInput::make('nama_lengkap')
+                                                        ->label('Nama Lengkap')
+                                                        ->required(),
+                                                    Select::make('kk_id')
+                                                        ->label('No. KK')
+                                                        ->relationship('kartuKeluargas', 'kk_id')
+                                                        ->disabled()
+                                                        ->required(),
+                                                ]),
+                                        ])->columns(2),
+                                    Group::make()
+                                        ->schema([
+                                            Select::make('jenis_identitas')
+                                                ->label('Jenis Identitas')
+                                                ->placeholder('Pilih Jenis Identitas')
+                                                ->options([
+                                                    'KTP' => 'KTP',
+                                                    'E-KTP' => 'E-KTP',
+                                                    'KIA' => 'KIA',
+                                                    'BELUM WAJIB' => 'BELUM WAJIB'
+                                                ])
+                                                ->required(),
+                                            TextInput::make('wilayah_id')
+                                                ->label('Wilayah')
+                                                ->placeholder('Pilih Wilayah')
+                                                ->formatStateUsing(fn(Penduduk $record) => $record->wilayah?->wilayah_nama ?? 'Wilayah Tidak Diketahui')
+                                                ->disabled()
+                                                ->required(),
+                                        ])->columns(2),
                                     Group::make()
                                         ->label('Jenis Kelamin')
                                         ->schema([
@@ -139,9 +192,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                         ->searchingMessage('Mencari Jenis Pekerjaan')
                                         ->searchable()
                                         ->required(),
-                                    Select::make('status_tempat_tinggal')
-                                        ->label('Status Tempat Tinggal')
-                                        ->options(StatusTempatTinggalType::class),
+
                                 ])->collapsible(),
                         ])->columnSpan(['lg' => 2]),
                     Group::make()
@@ -153,7 +204,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                             [
                                                 Placeholder::make('created_at')
                                                     ->label('Dibuat Pada')
-                                                    ->content(fn (Penduduk $record): ?string => ($record->created_at?->diffForHumans()))
+                                                    ->content(fn(Penduduk $record): ?string => ($record->created_at?->diffForHumans()))
                                                     ->disabledOn('create'),
                                                 Placeholder::make('updated_at')
                                                     ->label('Diubah Pada')
@@ -170,7 +221,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                     })
                                                     ->disabledOn('create')
                                             ]
-                                        )->hidden(fn (?Penduduk $record) => $record === null),
+                                        )->hidden(fn(?Penduduk $record) => $record === null),
                                 ]),
                             Section::make()
                                 ->heading('Alamat')
@@ -181,6 +232,9 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                         ->required(),
                                     TextInput::make('alamat_sebelumnya')
                                         ->label('Alamat Sebelumnya'),
+                                    Select::make('status_tempat_tinggal')
+                                        ->label('Status Tempat Tinggal')
+                                        ->options(StatusTempatTinggalType::class),
                                 ]),
                             Section::make()
                                 ->heading('Status ')
@@ -188,7 +242,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 ->schema(
                                     [
                                         Hidden::make('status_pengajuan')
-                                            ->default(fn (Penduduk $record) => $record->status_pengajuan->value),
+                                            ->default(fn(Penduduk $record) => $record->status_pengajuan->value),
                                         Placeholder::make('keterangan')
                                             ->label('Keterangan')
                                             ->content(function (Penduduk $record) {
@@ -234,27 +288,24 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ->html()
                     ->color('primary')
                     ->label(
-                        fn () => new HtmlString(
+                        fn() => new HtmlString(
                             '<p class="text-sm text-left">No. KK</p> <p class="text-sm text-gray-500 text-left">Kepala Keluarga</p>'
                         )
                     )
                     ->searchable()
-                    ->url(fn ($record) => KartuKeluargaResource::getUrl('edit', ['record' => $record->kk_id]))
-                    ->description(fn (Penduduk $record) => ($record->kartuKeluargas?->kepalaKeluarga?->nama_lengkap) ?: 'Tidak Diketahui')
-                    ->sortable(),
-                TextColumn::make('nik')
-                    ->label('NIK')
-                    ->searchable()
+                    ->url(fn($record) => KartuKeluargaResource::getUrl('edit', ['record' => $record->kk_id]))
                     ->extraHeaderAttributes($freezeColoumn)
                     ->extraCellAttributes(array_merge($freezeColoumn, ['class' => 'to-be-striped']))
+                    ->description(fn(Penduduk $record) => ($record->kartuKeluargas?->kepalaKeluarga?->nama_lengkap) ?: 'Tidak Diketahui'),
+                TextColumn::make('nik')
+                    ->label('NIK')
+                    ->color('primary')
+                    ->url(fn($record) => static::getUrl('edit', ['record' => $record->nik]))
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('nama_lengkap')
                     ->searchable()
-                    ->formatStateUsing(
-                        function ($state) {
-                            return ucwords(strtolower($state));
-                        }
-                    )
+                    ->formatStateUsing(fn($state) => ucwords(strtolower($state)))
                     ->sortable(),
                 TextColumn::make('wilayah.wilayah_nama')
                     ->placeholder('Wilayah Tidak Diketahui')
@@ -348,7 +399,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
             ->persistSortInSession()
             ->deferFilters()
             ->filtersFormColumns(2)
-            ->filtersFormSchema(fn (array $filters): array => [
+            ->filtersFormSchema(fn(array $filters): array => [
                 Group::make()
                     ->extraAttributes(['class' => 'mb-4'])
                     ->schema([
@@ -393,7 +444,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                     )
                                     ->live()
                                     ->afterStateUpdated(
-                                        fn (Select $component) => $component
+                                        fn(Select $component) => $component
                                             ->getContainer()
                                             ->getComponent('statusDasarFields')
                                             ->getChildComponentContainer()
@@ -401,7 +452,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                     )
                                     ->required(),
                                 FormsGrid::make(1)
-                                    ->schema(fn (Get $get): array => match ($get('status_dasar')) {
+                                    ->schema(fn(Get $get): array => match ($get('status_dasar')) {
                                         'MENINGGAL' => [
                                             TextInput::make('tempat_kematian')
                                                 ->label('Tempat Meninggal')
@@ -549,9 +600,9 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             ),
                         Tables\Actions\EditAction::make()->iconSize(IconSize::Small)->color('primary')->icon('fas-pen-to-square'),
                         ActionsAction::make('Verifikasi')
-                            ->action(fn (Penduduk $record) => $record->update(['status_pengajuan' => StatusPengajuanType::DIVERIFIKASI->value]))
+                            ->action(fn(Penduduk $record) => $record->update(['status_pengajuan' => StatusPengajuanType::DIVERIFIKASI->value]))
                             ->color('success')->label('Verifikasi')->icon('fas-check')
-                            ->requiresConfirmation()->after(fn (Penduduk $record) => Notification::make()
+                            ->requiresConfirmation()->after(fn(Penduduk $record) => Notification::make()
                                 ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
                                 ->body($record->nama_lengkap . ' sudah diverifikasi')
                                 ->success()
@@ -577,7 +628,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 }
                             )
                             ->color('warning')->label('Tinjau Ulang')->icon('fas-circle-question')->iconSize(IconSize::Small)
-                            ->requiresConfirmation()->after(fn (Penduduk $record, array $data) => Notification::make()
+                            ->requiresConfirmation()->after(fn(Penduduk $record, array $data) => Notification::make()
                                 ->title('Penduduk ' . $record->nama_lengkap . ' perlu ditinjau ulang')
                                 ->body('Catatan : ' . $data['catatan'])
                                 ->danger()
@@ -617,8 +668,8 @@ class PendudukResource extends Resource implements HasShieldPermissions
                         ->requiresConfirmation(),
                 ]),
             ])
-            ->recordUrl(fn (Penduduk $record) => static::getUrl('edit', ['record' => $record->nik]))
-            ->recordClasses(fn (Model $record) => empty($record->wilayah?->wilayah_nama) ? 'bg-red-100' : '')
+            ->recordUrl(fn(Penduduk $record) => static::getUrl('edit', ['record' => $record->nik]))
+            ->recordClasses(fn(Model $record) => empty($record->wilayah?->wilayah_nama) ? 'bg-red-100' : '')
             ->emptyStateActions([])
             ->deferLoading()
             ->striped();
@@ -634,121 +685,185 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ->schema([
                         ComponentsGroup::make([
                             ComponentsSection::make()
-                                ->heading('Informasi Penduduk')
-                                ->description('Berikut adalah informasi penduduk')
+                                ->heading('Identitas Penduduk')
                                 ->schema(
                                     [
                                         Split::make([
-                                            Grid::make(2)
+                                            ImageEntry::make('foto')
+                                                ->visibility('private')
+                                                ->hiddenLabel()
+                                                ->defaultImageUrl(
+                                                    fn(Penduduk $record) =>
+                                                    strtolower($record->jenis_kelamin->value) === 'laki-laki' ? url('/images/user-man.png') : url('/images/user-woman.png')
+                                                )->extraAttributes(['class' => 'justify-center'])
+                                                ->size(240),
+                                            ComponentsGroup::make()
                                                 ->schema([
-                                                    ComponentsGroup::make([
-                                                        TextEntry::make('nik')
-                                                            ->label('NIK')
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->color('primary')
-                                                            ->inlineLabel()
-                                                            ->copyable()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                        TextEntry::make('nama_lengkap')
-                                                            ->label('Nama Lengkap')
-                                                            ->color('primary')
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->copyable()
-                                                            ->inlineLabel()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                        TextEntry::make('wilayah.wilayah_nama')
-                                                            ->label('Wilayah')
-                                                            ->color('primary')
-                                                            ->inlineLabel()
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->copyable()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                        TextEntry::make('pendidikan')
-                                                            ->label('Pendidikan')
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->inlineLabel()
-                                                            ->copyable()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                        TextEntry::make('status_perkawinan')
-                                                            ->label('Status Perkawinan')
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->copyable()
-                                                            ->inlineLabel()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                        TextEntry::make('pekerjaan')
-                                                            ->label('Pekerjaan')
-                                                            ->inlineLabel()
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->copyable()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                        TextEntry::make('status_tempat_tinggal')
-                                                            ->placeholder('Belum Diketahui')
-                                                            ->label('Tempat Tinggal')
-                                                            ->inlineLabel()
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->copyable()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                    ]),
-                                                    ComponentsGroup::make([
-                                                        TextEntry::make('jenis_identitas')
-                                                            ->label('Jenis Identitas')
-                                                            ->inlineLabel()
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->copyable()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                        TextEntry::make('kewarganegaraan')
-                                                            ->label('Kewarganegaraan')
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->inlineLabel()
-                                                            ->copyable()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                        TextEntry::make('jenis_kelamin')
-                                                            ->inlineLabel()
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->label('Jenis Kelamin'),
-                                                        TextEntry::make('tempat_lahir')
-                                                            ->inlineLabel()
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->label('Tempat Lahir'),
-                                                        TextEntry::make('tanggal_lahir')
-                                                            ->label('Tanggal Lahir')
-                                                            ->date()
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->inlineLabel(),
-                                                        TextEntry::make('agama')
-                                                            ->label('Agama')
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->inlineLabel()
-                                                            ->formatStateUsing(
-                                                                function ($state) {
-                                                                    return ucwords(strtolower($state->value));
-                                                                }
-                                                            )
-                                                            ->copyable()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                        TextEntry::make('status_dasar')
-                                                            ->label('Status Dasar')
-                                                            ->inlineLabel()
-                                                            ->weight(FontWeight::SemiBold)
-                                                            ->copyable()
-                                                            ->copyMessage('Telah Disalin!')
-                                                            ->copyMessageDuration(1000),
-                                                    ])
+                                                    TextEntry::make('nik')
+                                                        ->label('NIK')
+                                                        ->weight(FontWeight::SemiBold)
+                                                        ->color('primary')
+                                                        ->inlineLabel()
+                                                        ->copyable()
+                                                        ->copyMessage('Telah Disalin!')
+                                                        ->copyMessageDuration(1000),
+                                                    TextEntry::make('nama_lengkap')
+                                                        ->label('Nama Lengkap')
+                                                        ->color('primary')
+                                                        ->weight(FontWeight::SemiBold)
+                                                        ->copyable()
+                                                        ->inlineLabel()
+                                                        ->copyMessage('Telah Disalin!')
+                                                        ->copyMessageDuration(1000),
+                                                    TextEntry::make('kk_id')
+                                                        ->label('No. KK')
+                                                        ->color('primary')
+                                                        ->weight(FontWeight::SemiBold)
+                                                        ->copyable()
+                                                        ->inlineLabel()
+                                                        ->copyMessage('Telah Disalin!')
+                                                        ->copyMessageDuration(1000),
+                                                    TextEntry::make('wilayah.wilayah_nama')
+                                                        ->label('Wilayah')
+                                                        ->color('primary')
+                                                        ->inlineLabel()
+                                                        ->weight(FontWeight::SemiBold)
+                                                        ->copyable()
+                                                        ->copyMessage('Telah Disalin!')
+                                                        ->copyMessageDuration(1000),
+                                                    TextEntry::make('jenis_identitas')
+                                                        ->label('Jenis Identitas')
+                                                        ->inlineLabel()
+                                                        ->weight(FontWeight::SemiBold)
+                                                        ->copyable()
+                                                        ->copyMessage('Telah Disalin!')
+                                                        ->copyMessageDuration(1000),
+                                                    TextEntry::make('jenis_kelamin')
+                                                        ->inlineLabel()
+                                                        ->weight(FontWeight::SemiBold)
+                                                        ->label('Jenis Kelamin'),
                                                 ])
                                         ]),
+                                        ComponentsSection::make('')
+                                            ->schema([
+                                                TextEntry::make('telepon')
+                                                    ->label('Telepon')
+                                                    ->inlineLabel()
+                                                    ->weight(FontWeight::SemiBold)
+                                                    ->copyable()
+                                                    ->copyMessage('Telah Disalin!')
+                                                    ->copyMessageDuration(1000),
+                                                TextEntry::make('email')
+                                                    ->label('Email')
+                                                    ->inlineLabel()
+                                                    ->weight(FontWeight::SemiBold)
+                                                    ->copyable()
+                                                    ->copyMessage('Telah Disalin!')
+                                                    ->copyMessageDuration(1000),
+                                            ])
 
                                     ]
                                 )->columnSpan(['lg' => 2]),
+                            ComponentsSection::make()
+                                ->heading('Informasi Penduduk')
+                                ->columns(2)
+                                ->schema([
+                                    TextEntry::make('tempat_lahir')
+                                        ->inlineLabel()
+                                        ->weight(FontWeight::SemiBold)
+                                        ->label('Tempat Lahir'),
+                                    TextEntry::make('tanggal_lahir')
+                                        ->label('Tanggal Lahir')
+                                        ->date(format: 'd F Y')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->inlineLabel(),
+                                    TextEntry::make('pendidikan')
+                                        ->label('Pendidikan')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->inlineLabel()
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('pekerjaan')
+                                        ->label('Pekerjaan')
+                                        ->inlineLabel()
+                                        ->weight(FontWeight::SemiBold)
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('status_perkawinan')
+                                        ->label('Status Perkawinan')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->copyable()
+                                        ->inlineLabel()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('kewarganegaraan')
+                                        ->label('Kewarganegaraan')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->inlineLabel()
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('agama')
+                                        ->label('Agama')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->inlineLabel()
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('golongan_darah')
+                                        ->label('Golongan Darah')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->inlineLabel()
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+
+                                    TextEntry::make('status_dasar')
+                                        ->label('Status Dasar')
+                                        ->icon(false)
+                                        ->inlineLabel()
+                                        ->weight(FontWeight::SemiBold)
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('status_hubungan')
+                                        ->label('Status Hubungan')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->inlineLabel()
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('nama_ayah')
+                                        ->label('Nama Ayah')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->inlineLabel()
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('nama_ibu')
+                                        ->label('Nama Ibu')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->inlineLabel()
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('nik_ayah')
+                                        ->label('NIK Ayah')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->inlineLabel()
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                    TextEntry::make('nik_ibu')
+                                        ->label('NIK Ibu')
+                                        ->weight(FontWeight::SemiBold)
+                                        ->inlineLabel()
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
+                                ])->columnSpan(['lg' => 2]),
                         ])->columnSpan(['lg' => 2], ['sm' => 2]),
 
                         ComponentsGroup::make([
@@ -800,6 +915,14 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                         ->copyable()
                                         ->copyMessage('Telah Disalin!')
                                         ->copyMessageDuration(1000),
+                                    TextEntry::make('status_tempat_tinggal')
+                                        ->placeholder('Belum Diketahui')
+                                        ->label('Status Tempat Tinggal')
+                                        ->inlineLabel()
+                                        ->weight(FontWeight::SemiBold)
+                                        ->copyable()
+                                        ->copyMessage('Telah Disalin!')
+                                        ->copyMessageDuration(1000),
                                 ]),
                             ComponentsSection::make('')
                                 ->schema([
@@ -818,14 +941,13 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                         ->falseColor('danger')
                                         ->trueIcon('fas-check')
                                         ->falseIcon('fas-times')
-                                        ->iconPosition(IconPosition::After)
-                                        ->color('success'),
+                                        ->iconPosition(IconPosition::After),
 
                                     Actions::make([
                                         Action::make('Verifikasi')
-                                            ->action(fn (Penduduk $record) => $record->update(['status_pengajuan' => StatusPengajuanType::DIVERIFIKASI->value]))
+                                            ->action(fn(Penduduk $record) => $record->update(['status_pengajuan' => StatusPengajuanType::DIVERIFIKASI->value]))
                                             ->color('success')->label('Verifikasi')->button()->icon('fas-check')->iconSize(IconSize::Small)
-                                            ->requiresConfirmation()->after(fn (Penduduk $record) => Notification::make()
+                                            ->requiresConfirmation()->after(fn(Penduduk $record) => Notification::make()
                                                 ->title('Penduduk ' . $record->nama_lengkap . ' Berhasil di Perbarui')
                                                 ->body($record->nama_lengkap . ' sudah diverifikasi')
                                                 ->success()
@@ -852,7 +974,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                             )
                                             ->label('Tinjau Ulang')->color('warning')->icon('fas-circle-question')->iconSize(IconSize::Small)
                                             ->requiresConfirmation()
-                                            ->after(fn (Penduduk $record, array $data) => Notification::make()
+                                            ->after(fn(Penduduk $record, array $data) => Notification::make()
                                                 ->title('Penduduk ' . $record->nama_lengkap . ' perlu ditinjau ulang')
                                                 ->body('Catatan : ' . $data['catatan'])
                                                 ->danger()
@@ -929,41 +1051,32 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             Group::make()
                                 ->schema([
                                     FileUpload::make('foto')
-
                                         ->hiddenLabel()
-                                        ->extraAttributes(['class' => 'mt-1'])
-                                        ->extraInputAttributes(['class' => 'fi-pond-ta'])
+                                        ->alignCenter()
                                         ->getUploadedFileNameForStorageUsing(
-                                            fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
+                                            fn(TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
                                                 ->prepend('gambar-penduduk-'),
                                         )
                                         ->disk('public')
                                         ->directory('penduduk')
+                                        ->moveFiles()
                                         ->avatar()
                                         ->image()
                                         ->imageEditor()
-                                        ->imageEditorAspectRatios([
-                                            '9:16',
-                                            '3:4',
-                                            '1:1',
-                                        ])
+                                        ->imageEditorAspectRatios([null, '16:9', '4:3', '1:1'])
+                                        ->panelAspectRatio('2:3')
+                                        ->panelLayout('integrated')
                                         ->imagePreviewHeight('300')
                                         ->loadingIndicatorPosition('right')
-                                        ->panelAspectRatio('3.5:7')
-                                        ->alignCenter()
-                                        ->panelLayout('integrated')
                                         ->removeUploadedFileButtonPosition('right')
                                         ->uploadProgressIndicatorPosition('left')
-                                        ->columnStart([
-                                            'lg' => 1,
-                                            'md' => 1,
-                                        ]),
+                                        ->columnStart(['lg' => 1, 'md' => 1]),
                                     Section::make()
                                         ->schema([
                                             Checkbox::make('is_nik_sementara')
                                                 ->label('NIK Sementara')
                                                 ->live()
-                                                ->afterStateUpdated(fn (Get $get, Set $set) => $set('nik', $get('is_nik_sementara') ? (string) rand(1000000000000000, 9999999999999999) : ''))
+                                                ->afterStateUpdated(fn(Get $get, Set $set) => $set('nik', $get('is_nik_sementara') ? (string) rand(1000000000000000, 9999999999999999) : ''))
                                                 ->default(false)
                                                 ->inline(),
                                             TextInput::make('nik')
@@ -973,7 +1086,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                                 ->reactive()
                                                 ->unique(Penduduk::class, 'nik')
                                                 ->dehydrated()
-                                                ->hint(fn (Get $get) => $get('is_nik_sementara') ? new HtmlString('<span class="text-red-500">NIK Sementara</span>') : '')
+                                                ->hint(fn(Get $get) => $get('is_nik_sementara') ? new HtmlString('<span class="text-red-500">NIK Sementara</span>') : '')
                                                 ->placeholder('Masukkan NIK')
                                                 ->required(),
                                             Select::make('jenis_identitas')
@@ -1019,14 +1132,9 @@ class PendudukResource extends Resource implements HasShieldPermissions
 
                         ])->columns(2),
                 ]),
-
-
                 Fieldset::make()
                     ->label('Data Diri')
-                    ->extraAttributes([
-                        'class' => 'bg-white dark:bg-gray-900'
-
-                    ])
+                    ->extraAttributes(['class' => 'bg-white dark:bg-gray-900'])
                     ->columns(2)
                     ->schema([
                         TextInput::make('tempat_lahir')
@@ -1075,10 +1183,10 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             ->label('Status Hubungan dalam Keluarga')
                             ->placeholder('Pilih Status Hubungan dalam Keluarga')
                             ->options(
-                                fn (Select $component) => $component->getContainer()->getParentComponent()->getContainer()->getParentComponent()->getKey() === 'kepalakeluarga'
+                                fn(Select $component) => $component->getContainer()->getParentComponent()->getContainer()->getParentComponent()->getKey() === 'kepalakeluarga'
                                     ? [StatusHubunganType::KEPALA_KELUARGA->value => StatusHubunganType::KEPALA_KELUARGA->getLabel()]
                                     : collect(StatusHubunganType::cases())
-                                    ->mapWithKeys(fn ($case) => [$case->value => $case->getLabel()])
+                                    ->mapWithKeys(fn($case) => [$case->value => $case->getLabel()])
                                     ->except(StatusHubunganType::KEPALA_KELUARGA->value)
                                     ->toArray()
                             )
@@ -1090,7 +1198,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             ->options(PerkawinanType::class)
                             ->live()
                             ->afterStateUpdated(
-                                fn (Select $component) => $component
+                                fn(Select $component) => $component
                                     ->getContainer()
                                     ->getComponent('statusPerkawinanFields')
                                     ->getChildComponentContainer()
@@ -1098,7 +1206,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             )
                             ->required(),
                         FormsGrid::make(1)
-                            ->schema(fn (Get $get): array => match ($get('status_perkawinan')) {
+                            ->schema(fn(Get $get): array => match ($get('status_perkawinan')) {
                                 'KAWIN', 'KAWIN TERCATAT', 'KAWIN BELUM TERCATAT' => [
                                     DatePicker::make('tgl_perkawinan')
                                         ->label('Tanggal Perkawinan')
@@ -1119,9 +1227,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
 
                     ]),
                 Fieldset::make('Orang Tua')
-                    ->extraAttributes([
-                        'class' => 'bg-white dark:bg-gray-900'
-                    ])
+                    ->extraAttributes(['class' => 'bg-white dark:bg-gray-900'])
                     ->label('Orang Tua')
                     ->schema([
                         TextInput::make('nama_ayah')
@@ -1140,10 +1246,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ]),
 
                 Fieldset::make('Pendidikan dan Pekerjaan')
-                    ->extraAttributes([
-                        'class' => 'bg-white dark:bg-gray-900'
-
-                    ])
+                    ->extraAttributes(['class' => 'bg-white dark:bg-gray-900'])
                     ->label('Pendidikan dan Pekerjaan')
                     ->schema([
                         Select::make('pendidikan')
@@ -1160,10 +1263,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ]),
                 Fieldset::make('Alamat dan Kontak')
                     ->label('Alamat dan Kontak')
-                    ->extraAttributes([
-                        'class' => 'bg-white dark:bg-gray-900'
-
-                    ])
+                    ->extraAttributes(['class' => 'bg-white dark:bg-gray-900'])
                     ->schema([
                         Textarea::make('alamat_sekarang')
                             ->label('Alamat Sekarang')
@@ -1184,15 +1284,12 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ->label('Kesehatan Anak')
                     ->reactive()
                     ->hidden(
-                        fn (Get $get) => (($get('status_hubungan') !== StatusHubunganType::ANAK->value) &&
+                        fn(Get $get) => (($get('status_hubungan') !== StatusHubunganType::ANAK->value) &&
                             ($get('status_hubungan') !== StatusHubunganType::CUCU->value) &&
                             ($get('status_hubungan') !== StatusHubunganType::FAMILI_LAIN->value)) ||
                             ($get('tanggal_lahir') < now()->subYears(5))
                     )
-                    ->extraAttributes([
-                        'class' => 'bg-white dark:bg-gray-900'
-
-                    ])
+                    ->extraAttributes(['class' => 'bg-white dark:bg-gray-900'])
                     ->schema([
                         TextInput::make('anak_ke')
                             ->placeholder('Masukkan Anak Ke')
@@ -1230,9 +1327,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                             ->numeric(),
                     ])->columns(2),
                 Fieldset::make('Informasi Tambahan')
-                    ->extraAttributes([
-                        'class' => 'bg-white dark:bg-gray-900'
-                    ])
+                    ->extraAttributes(['class' => 'bg-white dark:bg-gray-900'])
                     ->schema([
                         DatePicker::make('tanggal_dinamika')
                             ->label('Tanggal Dinamika')
@@ -1279,7 +1374,6 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                 }
                             )
                             ->multiple()
-
                     ])->columns(2),
             ];
     }

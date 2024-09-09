@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\KartuKeluarga;
 use App\Models\Penduduk;
 use App\Models\User;
+use Filament\Notifications\Events\DatabaseNotificationsSent;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -14,6 +15,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Livewire\Features\SupportEvents\HandlesEvents;
+use Throwable;
 
 class InsertsJob implements ShouldQueue
 {
@@ -21,14 +24,16 @@ class InsertsJob implements ShouldQueue
 
     protected $kkChunks;
     protected $pddChunks;
+    protected $authUser;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($kkChunks, $pddChunks)
+    public function __construct($kkChunks, $pddChunks, $authUser)
     {
         $this->kkChunks = $kkChunks;
         $this->pddChunks = $pddChunks;
+        $this->authUser = $authUser;
     }
 
     /**
@@ -36,52 +41,72 @@ class InsertsJob implements ShouldQueue
      */
     public function handle(): void
     {
-
         $kkCount = 0;
         $pddCount = 0;
 
-        try {
-            DB::beginTransaction();
+        /** @var \App\Models\User */
+        $authUser = User::find($this->authUser);
 
-            KartuKeluarga::disableAuditing();
-            Penduduk::disableAuditing();
+        DB::beginTransaction();
 
-            KartuKeluarga::query()->getConnection()->statement('SET FOREIGN_KEY_CHECKS =0;');
+        KartuKeluarga::disableAuditing();
+        Penduduk::disableAuditing();
 
-            foreach ($this->kkChunks as $chunk) {
-                KartuKeluarga::insert($chunk->toArray());
-                $kkCount += count($chunk);
-            }
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0');
 
-            foreach ($this->pddChunks as $chunk) {
-                Penduduk::insert($chunk->toArray());
-                $pddCount += count($chunk);
-            }
-
-            KartuKeluarga::query()->getConnection()->statement('SET FOREIGN_KEY_CHECKS=1;');
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error("Error importing data: " . $e->getMessage());
-        } finally {
-            // if ($success) {
-            //     $notification = Notification::make()
-            //         ->success()
-            //         ->title('Import Data Keluarga Berhasil')
-            //         ->icon('fas-check')
-            //         ->body("Sebanyak $kkCount data kartu keluarga dan $pddCount data penduduk berhasil diimport.");
-            // } else {
-            //     $notification = Notification::make()
-            //         ->danger()
-            //         ->title('Import Data Keluarga Gagal')
-            //         ->icon('fas-times')
-            //         ->body("Terjadi kesalahan saat mengimport data keluarga.");
-            // }
-
-            // $notification->sendToDatabase(User::role('Admin')->get())->send();
-            KartuKeluarga::enableAuditing();
-            Penduduk::enableAuditing();
+        foreach ($this->kkChunks as $chunk) {
+            KartuKeluarga::insert($chunk->toArray());
+            $kkCount += count($chunk);
         }
+
+        foreach ($this->pddChunks as $chunk) {
+            Penduduk::insert($chunk->toArray());
+            $pddCount += count($chunk);
+        }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+
+        Notification::make()
+            ->title('Import Selesai')
+            ->body("Kartu Keluarga: {$kkCount} data berhasil diimpor. Penduduk: {$pddCount} data berhasil diimpor.")
+            ->icon('fas-check')
+            ->persistent()
+            ->success()
+            ->broadcast($authUser)
+            ->sendToDatabase($authUser);
+
+        event(new DatabaseNotificationsSent($authUser));
+
+        DB::commit();
+
+        KartuKeluarga::enableAuditing();
+        Penduduk::enableAuditing();
+    }
+
+    /**
+     * Handle a job failure.
+     *
+     * @param  \Throwable  $exception
+     * @return void
+     */
+    public function failed(Throwable $exception)
+    {
+        /** @var \App\Models\User */
+        $authUser = User::find($this->authUser);
+
+        Notification::make()
+            ->title('Import Gagal')
+            ->body("Terjadi kesalahan saat mengimpor data. Silahkan coba lagi. Error: {$exception->getMessage()}")
+            ->icon('fas-check')
+            ->persistent()
+            ->danger()
+            ->broadcast($authUser)
+            ->sendToDatabase($authUser);
+
+        event(new DatabaseNotificationsSent($authUser));
+
+        DB::rollBack();
+
+        Log::error("Error importing data: " . $exception->getMessage());
     }
 }

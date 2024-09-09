@@ -11,6 +11,8 @@ use Filament\Forms\Components\Split;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Auth\EditProfile;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class AuthProfile extends EditProfile
@@ -22,46 +24,61 @@ class AuthProfile extends EditProfile
             ->schema([
                 Section::make('Informasi Pengguna')
                     ->aside()
-                    ->extraAttributes([
-                        'class' => 'fi-aside-section',
-                    ])
+                    ->extraAttributes(['class' => 'fi-aside-section'])
                     ->description('Informasi pengguna yang akan digunakan untuk login ke aplikasi.')
                     ->schema([
-                        Split::make([
-                            FileUpload::make('avatar_url')
-                                ->hiddenLabel()
-                                ->disk('public')
-                                ->directory('profile')
-                                ->image()
-                                ->imageResizeMode('contain')
-                                ->imageEditor()
-                                ->imageEditorAspectRatios([
-                                    '9:16',
-                                    '3:4',
-                                    '1:1',
-                                ])
-                                ->imagePreviewHeight('300')
-                                ->loadingIndicatorPosition('right')
-                                ->panelAspectRatio('1:1')
-                                ->alignCenter()
-                                ->panelLayout('integrated')
-                                ->removeUploadedFileButtonPosition('right')
-                                ->uploadProgressIndicatorPosition('left'),
+                        Group::make([
+                            $this->getAvatarFormComponent()
+                                ->columnSpan(1),
                             Group::make([
-                                TextInput::make('username')
-                                    ->required()
-                                    ->unique(ignoreRecord: true)
-                                    ->label('Username'),
+                                $this->getUsernameFormComponent(),
                                 $this->getNameFormComponent(),
                                 $this->getEmailFormComponent(),
-                            ]),
-
+                            ])->columnSpan(2),
+                        ])->columns(3),
+                    ]),
+                Section::make('Ganti Password')
+                    ->aside()
+                    ->extraAttributes(['class' => 'fi-aside-section'])
+                    ->description('Jika Anda ingin mengganti password, silahkan isi kolom berikut.')
+                    ->schema([
+                        Group::make([
+                            $this->getOldPasswordFormComponent(),
+                            $this->getPasswordFormComponent(),
+                            $this->getPasswordConfirmationFormComponent(),
                         ]),
-                        $this->getPasswordFormComponent(),
-                        $this->getPasswordConfirmationFormComponent(),
                     ]),
 
             ]);
+    }
+
+    protected function getAvatarFormComponent(): Component
+    {
+        return  FileUpload::make('avatar_url')
+            ->hiddenLabel()
+            ->alignCenter()
+            ->disk('public')
+            ->directory('profile')
+            ->moveFiles()
+            ->avatar()
+            ->image()
+            ->imageEditor()
+            ->imageEditorAspectRatios([null, '16:9', '4:3', '1:1'])
+            ->panelAspectRatio('2:3')
+            ->panelLayout('integrated')
+            ->imagePreviewHeight('300')
+            ->loadingIndicatorPosition('right')
+            ->removeUploadedFileButtonPosition('right')
+            ->uploadProgressIndicatorPosition('left');
+    }
+
+    protected function getUsernameFormComponent(): Component
+    {
+        return TextInput::make('username')
+            ->label(__('Username'))
+            ->disabled()
+            ->unique(ignoreRecord: true)
+            ->required();
     }
 
     protected function getNameFormComponent(): Component
@@ -71,18 +88,32 @@ class AuthProfile extends EditProfile
 
     protected function getEmailFormComponent(): Component
     {
-        return parent::getEmailFormComponent()->required(false);
+        return parent::getEmailFormComponent()
+            ->label(__('Email'))
+            ->required(false);
+    }
+
+    protected function getOldPasswordFormComponent(): Component
+    {
+        return TextInput::make('current_password')
+            ->label(__('Kata Sandi Saat Ini'))
+            ->password()
+            ->revealable()
+            ->currentPassword()
+            ->required();
     }
 
     protected function getPasswordFormComponent(): Component
     {
         return parent::getPasswordFormComponent()
-            ->revealable(false);
+            ->label(__('Kata Sandi Baru'))
+            ->revealable();
     }
 
     protected function getPasswordConfirmationFormComponent(): Component
     {
         return parent::getPasswordConfirmationFormComponent()
-            ->revealable(false);
+            ->label(__('Konfirmasi Kata Sandi Baru'))
+            ->revealable();
     }
 }

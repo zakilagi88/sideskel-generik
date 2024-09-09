@@ -69,7 +69,6 @@ return new class extends Migration
                         AND (wilayah.wilayah_id = ', wilayah_id, ' 
                         OR wilayah.parent_id = ', wilayah_id, ')');
                 END IF;
-
                 SET @sqlQuery = CONCAT(@sqlQuery, ' GROUP BY enum_values.', enum_type);
 
                 -- Persiapkan dan eksekusi pernyataan SQL
@@ -77,17 +76,16 @@ return new class extends Migration
                 EXECUTE stmt;
                 DEALLOCATE PREPARE stmt;
             END
-
-
         SQL;
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        //
+        // drop procedure dan view
+        DB::statement('DROP PROCEDURE IF EXISTS sp_create_penduduk_view');
+        DB::statement('DROP VIEW IF EXISTS penduduk_view');
     }
 };

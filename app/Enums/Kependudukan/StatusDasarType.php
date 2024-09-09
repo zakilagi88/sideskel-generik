@@ -11,7 +11,7 @@ enum StatusDasarType: string implements HasLabel, HasColor, HasIcon
 {
     case HIDUP = 'HIDUP';
     case PINDAH = 'PINDAH';
-    case BELUM_VALID = 'BELUM_VALID';
+    case BELUM_VALID = 'BELUM VALID';
     case MENINGGAL = 'MENINGGAL';
     case HILANG = 'HILANG';
 

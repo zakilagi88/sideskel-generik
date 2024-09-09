@@ -20,7 +20,7 @@ class AparaturDisplay extends SimplePage
             return $infolist;
         }
 
-        $extraStyle = fn (?string $state) => is_null($state)
+        $extraStyle = fn(?string $state) => is_null($state)
             ? [] : ['class' => 'border-solid border-gray-400 pb-1 dark:border-gray-600 border-b hover:bg-gray-100'];
         return $infolist
             ->record($this->record)
@@ -38,7 +38,8 @@ class AparaturDisplay extends SimplePage
                             Components\ImageEntry::make('foto')
                                 ->hiddenLabel()
                                 ->defaultImageUrl(
-                                    fn (Aparatur $record) => strtolower($record->jenis_kelamin) === 'laki-laki' ? url('/images/user-man.png') : url('/images/user-woman.png')
+                                    fn(Aparatur $record) =>
+                                    strtolower($record->jenis_kelamin) === 'laki-laki' ? url('/images/user-man.png') : url('/images/user-woman.png')
                                 )->extraAttributes(['class' => 'justify-center'])
                                 ->size(240),
                         ])->columnSpan(['md' => 1, 'lg' => 1, 'xl' => 1, '2xl' => 2]),

@@ -8,9 +8,6 @@ use Filament\Support\Contracts\HasIcon;
 
 enum PerkawinanType: string implements HasLabel
 {
-    case KAWIN = 'KAWIN';
-    case KAWIN_TERCATAT = 'KAWIN TERCATAT';
-    case KAWIN_BELUM_TERCATAT = 'KAWIN BELUM TERCATAT';
     case BELUM_KAWIN = 'BELUM KAWIN';
     case CERAI_BELUM_TERCATAT = 'CERAI BELUM TERCATAT';
     case CERAI_HIDUP = 'CERAI HIDUP';
@@ -18,6 +15,9 @@ enum PerkawinanType: string implements HasLabel
     case CERAI_HIDUP_TERCATAT = 'CERAI HIDUP TERCATAT';
     case CERAI_MATI = 'CERAI MATI';
     case CERAI_TERCATAT = 'CERAI TERCATAT';
+    case KAWIN = 'KAWIN';
+    case KAWIN_BELUM_TERCATAT = 'KAWIN BELUM TERCATAT';
+    case KAWIN_TERCATAT = 'KAWIN TERCATAT';
 
 
 

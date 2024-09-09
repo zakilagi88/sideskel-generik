@@ -6,6 +6,7 @@ use App\Filament\Pages\Dashboard;
 use App\Services\FileService;
 use App\Settings\GeneralSettings;
 use App\Filament\Pages\SettingsPage;
+use App\Models\Deskel\Lembaga;
 use App\Settings\WebSettings;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
@@ -22,10 +23,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 use ReflectionClass;
 use Riodwanto\FilamentAceEditor\AceEditor;
-use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
 
 use function Filament\Support\is_app_url;
 
@@ -86,18 +85,16 @@ class PengaturanUmum extends SettingsPage
                                     ->schema([
                                         Forms\Components\TextInput::make('brand_name')
                                             ->inlineLabel()
-                                            ->label(fn () => __('Nama Situs'))
+                                            ->label(fn() => __('Nama Situs'))
                                             ->required(),
-                                        Forms\Components\Select::make('site_active')
+                                        Forms\Components\Select::make('site_type')
                                             ->inlineLabel()
-                                            ->label(fn () => __('page.general_settings.fields.site_active'))
+                                            ->label(fn() => __('Struktur Desa/Kelurahan'))
                                             ->options([
-                                                0 => "Tidak Aktif",
-                                                1 => "Aktif",
+                                                "kelurahan" => "Kelurahan",
+                                                "desa" => "Desa",
                                             ])
-                                            ->disabled()
                                             ->native(false)
-                                            ->hintColor('primary')
                                             ->required(),
                                     ]),
                                 Forms\Components\Grid::make()
@@ -185,7 +182,7 @@ class PengaturanUmum extends SettingsPage
                                                         ->required(),
                                                     Forms\Components\Select::make('link_name')
                                                         ->label(__('Link Parent'))
-                                                        ->options(fn (Get $get): array => ($this->getRouteOptions($get('link_type'))))
+                                                        ->options(fn(Get $get): array => ($this->getRouteOptions($get('link_type'))))
                                                         ->live(onBlur: true),
                                                     TableRepeater::make('submenu')
                                                         ->label(__('Submenu'))
@@ -210,11 +207,11 @@ class PengaturanUmum extends SettingsPage
                                                                 ->live(onBlur: true),
                                                             Forms\Components\Select::make('sub_link_name')
                                                                 ->label(__('Link Parent'))
-                                                                ->options(fn (Get $get): array => $this->getRouteOptions($get('sub_link_type')))
+                                                                ->options(fn(Get $get): array => $this->getRouteOptions($get('sub_link_type')))
                                                                 ->live(onBlur: true),
                                                             Forms\Components\Select::make('sub_link_options')
                                                                 ->label(__('Link Options'))
-                                                                ->options(fn (Get $get): array => $this->getSelectedDynamicRouteOptions($get('sub_link_name')))
+                                                                ->options(fn(Get $get): array => $this->getSelectedDynamicRouteOptions($get('sub_link_name')))
                                                                 ->live(onBlur: true),
                                                         ])
                                                 ]
@@ -228,19 +225,19 @@ class PengaturanUmum extends SettingsPage
                         Forms\Components\Tabs\Tab::make('Color Palette')
                             ->schema([
                                 Forms\Components\ColorPicker::make('site_theme.primary')
-                                    ->label(fn () => __('page.general_settings.fields.primary'))->rgb(),
+                                    ->label(fn() => __('page.general_settings.fields.primary'))->rgb(),
                                 Forms\Components\ColorPicker::make('site_theme.secondary')
-                                    ->label(fn () => __('page.general_settings.fields.secondary'))->rgb(),
+                                    ->label(fn() => __('page.general_settings.fields.secondary'))->rgb(),
                                 Forms\Components\ColorPicker::make('site_theme.gray')
-                                    ->label(fn () => __('page.general_settings.fields.gray'))->rgb(),
+                                    ->label(fn() => __('page.general_settings.fields.gray'))->rgb(),
                                 Forms\Components\ColorPicker::make('site_theme.success')
-                                    ->label(fn () => __('page.general_settings.fields.success'))->rgb(),
+                                    ->label(fn() => __('page.general_settings.fields.success'))->rgb(),
                                 Forms\Components\ColorPicker::make('site_theme.danger')
-                                    ->label(fn () => __('page.general_settings.fields.danger'))->rgb(),
+                                    ->label(fn() => __('page.general_settings.fields.danger'))->rgb(),
                                 Forms\Components\ColorPicker::make('site_theme.info')
-                                    ->label(fn () => __('page.general_settings.fields.info'))->rgb(),
+                                    ->label(fn() => __('page.general_settings.fields.info'))->rgb(),
                                 Forms\Components\ColorPicker::make('site_theme.warning')
-                                    ->label(fn () => __('page.general_settings.fields.warning'))->rgb(),
+                                    ->label(fn() => __('page.general_settings.fields.warning'))->rgb(),
                             ])
                             ->columns(3),
                         Forms\Components\Tabs\Tab::make('Code Editor')
@@ -268,27 +265,11 @@ class PengaturanUmum extends SettingsPage
         try {
             $data = $this->mutateFormDataBeforeSave($this->form->getState());
 
-            $generalSettingsData = collect($data)->except('web_settings')->toArray();
-            $generalSettings = app(static::getSettings());
-            $generalSettings->fill($generalSettingsData);
-            $generalSettings->save();
-
-            $webData = $data['web_settings'][0];
-            foreach ($webData['menus'] as &$menu) {
-                $menu['submenu'] = array_filter($menu['submenu'], function ($submenu) {
-                    return !empty($submenu['sub_name']) && !empty($submenu['sub_link_name']);
-                });
-            }
-            $webSettings = app(static::getWebSettings());
-            $webSettings->fill($webData);
-            $webSettings->save();
-
-            $fileService = new FileService;
-            $fileService->writeFile($this->themePath, $data['theme-editor']);
-            $fileService->writeFile($this->twConfigPath, $data['tw-config-editor']);
+            $this->saveSettings($data);
+            $this->saveFiles(theme: $data['theme-editor'], config: $data['tw-config-editor']);
 
             Notification::make()
-                ->title('Settings updated.')
+                ->title('Pengaturan Aplikasi Berhasil Disimpan')
                 ->success()
                 ->send();
 
@@ -296,6 +277,54 @@ class PengaturanUmum extends SettingsPage
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    private function generateLembaga(GeneralSettings $general)
+    {
+        $lembaga = $general->site_type == 'desa'
+            ? config('app_data.default_tables.lembaga.desa')
+            : config('app_data.default_tables.lembaga.kelurahan');
+
+        // Hapus data lembaga yang ada sebelumnya
+        if (Lembaga::exists()) {
+            //disable foreign key check for truncate
+            Lembaga::query()->getConnection()->statement('SET FOREIGN_KEY_CHECKS=0;');
+            Lembaga::truncate();
+            Lembaga::query()->getConnection()->statement('SET FOREIGN_KEY_CHECKS=1;');
+        }
+        // Buat data lembaga yang baru
+        foreach ($lembaga as $l) {
+            Lembaga::create($l);
+        }
+    }
+
+    private function saveSettings($data)
+    {
+        // Save general settings
+        $generalSettingsData = collect($data)->except('web_settings')->toArray();
+        $generalSettings = app(static::getSettings());
+        $generalSettings->fill($generalSettingsData);
+        $generalSettings->save();
+
+        $this->generateLembaga($generalSettings, $data);
+
+        // Filter and save web settings
+        $webData = $data['web_settings'][0];
+        foreach ($webData['menus'] as &$menu) {
+            $menu['submenu'] = array_filter($menu['submenu'], function ($submenu) {
+                return !empty($submenu['sub_name']) && !empty($submenu['sub_link_name']);
+            });
+        }
+        $webSettings = app(static::getWebSettings());
+        $webSettings->fill($webData);
+        $webSettings->save();
+    }
+
+    private function saveFiles($theme, $config)
+    {
+        $fileService = new FileService;
+        $fileService->writeFile($this->themePath, $theme);
+        $fileService->writeFile($this->twConfigPath, $config);
     }
 
 
@@ -329,10 +358,10 @@ class PengaturanUmum extends SettingsPage
     {
         return collect($this->routes)
             ->when($linkType === 'static', function ($collection) {
-                return $collection->filter(fn ($route) => $route['parameterOptions'] == null && !str_contains($route['routeName'], 'show'));
+                return $collection->filter(fn($route) => $route['parameterOptions'] == null && !str_contains($route['routeName'], 'show'));
             })
             ->when($linkType === 'dynamic', function ($collection) {
-                return $collection->filter(fn ($route) => $route['parameterOptions'] != null && str_contains($route['routeName'], 'show'));
+                return $collection->filter(fn($route) => $route['parameterOptions'] != null && str_contains($route['routeName'], 'show'));
             })
             ->mapWithKeys(function ($route) {
                 return [$route['routeName'] => $route['label']];
@@ -344,7 +373,7 @@ class PengaturanUmum extends SettingsPage
     protected function getStaticRouteOptions(): array
     {
         return collect($this->routes)
-            ->filter(fn ($route) => $route['parameterOptions'] != null)
+            ->filter(fn($route) => $route['parameterOptions'] != null)
             ->mapWithKeys(function ($route) {
                 return [$route['routeName'] => $route['label']];
             })
@@ -354,7 +383,7 @@ class PengaturanUmum extends SettingsPage
     protected function getDynamicRouteOptions(): array
     {
         return collect($this->routes)
-            ->filter(fn ($route) => $route['parameterOptions'] == null)
+            ->filter(fn($route) => $route['parameterOptions'] == null)
             ->mapWithKeys(function ($route) {
                 return [$route['routeName'] => $route['label']];
             })
@@ -364,7 +393,7 @@ class PengaturanUmum extends SettingsPage
     protected function getSelectedDynamicRouteOptions($routeName): array
     {
         return collect($this->routes)
-            ->filter(fn ($route) => $route['routeName'] == $routeName)
+            ->filter(fn($route) => $route['routeName'] == $routeName)
             ->mapWithKeys(function ($route) {
                 return $route['parameterOptions'];
             })

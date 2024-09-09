@@ -3,8 +3,6 @@
 namespace App\Enums\Kependudukan;
 
 use Filament\Support\Contracts\HasLabel;
-use Filament\Support\Contracts\HasColor;
-use Filament\Support\Contracts\HasIcon;
 
 enum PendidikanType: string implements HasLabel
 {
@@ -22,16 +20,16 @@ enum PendidikanType: string implements HasLabel
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::TIDAK_BELUM_SEKOLAH => 'Tidak/Belum Sekolah',
-            self::BELUM_TAMAT_SD_SEDERAJAT => 'Belum Tamat SD/Sederajat',
-            self::TAMAT_SD_SEDERAJAT => 'Tamat SD/Sederajat',
-            self::SLTP_SEDERAJAT => 'SLTP/Sederajat',
-            self::SLTA_SEDERAJAT => 'SLTA/Sederajat',
-            self::DIPLOMA_I_II => 'Diploma I/II',
-            self::AKADEMI_DIPLOMA_III_SARJANA_MUDA => 'Akademi/Diploma III/Sarjana Muda',
-            self::DIPLOMA_IV_STRATA_I => 'Diploma IV/Strata I',
-            self::STRATA_II => 'Strata II',
-            self::STRATA_III => 'Strata III',
+            self::TIDAK_BELUM_SEKOLAH => 'TIDAK/BELUM SEKOLAH',
+            self::BELUM_TAMAT_SD_SEDERAJAT => 'BELUM TAMAT SD/SEDERAJAT',
+            self::TAMAT_SD_SEDERAJAT => 'TAMAT SD/SEDERAJAT',
+            self::SLTP_SEDERAJAT => 'SLTP/SEDERAJAT',
+            self::SLTA_SEDERAJAT => 'SLTA/SEDERAJAT',
+            self::DIPLOMA_I_II => 'DIPLOMA I/II',
+            self::AKADEMI_DIPLOMA_III_SARJANA_MUDA => 'AKADEMI/DIPLOMA III/SARJANA MUDA',
+            self::DIPLOMA_IV_STRATA_I => 'DIPLOMA IV/STRATA I',
+            self::STRATA_II => 'STRATA II',
+            self::STRATA_III => 'STRATA III'
         };
     }
 }

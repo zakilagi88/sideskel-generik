@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('jenis_kelamin');
             $table->string('tempat_lahir');
             $table->date('tanggal_lahir');
-            $table->integer('umur');
+            $table->integer('umur')->nullable();
             $table->string('agama');
             $table->string('pendidikan')->nullable();
             $table->string('pekerjaan')->nullable();

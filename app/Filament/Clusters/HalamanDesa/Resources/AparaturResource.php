@@ -33,14 +33,8 @@ use Filament\Support\Enums\IconSize;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\Layout\Split;
-use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class AparaturResource extends Resource implements HasShieldPermissions
@@ -73,7 +67,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
 
     public static function form(Form $form): Form
     {
-        $isPenduduk = fn (Get $get) => $get('is_penduduk') === 'terdata';
+        $isPenduduk = fn(Get $get) => $get('is_penduduk') === 'terdata';
 
         return $form
             ->schema([
@@ -90,16 +84,14 @@ class AparaturResource extends Resource implements HasShieldPermissions
                             Group::make([
                                 FileUpload::make('foto')
                                     ->hiddenLabel()
-                                    ->extraAttributes([
-                                        'class' => 'justify-center',
-                                    ])
+                                    ->extraAttributes(['class' => 'justify-center'])
                                     ->getUploadedFileNameForStorageUsing(
-                                        fn (TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
+                                        fn(TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
                                             ->prepend('gambar-aparatur-'),
                                     )
                                     ->disk('public')
                                     ->directory('deskel/aparatur')
-                                    ->visibility('public')
+                                    ->visibility('private')
                                     ->image()
                                     ->imageEditor()
                                     ->imageEditorAspectRatios([
@@ -158,7 +150,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                         ->inlineLabel()
                                         ->hiddenOn('edit')
                                         ->columnSpanFull()
-                                        ->visible(fn (Get $get) => $get('is_penduduk') === 'terdata')
+                                        ->visible(fn(Get $get) => $get('is_penduduk') === 'terdata')
                                         ->label('NIK Penduduk')
                                         ->options(function () {
                                             return Penduduk::pluck('nama_lengkap', 'nik');
@@ -191,7 +183,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                         ->inlineLabel()
                                         ->label('NIAP/NIPD')
                                         ->minLength(18)
-                                        ->required(fn (Get $get): bool => !filled($get('nip')))
+                                        ->required(fn(Get $get): bool => !filled($get('nip')))
                                         ->live()
                                         ->placeholder('NIAP'),
                                     TextInput::make('nip')
@@ -199,19 +191,19 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                         ->label('NIP')
                                         ->reactive()
                                         ->minLength(18)
-                                        ->required(fn (Get $get): bool => !filled($get('niap')))
+                                        ->required(fn(Get $get): bool => !filled($get('niap')))
                                         ->placeholder('NIP'),
                                     Select::make('jabatan_id')
                                         ->inlineLabel()
                                         ->options(
-                                            fn () => Jabatan::pluck('nama', 'id')
+                                            fn() => Jabatan::pluck('nama', 'id')
                                         )
                                         ->required(),
                                 ])->columnSpan(2),
                             ])->columns(3),
                             Group::make([
                                 Hidden::make('slug')
-                                    ->default(fn () => 'd-' . Aparatur::latest()->first()?->id . time()),
+                                    ->default(fn() => 'd-' . Aparatur::latest()->first()?->id . time()),
                                 TextInput::make('nama')
                                     ->disabled($isPenduduk)
                                     ->required(),
@@ -271,11 +263,11 @@ class AparaturResource extends Resource implements HasShieldPermissions
                     ->alignCenter()
                     ->size(72)
                     ->checkFileExistence(false)
-                    ->defaultImageUrl(fn (Aparatur $record) => strtolower($record->jenis_kelamin) === 'laki-laki' ? url('/images/user-man.png') : url('/images/user-woman.png'))
+                    ->defaultImageUrl(fn(Aparatur $record) => strtolower($record->jenis_kelamin) === 'laki-laki' ? url('/images/user-man.png') : url('/images/user-woman.png'))
                     ->grow(false),
                 TextColumn::make('nama')
                     ->weight(FontWeight::SemiBold)
-                    ->description(fn (Aparatur $record) => 'NIAP/NIPD: ' . $record->niap ?? 'NIP: ' . $record->nip)
+                    ->description(fn(Aparatur $record) => 'NIAP/NIPD: ' . $record->niap ?? 'NIP: ' . $record->nip)
                     ->alignment(Alignment::Left)
                     ->searchable(),
                 TextColumn::make('jabatan.nama')

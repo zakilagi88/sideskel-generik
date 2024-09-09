@@ -16,12 +16,12 @@ enum AgamaType: string implements HasLabel
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::ISLAM => 'Islam',
-            self::KRISTEN => 'Kristen',
-            self::KATHOLIK => 'Katolik',
-            self::HINDU => 'Hindu',
-            self::BUDDHA => 'Buddha',
-            self::KONGHUCU => 'Konghucu',
+            self::ISLAM => 'ISLAM',
+            self::KRISTEN => 'KRISTEN',
+            self::KATHOLIK => 'KATHOLIK',
+            self::HINDU => 'HINDU',
+            self::BUDDHA => 'BUDDHA',
+            self::KONGHUCU => 'KONGHUCU',
         };
     }
 }

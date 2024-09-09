@@ -65,4 +65,9 @@ class AuthLogin extends Login
     {
         return __('Selamat Datang');
     }
+
+    public function hasLogo(): bool
+    {
+        return true;
+    }
 }

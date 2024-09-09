@@ -13,26 +13,25 @@ use Filament\Facades\Filament;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\On;
+use Filament\Widgets\Concerns;
 
 class SistemPreparation extends Widget
 {
+
+    use Concerns\CanPoll;
 
     use HasWidgetShield;
 
     protected static ?int $sort = 1;
 
-    protected static bool $isLazy = false;
+    protected static bool $isLazy = true;
 
     protected int | string | array $columnSpan = 2;
 
     public $currentStep = 1;
     public $totalSteps = 5;
 
-    public $deskel;
-    private $deskelId;
-    private $wilayahCount;
-    private $pendudukCount;
-    private $accountCount;
+    public $deskel, $deskelId, $wilayahCount, $pendudukCount, $accountCount;
 
     public array $initSetup = [];
     public array $completedSteps = [];
@@ -48,16 +47,14 @@ class SistemPreparation extends Widget
     {
         /** @var \App\Models\User */
         $auth = Filament::auth()->user();
-        if ($auth->hasRole('Admin')) {
-            return true;
-        }
+        return $auth->hasRole('Admin') ?  true : false;
     }
 
-    public function mount()
+    public function mount(GeneralSettings $setting)
     {
         $this->deskel = Deskel::getFacadeRoot();
         $this->retrieveCompletedSteps();
-        $this->updateCompletedSteps();
+        $this->updateCompletedSteps($setting);
     }
 
     public function getColumnSpan(): int | string | array
@@ -84,19 +81,17 @@ class SistemPreparation extends Widget
     }
 
     #[On('update-step')]
-    public function updateCompletedSteps()
+    public function updateCompletedSteps(?GeneralSettings $settings)
     {
-        $set = app(GeneralSettings::class)->toArray();
 
-        $this->initSetup = $set['site_init'];
-        $this->deskelId = $this->deskel?->deskel_id;
+        $this->initSetup = $settings->site_init;
         $this->wilayahCount = Wilayah::exists();
         $this->pendudukCount = Penduduk::exists();
         $this->accountCount = User::count();
 
         $conditions = [
             0 => $this->initSetup[0] == true,
-            1 => $this->initSetup[1] == true && !(is_null($this->deskelId)),
+            1 => $this->initSetup[1] == true && !(is_null($this->deskel?->deskel_id)),
             2 => $this->initSetup[2] == true && $this->wilayahCount == true,
             3 => $this->initSetup[3] == true && $this->pendudukCount == true,
             4 => $this->initSetup[4] == true && $this->accountCount > 2,
@@ -115,17 +110,12 @@ class SistemPreparation extends Widget
 
     public function checkAllStepsCompleted()
     {
-        foreach ($this->completedSteps as $step) {
-            if (!$step) {
-                return false;
-            }
-        }
-        return true;
+        return !in_array(false, $this->completedSteps);
     }
 
-    public function updateStep($stepId)
+    #[On('next-step')]
+    public function updateStep($stepId, ?GeneralSettings $settings)
     {
-        $set = app(GeneralSettings::class);
 
         $stepCheck = [];
         for ($i = 0; $i < $this->totalSteps; $i++) {
@@ -137,7 +127,8 @@ class SistemPreparation extends Widget
         }
 
         if ($this->completedSteps[$stepId] == false) {
-            $set->fill(['site_init' => $stepCheck])->save();
+            $settings->site_init = $stepCheck;
+            $settings->save();
         }
 
         $this->dispatch('update-step');
@@ -158,7 +149,7 @@ class SistemPreparation extends Widget
                 ],
                 [
                     'id' => 1,
-                    'label' => 'Profil Desa',
+                    'label' => 'Profil Desa/Kelurahan',
                     'description' => 'Langkah selanjutnya adalah mengisi profil Desa/Kelurahan Anda.',
                     'href' => route('filament.panel.deskel.resources.profil.edit', ['record' => ($this->deskel->first())]),
                     'completed' => $this->completedSteps[1],
@@ -166,7 +157,7 @@ class SistemPreparation extends Widget
                 ],
                 [
                     'id' => 2,
-                    'label' => 'Wilayah Administratif',
+                    'label' => 'Kewilayahan',
                     'description' => 'Inisiasi Wilayah sesuai kebutuhan Desa/Kelurahan Anda.',
                     'href' => route('filament.panel.index.resources.wilayah.index'),
                     'completed' => $this->completedSteps[2],
@@ -202,10 +193,12 @@ class SistemPreparation extends Widget
 
 
     #[On('complete-step')]
-    public function completeStep(int $step)
+    public function completeStep(GeneralSettings $generalSettings, WebSettings $webSettings)
     {
-        app(GeneralSettings::class)->fill(['site_active' => true])->save();
-        app(WebSettings::class)->fill(['web_active' => true])->save();
+        $generalSettings->site_active = true;
+        $generalSettings->save();
+        $webSettings->web_active = true;
+        $webSettings->save();
 
         $this->redirect(route('filament.panel.pages.dashboard'));
     }

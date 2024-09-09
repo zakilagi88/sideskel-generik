@@ -101,11 +101,11 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Livewire::make(SDMBarChart::class, ['chartData' => $query])
                                     ->hiddenOn('create')
-                                    ->hidden(fn (?Model $record): bool => $record === null || $record->key === 'umur' || $record->key === 'rentang_umur')
+                                    ->hidden(fn (?Model $record): bool => $record === null || $record->key === 'umur')
                                     ->label('Grafik Bar Statistik'),
                                 Livewire::make(SDMPyramidChart::class, ['chartData' => $query])
                                     ->hiddenOn('create')
-                                    ->hidden(fn (?Model $record): bool => $record === null || $record->key !== 'umur' || $record->key !== 'rentang_umur')
+                                    ->hidden(fn (?Model $record): bool => $record === null || $record->key !== 'umur')
                                     ->label('Grafik Piramida Statistik'),
                             ]),
                         Tab::make('Grafik Pie')

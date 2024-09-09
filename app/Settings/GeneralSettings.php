@@ -14,6 +14,7 @@ class GeneralSettings extends Settings
     public bool $site_active;
     public ?string $site_favicon;
     public array $site_theme;
+    public string $site_type;
     public string $sebutan_kepala;
     public string $sebutan_deskel;
     public string $sebutan_prov;

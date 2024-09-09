@@ -18,10 +18,10 @@ enum KategoriUmurType: string implements HasLabel
         return match ($this) {
             self::BADUTA => 'BADUTA',
             self::BALITA => 'BALITA',
-            self::ANAK_ANAK => 'Anak-Anak',
-            self::REMAJA => 'Remaja',
-            self::DEWASA => 'Dewasa',
-            self::LANSIA => 'Lansia',
+            self::ANAK_ANAK => 'ANAK-ANAK',
+            self::REMAJA => 'REMAJA',
+            self::DEWASA => 'DEWASA',
+            self::LANSIA => 'LANSIA',
         };
     }
 }

@@ -141,4 +141,30 @@ class UserPolicy
     {
         return $user->can('{{ Reorder }}');
     }
+
+    // Add additional methods here...
+
+    /**
+     * Determine whether the user can download backup.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+
+    //can download backup
+    public function downloadBackup(User $user): bool
+    {
+        return $user->can('download-backup');
+    }
+
+    /**
+     * Determine whether the user can delete backup.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function deleteBackup(User $user): bool
+    {
+        return $user->can('delete-backup');
+    }
 }

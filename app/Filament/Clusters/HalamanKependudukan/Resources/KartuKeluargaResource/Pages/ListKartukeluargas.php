@@ -6,18 +6,24 @@ use App\Exports\TemplateImport;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource;
 use App\Imports\Import;
 use App\Imports\KartuKeluargaImport;
+use App\Imports\KartuKeluargaImportExcel;
 use App\Jobs\ImportJob;
-use App\Models\{KartuKeluarga, Penduduk, User,};
+use App\Jobs\NotifyJob;
+use App\Models\{Import as ModelsImport, KartuKeluarga, Penduduk, User,};
 use Filament\Actions;
 use Filament\Actions\Action as ActionsAction;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\{FileUpload};
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\Alignment;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ListKartukeluargas extends ListRecords
@@ -25,11 +31,6 @@ class ListKartukeluargas extends ListRecords
     protected static string $resource = KartukeluargaResource::class;
 
     public $file;
-    public $batchId;
-    public $isImporting = false;
-    public $importFilePath;
-    public $importProgress = 0;
-    public $importFinished = false;
 
     protected function getHeaderActions(): array
     {
@@ -60,14 +61,14 @@ class ListKartukeluargas extends ListRecords
                         ->label('Upload File')
                         ->required()
                         ->disk('local')
-                        ->directory('deskel/imports')
-                        ->moveFiles()
                         ->rules([
                             'required',
                             'mimes:xlsx,xls,csv',
                         ])
                         ->openable()
                         ->preserveFilenames()
+                        ->storeFiles(false)
+                        ->storeFileNamesIn('imported')
                         ->acceptedFileTypes(['application/msexcel', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'])
                 ])
                 // ->extraModalFooterActions([
@@ -85,20 +86,30 @@ class ListKartukeluargas extends ListRecords
                 ->action(
                     function (array $data) {
 
+                        /** @var \App\Models\User */
+                        $authUser = Filament::auth()->user();
+
                         Notification::make()
                             ->icon('fas-stopwatch')
                             ->iconColor('primary')
                             ->title('Import Data Kartu Keluarga')
                             ->body('Data Keluarga sedang diimport, silahkan tunggu beberapa saat.')
-                            ->seconds(1)
+                            ->persistent()
                             ->send();
 
-                        Excel::import(new Import, $data['file']);
+                        $import = ModelsImport::create([
+                            'imported_by' => $authUser->id,
+                            'file_name' => $data['file']->getClientOriginalName(),
+                            'status' => 'PROCESSING',
+                            'process_rows' => 0,
+                            'success_rows' => 0,
+                            'related_rows' => 0,
+                        ]);
 
-
-                        // self::import($data['file']);
-
-
+                        $imports = new KartuKeluargaImportExcel($authUser, $import->id);
+                        $imports->queue($data['file'])->chain([
+                            new NotifyJob($authUser, $import),
+                        ]);
 
                         return redirect()->route('filament.panel.pages.dashboard');
                     }
@@ -154,45 +165,4 @@ class ListKartukeluargas extends ListRecords
     {
         return Excel::download(new TemplateImport, 'template_imports.xlsx');
     }
-
-    public function import($data)
-    {
-        $this->importFilePath = $data;
-        // $this->isImporting = true;
-        $batch = Bus::batch([new ImportJob($this->importFilePath)])->dispatch();
-
-        // $this->batchId = $batch->id;
-    }
-
-    // public function cancelImport()
-    // {
-    //     if ($this->batchId) {
-    //         Bus::findBatch($this->batchId)->cancel();
-    //     }
-    // }
-
-    // public function getImportBatchProperty()
-    // {
-    //     if (!$this->batchId) {
-    //         return null;
-    //     }
-    //     return Bus::findBatch($this->batchId);
-    // }
-
-
-    // public function updateImportProgress()
-    // {
-    //     if (!$this->importBatch) {
-    //         return;
-    //     } else {
-    //         $this->importProgress = $this->importBatch->progress();
-    //         $this->importFinished = $this->importBatch->finished();
-    //         if ($this->importFinished) {
-    //             Storage::delete($this->importFilePath);
-    //             $this->isImporting = false;
-    //             $this->importFilePath = null;
-    //             $this->batchId = null;
-    //         }
-    //     }
-    // }
 }

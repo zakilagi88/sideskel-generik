@@ -3,35 +3,18 @@
 namespace App\Imports;
 
 use App\Facades\Deskel;
-use App\Jobs\ImportJob;
 use App\Jobs\InsertsJob;
 use App\Jobs\NotifyJob;
-use App\Models\AnggotaKeluarga;
-use App\Models\DeskelProfil;
-use App\Models\Dusun;
-use App\Models\KartuKeluarga;
-use App\Models\Penduduk;
-use App\Models\RT;
-use App\Models\RW;
-use App\Models\User;
 use App\Models\Wilayah;
 use App\Settings\GeneralSettings;
 use Carbon\Carbon;
-use DateTime;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithBatchInserts;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Row;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class KartuKeluargaImport implements ToCollection, WithHeadingRow
 {
@@ -137,18 +120,13 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
             ]);
         }
 
-        $chunksKeluarga = $kartuKeluarga->chunk(500);
-        $chunksPenduduk = $penduduk->chunk(1000);
-
-        $kkCount = $kartuKeluarga->count();
-        $pddCount = $penduduk->count();
+        $kkChunks = $kartuKeluarga->chunk(500);
+        $pddChunks = $penduduk->chunk(1000);
 
         /** @var \App\Models\User */
-        $authUser = auth()->user()->id;
-        Bus::chain([
-            new InsertsJob($chunksKeluarga, $chunksPenduduk),
-            new NotifyJob($kkCount, $pddCount, $authUser),
-        ])->dispatch();
+        $authUser = Filament::auth()->user()->id;
+
+        InsertsJob::dispatch(kkChunks: $kkChunks, pddChunks: $pddChunks, authUser: $authUser);
     }
 
     private function formatTanggal($tgl)
@@ -156,7 +134,6 @@ class KartuKeluargaImport implements ToCollection, WithHeadingRow
         $unixTimestamp = Date::excelToTimestamp($tgl);
         $carbonDate = Carbon::createFromTimestamp($unixTimestamp, 'UTC');
         $formattedDate = $carbonDate->format('Y-m-d H:i:s');
-
         return $formattedDate;
     }
 }

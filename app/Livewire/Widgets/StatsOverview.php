@@ -17,17 +17,12 @@ use Illuminate\Database\Eloquent\Model;
 class StatsOverview extends BaseWidget
 {
 
-    public $dinamika, $penduduk, $keluarga;
+    public $dinamika;
     protected int | string | array $columnSpan = 2;
-    protected static ?string $pollingInterval = '30s';
-
-
+    protected static ?string $pollingInterval = '5s';
 
     public function mount()
     {
-        $this->keluarga = Penduduk::query()->kepalaKeluarga()->count();
-        $this->penduduk = Penduduk::where('status_dasar', 'HIDUP')->count();
-
         $this->dinamika = Dinamika::whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->whereIn('dinamika_type', [Kematian::class, Pendatang::class, Kepindahan::class])
             ->selectRaw('
@@ -37,7 +32,9 @@ class StatsOverview extends BaseWidget
                     WHEN dinamika_type = ? THEN "pindah_count" 
                 END as type, 
                 COUNT(*) as count', [
-                Kematian::class, Pendatang::class, Kepindahan::class
+                Kematian::class,
+                Pendatang::class,
+                Kepindahan::class
             ])
             ->groupBy('type')
             ->get()
@@ -81,7 +78,7 @@ class StatsOverview extends BaseWidget
                     'class' => 'cursor-pointer',
                 ]),
 
-            Stat::make('Keluarga', $this->keluarga)
+            Stat::make('Keluarga', KartuKeluarga::count())
                 ->icon('fas-people-roof')
                 ->description('Jumlah Kepala Keluarga')
                 ->color('success')
@@ -89,7 +86,7 @@ class StatsOverview extends BaseWidget
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                 ]),
-            Stat::make('Penduduk', $this->penduduk)
+            Stat::make('Penduduk', Penduduk::where('status_dasar', 'HIDUP')->count())
                 ->icon('fas-person')
                 ->description('Jumlah Penduduk')
                 ->chartColor('success')

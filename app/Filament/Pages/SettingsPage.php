@@ -131,15 +131,7 @@ abstract class SettingsPage extends Page
 
     public function getSavedNotificationTitle(): ?string
     {
-        return $this->getSavedNotificationMessage() ?? 'Saved successfully';
-    }
-
-    /**
-     * @deprecated Use `getSavedNotificationTitle()` instead.
-     */
-    protected function getSavedNotificationMessage(): ?string
-    {
-        return null;
+        return $this->getSavedNotificationMessage() ?? 'Perubahan berhasil disimpan.';
     }
 
     /**

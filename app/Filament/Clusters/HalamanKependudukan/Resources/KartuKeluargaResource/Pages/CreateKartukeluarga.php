@@ -100,7 +100,7 @@ class CreateKartukeluarga extends CreateRecord
                                 ])
                                 ->default('Ya')
                                 ->afterStateUpdated(
-                                    fn (Select $component) => $component
+                                    fn(Select $component) => $component
                                         ->getContainer()
                                         ->getComponent('kartukeluargaCek')
                                         ->getChildComponentContainer()
@@ -111,13 +111,13 @@ class CreateKartukeluarga extends CreateRecord
                             Section::make()
                                 ->key('kartukeluargaCek')
                                 ->schema(
-                                    fn (Get $get): array => match ($get('cek_kk')) {
+                                    fn(Get $get): array => match ($get('cek_kk')) {
                                         'Ya' => [
                                             Select::make('kk_id')
                                                 ->label('Nama Kepala Keluarga')
                                                 ->required()
                                                 ->options(
-                                                    fn (Get $get): Collection =>
+                                                    fn(): Collection =>
                                                     KartuKeluarga::with(['kepalaKeluarga', 'wilayah'])
                                                         ->byWilayah($authUser, $descendants)
                                                         ->get()
@@ -140,35 +140,23 @@ class CreateKartukeluarga extends CreateRecord
                                                 ->unique(ignoreRecord: true)
                                                 ->numeric()
                                                 ->placeholder('Masukkan nomor kartu keluarga')
-                                                ->dehydrated(
-                                                    fn (?string $state): bool => filled($state)
-                                                )
-                                                ->required(fn (string $operation): bool => $operation === 'create'),
+                                                ->dehydrated(fn(?string $state): bool => filled($state))
+                                                ->required(fn(string $operation): bool => $operation === 'create'),
                                             Select::make('parent_id')
-                                                ->label(fn () => $settings['sebutan_wilayah'][$deskel][0])
+                                                ->label(fn() => $settings['sebutan_wilayah'][$deskel][0])
                                                 ->searchable()
                                                 ->preload()
                                                 ->required()
                                                 ->live(onBlur: true)
-                                                ->afterStateUpdated(
-                                                    fn (Set $set) => $set('children_id', null)
-                                                )
-                                                ->options(
-                                                    function () {
-                                                        return Wilayah::tree()->get()->where('depth', 0)->pluck('wilayah_nama', 'wilayah_id');
-                                                    }
-                                                )
+                                                ->afterStateUpdated(fn(Set $set) => $set('children_id', null))
+                                                ->options(fn() => Wilayah::tree()->get()->where('depth', 0)->pluck('wilayah_nama', 'wilayah_id'))
                                                 ->columnStart(1),
                                             Select::make('children_id')
-                                                ->label(fn () => $settings['sebutan_wilayah'][$deskel][1])
+                                                ->label(fn() => $settings['sebutan_wilayah'][$deskel][1])
                                                 ->reactive()
                                                 ->searchable()
                                                 ->preload()
-                                                ->options(
-                                                    function (Get $get) {
-                                                        return wilayah::where('parent_id', $get('parent_id') ?? null)->pluck('wilayah_nama', 'wilayah_id');
-                                                    }
-                                                )
+                                                ->options(fn(Get $get) => Wilayah::where('parent_id', $get('parent_id') ?? null)->pluck('wilayah_nama', 'wilayah_id'))
                                                 ->required(),
 
                                             Textarea::make('kk_alamat')
@@ -184,14 +172,14 @@ class CreateKartukeluarga extends CreateRecord
                         ]),
                     Group::make()
                         ->extraAttributes(['class' => 'flex justify-center bg-primary-400 p-2 rounded-lg'])
-                        ->hidden(fn (Get $get): bool => $get('cek_kk') === 'Ya')
+                        ->hidden(fn(Get $get): bool => $get('cek_kk') === 'Ya')
                         ->schema([
                             Placeholder::make('')
                                 ->content(new HtmlString('<p class="text-lg text-center text-white">Informasi Kepala Keluarga</p>'))
                         ]),
                     Group::make()
                         ->key('kepalakeluarga')
-                        ->hidden(fn (Get $get): bool => $get('cek_kk') === 'Ya')
+                        ->hidden(fn(Get $get): bool => $get('cek_kk') === 'Ya')
                         ->schema(PendudukResource::getPendudukFormSchema())->columnSpanFull(),
 
                 ]),
@@ -213,16 +201,14 @@ class CreateKartukeluarga extends CreateRecord
                         ->schema([
                             Placeholder::make('')
                                 ->content(
-                                    fn (Get $get): Htmlable => $get('cek_kk') === 'Ya' ? new HtmlString(
+                                    fn(Get $get): Htmlable => $get('cek_kk') === 'Ya' ? new HtmlString(
                                         '<p class="text-lg text-center">Untuk Menambah Anggota Keluarga, Klik <span class="font-bold">Tambah Anggota Keluarga</span> pada Bagian Bawah Formulir</p>'
                                     ) :
-                                        new HtmlString(
-                                            '<p class="text-lg text-center">Jika ada Anggota Keluarga, Klik <span class="font-bold">Tambah Anggota Keluarga</span></p>'
-                                        )
+                                        new HtmlString('<p class="text-lg text-center">Jika ada Anggota Keluarga, Klik <span class="font-bold">Tambah Anggota Keluarga</span></p>')
                                 ),
 
                             KartukeluargaResource::getAnggotaKeluargaFormSchema()
-                                ->defaultItems(fn (Get $get) => $get('cek_kk') === 'Ya' ? 1 : 0),
+                                ->defaultItems(fn(Get $get) => $get('cek_kk') === 'Ya' ? 1 : 0),
                         ]),
                 ]),
         ];
@@ -375,77 +361,5 @@ class CreateKartukeluarga extends CreateRecord
                 }
             }
         }
-
-        // if ($data['cek_kk'] === 'Ya') {
-        //     $kartuKeluarga = KartuKeluarga::where('kk_id', $data['kk_id'])->first();
-        //     $kk_kepala = $kartuKeluarga->with('kepalaKeluarga')->first();
-
-        //     if (isset($data['bantuans'])) {
-        //         $bantuan = Bantuan::find($data['bantuans']);
-        //         if ($data['bantuan_sasaran'] === 'Penduduk')
-        //             $kk_kepala->bantuans()->attach($bantuan);
-        //         else
-        //             $kartuKeluarga->bantuans()->attach($bantuan);
-        //     }
-        // } else {
-        //     $kartuKeluarga = $this->createKK($data);
-        //     $kk_kepala = $this->createPenduduk($data, $kartuKeluarga, $authUser);
-        //     $pendatang = $this->createPendatang($data, $kk_kepala);
-        //     $kk_kepala->dinamikas()->create([
-        //         'dinamika_type' => Pendatang::class,
-        //         'dinamika_id' => $pendatang->id,
-        //         'jenis_dinamika' => 'Pindah Masuk',
-        //         'catatan_dinamika' => $data['catatan_dinamika'],
-        //         'tanggal_dinamika' => $data['tanggal_dinamika'],
-        //         'tanggal_lapor' => $data['tanggal_lapor'],
-        //     ]);
-
-        //     if (isset($data['bantuans'])) {
-        //         $bantuan = Bantuan::find($data['bantuans']);
-        //         $kk_kepala->bantuans()->attach($bantuan);
-        //     }
-        // }
-
-        // if (isset($data['anggotaKeluarga'])) {
-        //     foreach ($data['anggotaKeluarga'] as $anggota) {
-        //         $penduduk = $this->createPenduduk($anggota, $kartuKeluarga, $authUser);
-
-        //         if (isset($anggota['bantuans'])) {
-        //             $bantuan = Bantuan::find($anggota['bantuans']);
-        //             $penduduk->bantuans()->attach($bantuan);
-        //         }
-        //         $umur = Carbon::parse($anggota['tanggal_lahir'])->diffInYears(Carbon::now());
-
-        //         if ($umur < 5) {
-        //             $kelahiran  = $this->createKelahiran($anggota, $penduduk);
-
-        //             $penduduk->dinamikas()->create([
-        //                 'dinamika_type' => Kelahiran::class,
-        //                 'dinamika_id' => $kelahiran->id,
-        //                 'jenis_dinamika' => 'Lahir',
-        //                 'catatan_dinamika' => $anggota['catatan_dinamika'],
-        //                 'tanggal_dinamika' => $anggota['tanggal_dinamika'],
-        //                 'tanggal_lapor' => $anggota['tanggal_lapor'],
-        //             ]);
-
-        //             $penduduk->kesehatanAnak()->create([
-        //                 'ibu_id' => $anggota['nik_ibu'] ?? null,
-        //                 'berat_badan' => $anggota['berat_lahir'] ?? null,
-        //                 'tinggi_badan' => $anggota['tinggi_lahir'] ?? null,
-        //             ]);
-        //         } else {
-        //             $pendatang = $this->createPendatang($anggota, $penduduk);
-
-        //             $penduduk->dinamikas()->create([
-        //                 'dinamika_type' => Pendatang::class,
-        //                 'dinamika_id' => $pendatang->id,
-        //                 'jenis_dinamika' => 'Pindah Masuk',
-        //                 'catatan_dinamika' => $anggota['catatan_dinamika'],
-        //                 'tanggal_dinamika' => $anggota['tanggal_dinamika'],
-        //                 'tanggal_lapor' => $anggota['tanggal_lapor'],
-        //             ]);
-        //         }
-        //     }
-        // }
     }
 }

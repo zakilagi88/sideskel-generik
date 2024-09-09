@@ -131,11 +131,11 @@ class StatSDMWidgets extends Component implements HasForms
                                                     ->schema([
                                                         Livewire::make(SDMBarChart::class, ['filters' => $this->filters, 'record' => $this->record, 'chartData' => $this->chartData])
                                                             ->key('bar')
-                                                            ->hidden(fn ($record) => $record->key === 'umur' || $record->key === 'rentang_umur')
+                                                            ->hidden(fn ($record) => $record->key === 'umur')
                                                             ->hiddenLabel(),
                                                         Livewire::make(SDMPyramidChart::class, ['filters' => $this->filters, 'record' => $this->record, 'chartData' => $this->chartData])
                                                             ->key('pyramid')
-                                                            ->visible(fn ($record) => $record->key === 'umur' || $record->key === 'rentang_umur')
+                                                            ->visible(fn ($record) => $record->key === 'umur')
                                                             ->hiddenLabel(),
                                                     ]),
                                                 Tabs\Tab::make('Pie ')

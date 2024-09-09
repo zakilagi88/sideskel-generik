@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\{Form, Get, Set};
-use Filament\Forms\Components\{Component, Group, Repeater, Section, Select, Textarea, TextInput, Wizard};
+use Filament\Forms\Components\{Component, Group, Placeholder, Repeater, Section, Select, Textarea, TextInput, Wizard};
 use Filament\Forms\Components\Actions\Action as ActionsAction;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Infolists\{Infolist, Components};
@@ -33,13 +33,14 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 use Termwind\Components\Dd;
 
 class KartuKeluargaResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $breadcrumb = 'Keluarga';
-
 
     protected static ?string $model = KartuKeluarga::class;
 
@@ -97,8 +98,8 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                     ->unique(ignoreRecord: true)
                                     ->dehydrated()
                                     ->placeholder('Masukkan nomor kartu keluarga')
-                                    ->dehydrated(fn (?string $state): bool => filled($state))
-                                    ->required(fn (string $operation): bool => $operation === 'create'),
+                                    ->dehydrated(fn(?string $state): bool => filled($state))
+                                    ->required(fn(string $operation): bool => $operation === 'create'),
                                 Group::make()
                                     ->relationship('kepalaKeluarga')
                                     ->schema([
@@ -123,27 +124,26 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Group::make()
                                     ->schema([
-                                        Select::make('deskel_id')
-                                            ->label('Kelurahan')
-                                            ->relationship('dk', 'deskel_nama')
-                                            ->disabled()
-                                            ->searchable()
-                                            ->options(
-                                                fn (Get $get): Collection =>
-                                                DesaKelurahanProfile::with('dk')->get()->pluck('dk.deskel_nama', 'dk.deskel_id')
-                                            )
-                                            ->dehydrated(),
+                                        Placeholder::make('wilayah')
+                                            ->hiddenLabel()
+                                            ->content(function (KartuKeluarga $record, GeneralSettings $setting) {
+                                                $html = Blade::render('
+                                                    <div>
+                                                        <div>{{ $setting->sebutan_deskel }} {{ ucwords(strtolower($record->dk?->deskel_nama ?? "")) }}</div>
+                                                        <div>{{ $setting->sebutan_kec }} {{ ucwords(strtolower($record->kec?->kec_nama ?? "")) }}</div>
+                                                        <div>{{ $setting->sebutan_kabkota }} {{ ucwords(strtolower(str_replace("KOTA ", "", $record->kabkota?->kabkota_nama ?? ""))) }}</div>
+                                                        <div>{{ $setting->sebutan_prov }} {{ ucwords(strtolower($record->prov?->prov_nama ?? "")) }}</div>
+                                                    </div>
+                                                ', ['record' => $record, 'setting' => $setting]);
+
+                                                return new HtmlString($html);
+                                            }),
                                         Select::make('wilayah_id')
-                                            ->label('Kelurahan')
+                                            ->label('Wilayah')
                                             ->relationship('wilayah', 'wilayah_nama')
                                             ->disabled()
                                             ->searchable()
-                                            ->options(
-                                                fn (Get $get): Collection =>
-
-                                                Wilayah::pluck('wilayah.wilayah_nama', 'wilayah_id')
-                                            )
-
+                                            ->options(fn(): Collection => Wilayah::pluck('wilayah.wilayah_nama', 'wilayah_id'))
                                     ])->columns(2)->columnSpanFull(),
                             ])
                             ->columnStart(1),
@@ -157,7 +157,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->modifyQueryUsing(
-                fn (Builder $query) => $query->with(['kepalaKeluarga', 'penduduks', 'wilayah', 'parentWilayah'])
+                fn(Builder $query) => $query->with(['kepalaKeluarga', 'penduduks', 'wilayah', 'parentWilayah'])
             )
             ->columns([
                 TextColumn::make('kk_id')
@@ -216,7 +216,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                 ->placeholder('Filter Wilayah RT')
                                 ->searchable()
                                 ->options(
-                                    fn (Get $get): Collection =>
+                                    fn(Get $get): Collection =>
                                     empty($get('parent_id')) ? Wilayah::where('tingkatan', 2)->pluck('wilayah_nama', 'wilayah_id') :
                                         Wilayah::where('parent_id', $get('parent_id'))->pluck('wilayah_nama', 'wilayah_id')
                                 ),
@@ -226,11 +226,11 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                         return $query
                             ->when(
                                 $data['parent_id'],
-                                fn (Builder $query): Builder => $query->whereHas('parentWilayah', fn (Builder $query) => $query->where('alias.parent_id', $data['parent_id']))
+                                fn(Builder $query): Builder => $query->whereHas('parentWilayah', fn(Builder $query) => $query->where('alias.parent_id', $data['parent_id']))
                             )
                             ->when(
                                 $data['children_id'],
-                                fn (Builder $query): Builder => $query->where('wilayah_id', $data['children_id'])
+                                fn(Builder $query): Builder => $query->where('wilayah_id', $data['children_id'])
                             );
                     }),
                 TernaryFilter::make('kepalaKeluarga')
@@ -239,13 +239,13 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                     ->trueLabel('Ada kepala keluarga')
                     ->falseLabel('Tidak ada kepala keluarga')
                     ->queries(
-                        true: fn (Builder $query) => $query->whereHas('kepalaKeluarga'),
-                        false: fn (Builder $query) => $query->whereDoesntHave('kepalaKeluarga'),
-                        blank: fn (Builder $query) => $query,
+                        true: fn(Builder $query) => $query->whereHas('kepalaKeluarga'),
+                        false: fn(Builder $query) => $query->whereDoesntHave('kepalaKeluarga'),
+                        blank: fn(Builder $query) => $query,
                     ),
             ], FiltersLayout::AboveContent)
             ->filtersFormColumns(2)
-            ->filtersFormSchema(fn (array $filters): array => [
+            ->filtersFormSchema(fn(array $filters): array => [
                 Group::make()
                     ->extraAttributes(['class' => 'mb-4'])
                     ->schema([
@@ -275,15 +275,15 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                     ->collapsible(),
             ])
             ->groupRecordsTriggerAction(
-                fn (Action $action) => $action
+                fn(Action $action) => $action
                     ->button()
                     ->icon('heroicon-o-plus')
                     ->label('Kelompokkan'),
             )
             ->emptyStateHeading('Kartu Keluarga belum ada')
             ->emptyStateDescription('Silahkan tambahkan Kartu Keluarga baru dengan menekan tombol tambah di atas')
-            ->recordUrl(fn (KartuKeluarga $record) => static::getUrl('edit', ['record' => $record->kk_id]))
-            ->recordClasses(fn (Model $record) => empty($record->kepalaKeluarga?->nama_lengkap) ? 'bg-red-100' : '')
+            ->recordUrl(fn(KartuKeluarga $record) => static::getUrl('edit', ['record' => $record->kk_id]))
+            ->recordClasses(fn(Model $record) => empty($record->kepalaKeluarga?->nama_lengkap) ? 'bg-red-100' : '')
             ->striped()
             ->poll('60s')
             ->deferLoading();
@@ -363,7 +363,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                             InfoAction::make('view')
                                                 ->label('Lihat')
                                                 ->icon('heroicon-o-eye')
-                                                ->url(fn (Penduduk $record): string => route('filament.panel.kependudukan.resources.penduduk.view', $record->nik))
+                                                ->url(fn(Penduduk $record): string => route('filament.panel.kependudukan.resources.penduduk.view', $record->nik))
                                                 ->openUrlInNewTab()
                                         ])->alignJustify(),
 
@@ -391,7 +391,7 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
                                             ->unique(ignoreRecord: true)
                                             ->numeric()
                                             ->disabled()
-                                            ->default(fn () => (string) rand(1000000000000000, 9999999999999999))
+                                            ->default(fn() => (string) rand(1000000000000000, 9999999999999999))
                                             ->minLength(16)
                                             ->required(),
                                         Select::make('kk_kepala')
@@ -445,8 +445,8 @@ class KartuKeluargaResource extends Resource implements HasShieldPermissions
             ->schema(PendudukResource::getPendudukFormSchema())
             ->collapsible()
             ->addActionLabel('Tambah Anggota Keluarga')
-            ->collapseAllAction(fn (ActionsAction $action) => $action->label('Tutup Semua'))
-            ->deleteAction(fn (ActionsAction $action) => $action->requiresConfirmation())
+            ->collapseAllAction(fn(ActionsAction $action) => $action->label('Tutup Semua'))
+            ->deleteAction(fn(ActionsAction $action) => $action->requiresConfirmation())
             ->itemLabel(
                 function (array $state): ?string {
                     $nik = $state['nik'] ?? null;

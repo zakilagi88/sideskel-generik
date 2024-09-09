@@ -29,7 +29,6 @@ class DatabaseSeeder extends Seeder
             SaranaPrasaranaSeeder::class,
             PotensiSDASeeder::class,
             KeamananLingkunganSeeder::class,
-            LembagaSeeder::class,
             TambahanSeeder::class,
             BeritaSeeder::class,
         ]);

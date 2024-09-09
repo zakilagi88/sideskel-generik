@@ -134,6 +134,18 @@
       'LaravelPwa' => 'Ladumor\\LaravelPwa\\LaravelPwa',
     ),
   ),
+  'laravel/reverb' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Reverb\\ApplicationManagerServiceProvider',
+      1 => 'Laravel\\Reverb\\ReverbServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Output' => 'Laravel\\Reverb\\Output',
+    ),
+  ),
   'laravel/sail' => 
   array (
     'providers' => 
@@ -252,11 +264,25 @@
       0 => 'Saade\\FilamentFullCalendar\\FilamentFullCalendarServiceProvider',
     ),
   ),
+  'shuvroroy/filament-spatie-laravel-backup' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'ShuvroRoy\\FilamentSpatieLaravelBackup\\FilamentSpatieLaravelBackupServiceProvider',
+    ),
+  ),
   'spatie/eloquent-sortable' => 
   array (
     'providers' => 
     array (
       0 => 'Spatie\\EloquentSortable\\EloquentSortableServiceProvider',
+    ),
+  ),
+  'spatie/laravel-backup' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Spatie\\Backup\\BackupServiceProvider',
     ),
   ),
   'spatie/laravel-ignition' => 
@@ -296,6 +322,17 @@
     'providers' => 
     array (
       0 => 'Spatie\\LaravelSettings\\LaravelSettingsServiceProvider',
+    ),
+  ),
+  'spatie/laravel-signal-aware-command' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Spatie\\SignalAwareCommand\\SignalAwareCommandServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Signal' => 'Spatie\\SignalAwareCommand\\Facades\\Signal',
     ),
   ),
   'spatie/laravel-tags' => 

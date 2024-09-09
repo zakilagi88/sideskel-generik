@@ -8,10 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Znck\Eloquent\Relations\BelongsToThrough;
+use Znck\Eloquent\Traits\BelongsToThrough as TraitsBelongsToThrough;
 
 class DesaKelurahan extends Model
 {
     use HasFactory;
+    use TraitsBelongsToThrough;
+
 
     protected $table = 'desa_kelurahan';
 
@@ -30,6 +34,29 @@ class DesaKelurahan extends Model
     {
         return $this->belongsTo(Kecamatan::class, 'kec_id', 'kec_id');
     }
+
+    public function kabkota(): BelongsToThrough
+    {
+        return $this->belongsToThrough(
+            KabKota::class,
+            Kecamatan::class,
+            null,
+            '',
+            [KabKota::class => 'kabkota_id', Kecamatan::class => 'kec_id']
+        );
+    }
+
+    public function prov(): BelongsToThrough
+    {
+        return $this->belongsToThrough(
+            Provinsi::class,
+            [KabKota::class, Kecamatan::class],
+            null,
+            '',
+            [Provinsi::class => 'prov_id', KabKota::class => 'kabkota_id', Kecamatan::class => 'kec_id']
+        );
+    }
+
 
     public function wilayahs(): HasMany
     {

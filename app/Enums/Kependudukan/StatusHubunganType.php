@@ -23,17 +23,17 @@ enum StatusHubunganType: string implements HasLabel
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::KEPALA_KELUARGA => 'Kepala Keluarga',
-            self::SUAMI => 'Suami',
-            self::ISTRI => 'Istri',
-            self::ANAK => 'Anak',
-            self::MENANTU => 'Menantu',
-            self::CUCU => 'Cucu',
-            self::ORANG_TUA => 'Orang Tua',
-            self::MERTUA => 'Mertua',
-            self::FAMILI_LAIN => 'Famili Lain',
-            self::PEMBANTU => 'Pembantu',
-            self::LAINNYA => 'Lainnya',
+            self::KEPALA_KELUARGA => 'KEPALA KELUARGA',
+            self::SUAMI => 'SUAMI',
+            self::ISTRI => 'ISTRI',
+            self::ANAK => 'ANAK',
+            self::MENANTU => 'MENANTU',
+            self::CUCU => 'CUCU',
+            self::ORANG_TUA => 'ORANG TUA',
+            self::MERTUA => 'MERTUA',
+            self::FAMILI_LAIN => 'FAMILI LAIN',
+            self::PEMBANTU => 'PEMBANTU',
+            self::LAINNYA => 'LAINNYA',
         };
     }
 }

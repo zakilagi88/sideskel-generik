@@ -393,5 +393,204 @@ return
                     'status' => true,
                 ],
             ],
+            'lembaga' => [
+                'desa' => [
+                    [
+                        [
+                            'nama' => 'Lembaga Pemberdayaan Masyarakat Desa',
+                            'slug' => 'lembaga-pemberdayaan-masyarakat-desa',
+                            'deskripsi' => 'Lembaga Pemberdayaan Masyarakat Desa (LPMD) adalah lembaga yang membantu pemerintah desa dalam perencanaan, pelaksanaan, dan pengendalian pembangunan serta pemberdayaan masyarakat.',
+                            'singkatan' => 'LPMD',
+                            'logo_url' => '',
+                            'alamat' => '',
+                            'kategori_jabatan' => [
+                                'Ketua',
+                                'Wakil Ketua',
+                                'Sekretaris',
+                                'Bendahara',
+                                'Anggota'
+                            ],
+                            'dokumen_id' => null
+                        ],
+                        [
+                            'nama' => 'Pemberdayaan Kesejahteraan Keluarga',
+                            'slug' => 'pemberdayaan-kesejahteraan-keluarga',
+                            'deskripsi' => 'Pemberdayaan Kesejahteraan Keluarga (PKK) adalah organisasi yang berfokus pada kesejahteraan keluarga melalui program pendidikan, kesehatan, dan ekonomi.',
+                            'singkatan' => 'PKK',
+                            'logo_url' => '',
+                            'alamat' => '',
+                            'kategori_jabatan' => [
+                                'Ketua',
+                                'Wakil Ketua',
+                                'Sekretaris',
+                                'Bendahara',
+                                'Anggota'
+                            ],
+                            'dokumen_id' => null
+                        ],
+                        [
+                            'nama' => 'Karang Taruna',
+                            'slug' => 'karang-taruna',
+                            'deskripsi' => 'Karang Taruna adalah organisasi kepemudaan yang bergerak dalam bidang sosial, ekonomi, dan kebudayaan.',
+                            'singkatan' => 'KT',
+                            'logo_url' => '',
+                            'alamat' => '',
+                            'kategori_jabatan' => [
+                                'Ketua',
+                                'Wakil Ketua',
+                                'Sekretaris',
+                                'Bendahara',
+                                'Anggota'
+                            ],
+                            'dokumen_id' => null
+                        ],
+                        [
+                            'nama' => 'Pos Pelayanan Terpadu',
+                            'slug' => 'pos-pelayanan-terpadu',
+                            'deskripsi' => 'Pos Pelayanan Terpadu (Posyandu) adalah layanan kesehatan masyarakat yang dikelola oleh kader kesehatan untuk ibu dan anak.',
+                            'singkatan' => 'Posyandu',
+                            'logo_url' => '',
+                            'alamat' => '',
+                            'kategori_jabatan' => [
+                                'Ketua',
+                                'Wakil Ketua',
+                                'Sekretaris',
+                                'Bendahara',
+                                'Anggota'
+                            ],
+                            'dokumen_id' => null
+                        ],
+                        [
+                            'nama' => 'Badan Usaha Milik Desa',
+                            'slug' => 'badan-usaha-milik-desa',
+                            'deskripsi' => 'Badan Usaha Milik Desa (BUMDes) adalah lembaga ekonomi desa yang berfungsi untuk mengelola aset desa dan mengembangkan potensi ekonomi desa.',
+                            'singkatan' => 'BUMDes',
+                            'logo_url' => '',
+                            'alamat' => '',
+                            'kategori_jabatan' => [
+                                'Direktur',
+                                'Sekretaris',
+                                'Bendahara',
+                                'Anggota'
+                            ],
+                            'dokumen_id' => null
+                        ],
+                        [
+                            'nama' => 'Kelompok Tani',
+                            'slug' => 'kelompok-tani',
+                            'deskripsi' => 'Kelompok Tani adalah kelompok yang terdiri dari petani untuk meningkatkan produksi pertanian dan kesejahteraan petani.',
+                            'singkatan' => 'KT',
+                            'logo_url' => '',
+                            'alamat' => '',
+                            'kategori_jabatan' => [
+                                'Ketua',
+                                'Wakil Ketua',
+                                'Sekretaris',
+                                'Bendahara',
+                                'Anggota'
+                            ],
+                            'dokumen_id' => null
+                        ],
+                        [
+                            'nama' => 'Lembaga Adat Desa',
+                            'slug' => 'lembaga-adat-desa',
+                            'deskripsi' => 'Lembaga Adat Desa adalah lembaga yang melestarikan adat istiadat dan budaya lokal.',
+                            'singkatan' => 'LAD',
+                            'logo_url' => '',
+                            'alamat' => '',
+                            'kategori_jabatan' => [
+                                'Ketua',
+                                'Wakil Ketua',
+                                'Sekretaris',
+                                'Bendahara',
+                                'Anggota'
+                            ],
+                            'dokumen_id' => null
+                        ]
+                    ]
+                ],
+                'kelurahan' => [
+                    [
+                        'nama' => 'Lembaga Pemberdayaan Masyarakat Kelurahan',
+                        'slug' => 'lembaga-pemberdayaan-masyarakat-kelurahan',
+                        'deskripsi' => 'Lembaga Pemberdayaan Masyarakat Kelurahan (LPMK) adalah lembaga yang membantu pemerintah kelurahan dalam perencanaan, pelaksanaan, dan pengendalian pembangunan serta pemberdayaan masyarakat.',
+                        'singkatan' => 'LPMK',
+                        'logo_url' => '',
+                        'alamat' => '',
+                        'kategori_jabatan' => [
+                            'Ketua',
+                            'Wakil Ketua',
+                            'Sekretaris',
+                            'Bendahara',
+                            'Anggota'
+                        ],
+                        'dokumen_id' => null
+                    ],
+                    [
+                        'nama' => 'Pemberdayaan Kesejahteraan Keluarga',
+                        'slug' => 'pemberdayaan-kesejahteraan-keluarga',
+                        'deskripsi' => 'Pemberdayaan Kesejahteraan Keluarga (PKK) adalah organisasi yang berfokus pada kesejahteraan keluarga melalui program pendidikan, kesehatan, dan ekonomi.',
+                        'singkatan' => 'PKK',
+                        'logo_url' => '',
+                        'alamat' => '',
+                        'kategori_jabatan' => [
+                            'Ketua',
+                            'Wakil Ketua',
+                            'Sekretaris',
+                            'Bendahara',
+                            'Anggota'
+                        ],
+                        'dokumen_id' => null
+                    ],
+                    [
+                        'nama' => 'Karang Taruna',
+                        'slug' => 'karang-taruna',
+                        'deskripsi' => 'Karang Taruna adalah organisasi kepemudaan yang bergerak dalam bidang sosial, ekonomi, dan kebudayaan.',
+                        'singkatan' => 'KT',
+                        'logo_url' => '',
+                        'alamat' => '',
+                        'kategori_jabatan' => [
+                            'Ketua',
+                            'Wakil Ketua',
+                            'Sekretaris',
+                            'Bendahara',
+                            'Anggota'
+                        ],
+                        'dokumen_id' => null
+                    ],
+                    [
+                        'nama' => 'Pos Pelayanan Terpadu',
+                        'slug' => 'pos-pelayanan-terpadu',
+                        'deskripsi' => 'Pos Pelayanan Terpadu (Posyandu) adalah layanan kesehatan masyarakat yang dikelola oleh kader kesehatan untuk ibu dan anak.',
+                        'singkatan' => 'Posyandu',
+                        'logo_url' => '',
+                        'alamat' => '',
+                        'kategori_jabatan' => [
+                            'Ketua',
+                            'Wakil Ketua',
+                            'Sekretaris',
+                            'Bendahara',
+                            'Anggota'
+                        ],
+                        'dokumen_id' => null
+                    ],
+                    [
+                        'nama' => 'Lembaga Adat Kelurahan',
+                        'slug' => 'lembaga-adat-kelurahan',
+                        'deskripsi' => 'Lembaga Adat Kelurahan adalah lembaga yang melestarikan adat istiadat dan budaya lokal.',
+                        'singkatan' => 'LAK',
+                        'logo_url' => '',
+                        'alamat' => '',
+                        'kategori_jabatan' => [
+                            'Ketua',
+                            'Wakil Ketua',
+                            'Sekretaris',
+                            'Bendahara',
+                            'Anggota'
+                        ],
+                        'dokumen_id' => null
+                    ]
+                ]
+            ]
         ],
     ];

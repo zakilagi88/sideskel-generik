@@ -72,11 +72,14 @@ class Penduduk extends Model implements Auditable
         'telepon',
         'email',
         'is_nik_sementara',
+        'created_at',
+        'updated_at'
 
     ];
 
     protected $casts =
     [
+        'foto' => 'array',
         'agama' => AgamaType::class,
         'jenis_kelamin' => JenisKelaminType::class,
         'pendidikan' => PendidikanType::class,
@@ -98,6 +101,7 @@ class Penduduk extends Model implements Auditable
     protected $auditInclude = [
         'nik',
         'kk_id',
+        'foto',
         'status_identitas',
         'jenis_identitas',
         'status_rekam_identitas',
@@ -132,33 +136,6 @@ class Penduduk extends Model implements Auditable
 
     protected $auditTimestamps = true;
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     *
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-
-    // protected static function booted(): void
-    // {
-    //     static::addGlobalScope('wilayah', function (Builder $query) {
-    //         /** @var \App\Models\User */
-    //         $authUser = Filament::auth()->user();
-    //         if (auth()->check()) {
-    //             if ($authUser->hasRole('Admin')) {
-    //                 return $query;
-    //             } else {
-    //                 return $query->byWilayah($authUser->wilayah_id);
-    //             }
-    //         }
-    //     });
-    // }
-
     public function scopeByWilayah($query, $user, $descendants = null): Builder
     {
         switch (true) {
@@ -171,7 +148,7 @@ class Penduduk extends Model implements Auditable
                     ->with(['wilayah', 'kartuKeluargas'])
                     ->whereHas(
                         'kartuKeluargas',
-                        fn ($query) => $query->whereIn('wilayah_id', $descendants)
+                        fn($query) => $query->whereIn('wilayah_id', $descendants)
                     );
                 break;
 
@@ -180,7 +157,7 @@ class Penduduk extends Model implements Auditable
                     ->with(['wilayah', 'kartuKeluargas'])
                     ->whereHas(
                         'kartuKeluargas',
-                        fn ($query) => $query->where('wilayah_id', $user->wilayah_id)
+                        fn($query) => $query->where('wilayah_id', $user->wilayah_id)
                     );
                 break;
 
@@ -193,58 +170,10 @@ class Penduduk extends Model implements Auditable
     protected function umur(): Attribute
     {
         return Attribute::make(
-            get: fn () => round(Carbon::parse($this->tanggal_lahir)->age),
+            get: fn() => round(Carbon::parse($this->tanggal_lahir)->age),
         );
     }
 
-
-    // public function scopeByWilayah($query, $wilayah_id): Builder
-    // {
-    //     $struktur = Deskel::getFacadeRoot();
-
-    //     switch ($struktur->struktur) {
-    //         case 'Khusus':
-    //             return $query->whereHas('kartuKeluargas', function ($query) use ($wilayah_id) {
-    //                 $query->where('wilayah_id', $wilayah_id);
-    //             });
-    //             break;
-
-    //         case 'Dasar':
-    //             $level = Wilayah::tree()->find($wilayah_id);
-
-    //             if ($level->depth == 0) {
-    //                 $descendants = $level->descendants->pluck('wilayah_id');
-    //                 return $query->whereHas('kartuKeluargas', function ($query) use ($descendants) {
-    //                     $query->whereIn('wilayah_id', $descendants);
-    //                 });
-    //             } else {
-    //                 return $query->whereHas('kartuKeluargas', function ($query) use ($wilayah_id) {
-    //                     $query->where('wilayah_id', $wilayah_id);
-    //                 });
-    //             }
-    //             break;
-
-    //         case 'Lengkap':
-    //             $level = Wilayah::tree()->find($wilayah_id);
-    //             if ($level->depth == 0) {
-    //                 $descendants = $level->descendants()->whereDepth(2)->pluck('wilayah_id');
-    //             } elseif ($level->depth == 1) {
-    //                 $descendants = $level->descendants->pluck('wilayah_id');
-    //             } else {
-    //                 return $query->whereHas('kartuKeluargas', function ($query) use ($wilayah_id) {
-    //                     $query->where('wilayah_id', $wilayah_id);
-    //                 });
-    //             }
-    //             return $query->whereHas('kartuKeluargas', function ($query) use ($descendants) {
-    //                 $query->whereIn('wilayah_id', $descendants);
-    //             });
-    //             break;
-
-    //         default:
-    //             return $query;
-    //             break;
-    //     }
-    // }
 
     public function lembagas(): BelongsToMany
     {
