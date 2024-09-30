@@ -1,4 +1,4 @@
-oh<?php
+<?php
 
 namespace App\Jobs;
 

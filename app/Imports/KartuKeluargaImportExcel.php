@@ -16,21 +16,27 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
-use Maatwebsite\Excel\Concerns\{Importable, SkipsOnFailure, SkipsOnError, ToCollection, WithChunkReading, WithEvents, WithHeadingRow, WithValidation};
+use Maatwebsite\Excel\Concerns\{Importable, SkipsOnFailure, SkipsOnError, ToCollection, WithChunkReading, WithEvents, WithHeadingRow, WithMultipleSheets, WithValidation};
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Validators\Failure;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChunkReading, ShouldQueue, SkipsOnFailure, SkipsOnError, WithValidation, WithEvents
+class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChunkReading, ShouldQueue, SkipsOnFailure, SkipsOnError, WithValidation, WithEvents, WithMultipleSheets
 {
 
     use Importable;
 
     private $wilayah, $deskel, $settings, $importedBy, $importId;
     private $cacheKeyKk, $cacheKeyPdd;
+
+    public function sheets(): array
+    {
+        return [
+            0 => $this,
+        ];
+    }
 
     public function __construct(User $importedBy, int $importId)
     {
@@ -147,7 +153,7 @@ class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChun
         return [
             '*.nik' => ['unique:penduduk,nik', 'digits:16'],
             '*.no_kk' => ['digits:16'],
-            '*.jenis_kelamin' => ['required', Rule::enum(JenisKelaminType::class)],
+            '*.jenis_kelamin' => [Rule::enum(JenisKelaminType::class)],
             '*.agama' => [Rule::enum(AgamaType::class)],
             '*.pendidikan' => [Rule::enum(PendidikanType::class)],
             '*.pekerjaan' => [Rule::enum(PekerjaanType::class)],
@@ -222,7 +228,7 @@ class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChun
 
                 // Simpan total ke database
                 Import::where('id', $this->importId)->update([
-                    'process_rows' => $reader->getTotalRows()['Sheet1'] - 1,
+                    'process_rows' => $reader->getTotalRows()['data'] - 1,
                     'success_rows' => $totalPdd,
                     'related_rows' => $totalKk,
                 ]);

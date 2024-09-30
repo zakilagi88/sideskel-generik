@@ -5,11 +5,12 @@ namespace App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResou
 use App\Exports\TemplateImport;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource;
 use App\Imports\Import;
+use App\Imports\Importer;
 use App\Imports\KartuKeluargaImport;
 use App\Imports\KartuKeluargaImportExcel;
 use App\Jobs\ImportJob;
 use App\Jobs\NotifyJob;
-use App\Models\{Import as ModelsImport, KartuKeluarga, Penduduk, User,};
+use App\Models\{Import as ModelsImport, KartuKeluarga, Penduduk};
 use Filament\Actions;
 use Filament\Actions\Action as ActionsAction;
 use Filament\Facades\Filament;
@@ -18,12 +19,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\Alignment;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Livewire\WithFileUploads;
-use Maatwebsite\Excel\Concerns\Importable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ListKartukeluargas extends ListRecords
@@ -35,17 +31,17 @@ class ListKartukeluargas extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('testing')
-                ->openUrlInNewTab(true)
-                ->label('Download Data Testing')
-                ->size(ActionSize::Small)
-                ->color('info')
-                ->button()
-                ->action(
-                    function () {
-                        return response()->download('test/datatesting.xlsx');
-                    }
-                ),
+            // Actions\Action::make('testing')
+            //     ->openUrlInNewTab(true)
+            //     ->label('Download Data Testing')
+            //     ->size(ActionSize::Small)
+            //     ->color('info')
+            //     ->button()
+            //     ->action(
+            //         function () {
+            //             return response()->download('test/datatesting.xlsx');
+            //         }
+            //     ),
 
             Actions\CreateAction::make()->label('Tambah Keluarga')
                 ->label('Tambah Keluarga')
