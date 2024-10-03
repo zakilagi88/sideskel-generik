@@ -34,10 +34,11 @@
 
         <div class="relative col-span-2 hidden sm:col-span-2 sm:flex bg-white  text-center rounded-r-xl px-10">
             <div class=" left-0 right-0 flex justify-center items-center ">
-                <img src="{{ asset('sites/illustration.png') }}" alt="" class="object-contain h-64 mr-2">
+                <img src="{{ asset('storage/sites/illustration.png') }}" alt="" class="object-contain h-64 mr-2">
             </div>
             <div class="absolute bottom-0 left-0 right-0 flex justify-center items-center ">
-                <img src="{{ asset('sites/logo-primary.png') }}" alt="" class="object-contain h-32 mr-2">
+                <img src="{{ asset('storage/sites/logo-primary.png') }}" alt=""
+                    class="object-contain h-32 mr-2">
             </div>
         </div>
 
