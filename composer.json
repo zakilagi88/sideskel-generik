@@ -18,7 +18,6 @@
         "guzzlehttp/guzzle": "^7.2",
         "ladumor/laravel-pwa": "^0.0.4",
         "laravel/framework": "^11.0",
-        "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",
         "leandrocfe/filament-apex-charts": "^3.1",
