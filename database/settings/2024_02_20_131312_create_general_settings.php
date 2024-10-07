@@ -9,7 +9,7 @@ return new class extends SettingsMigration
         $this->migrator->add('general.brand_name', 'SIDeskel');
         $this->migrator->add('general.brand_logo', 'sites/logo-white.png');
         $this->migrator->add('general.brand_logo_dark', 'sites/logo-primary.png');
-        $this->migrator->add('general.brand_logoHeight', '6rem');
+        $this->migrator->add('general.brand_logoHeight', '7rem');
         $this->migrator->add('general.site_favicon', 'sites/logo-app.png');
         $this->migrator->add('general.site_init', [0 => false, 1 => false, 2 => false, 3 => false, 4 => false, 5 => false]);
         $this->migrator->add('general.site_active', false);

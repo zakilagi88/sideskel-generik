@@ -11,6 +11,7 @@ use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\ServiceProvider;
 use Nette\Utils\Html;
@@ -39,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
             $textEntry->extraAttributes(['class' => 'border-solid border-gray-400 dark:border-gray-600 border-b pl-2 hover:bg-gray-100'])->placeholder('Belum Diketahui');
         });
 
-        FilamentColor::register(fn (GeneralSettings $settings) => $settings->site_theme);
+        FilamentColor::register(fn(GeneralSettings $settings) => $settings->site_theme);
     }
 
     /**
@@ -47,6 +48,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        if (env('APP_ENV') !== 'local') {
+            $this->app['request']->server->set('HTTPS', true);
+        }
+
+        Schema::defaultStringLength(191);
         Route::macro(
             'linkKey',
             function (?string $label = null, ?string $model = null, ?string $modelLabel = null) {
@@ -59,12 +66,17 @@ class AppServiceProvider extends ServiceProvider
                     'model' => $model,
                     'modelLabel' => $modelLabel,
                 ];
+                if (env('APP_ENV') !== 'local') {
+                    $this->app['request']->server->set('HTTPS', true);
+                }
+
+                Schema::defaultStringLength(191);
             }
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_START,
-            fn (): string => new HtmlString(
+            fn(): string => new HtmlString(
                 Blade::render('
                     <!-- PWA -->
                     <meta name="theme-color" content="#6777ef" />
@@ -76,7 +88,7 @@ class AppServiceProvider extends ServiceProvider
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::SCRIPTS_AFTER,
-            fn (): string => new HtmlString(
+            fn(): string => new HtmlString(
                 Blade::render('
                     <script>
                         document.addEventListener("scroll-to-top", function () {
