@@ -21,6 +21,7 @@ use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -60,7 +61,14 @@ class ListWilayahs extends ListRecords
 
                             $userWilayah =  $this->processWilayah($data);
 
-                            $userWilayah->storeExcel('deskel/exports/akun_pengguna.xlsx', 'local', \Maatwebsite\Excel\Excel::XLSX, true);
+                            $filePath = 'private/deskel/exports/akun_pengguna.xlsx';
+
+                            // Store the file using the storage facade
+                            Storage::disk('local')->put($filePath, '');
+
+                            // Export the Excel file, overwriting if necessary
+                            Excel::store(new UserWilayahExport($userWilayah), $filePath, 'local', \Maatwebsite\Excel\Excel::XLSX);
+
 
                             DB::commit();
 
@@ -165,14 +173,14 @@ class ListWilayahs extends ListRecords
                                 ->label('Struktur Wilayah')
                                 ->default('Dasar')
                                 ->afterStateUpdated(
-                                    fn (ToggleButtons $component) => ($component
+                                    fn(ToggleButtons $component) => ($component
                                         ->getContainer()->getParentComponent()->getContainer()->getComponent('strukturWilayah')->getChildComponentContainer()->fill())
                                 )
                                 ->live()
                                 ->columns(1),
                         ]),
                     Grid::make(3)
-                        ->schema(fn (Get $get): array => match ($get('type')) {
+                        ->schema(fn(Get $get): array => match ($get('type')) {
                             'Khusus' => [
                                 TextInput::make('nama_1')
                                     ->label('Nama Satuan Wilayah Terbesar')
@@ -194,13 +202,13 @@ class ListWilayahs extends ListRecords
                                             ->label('RW')
                                             ->hiddenLabel()
                                             ->placeholder(
-                                                fn (Get $get): ?string => 'Masukkan Nama ' . $get('../../nama_1') ?? null
+                                                fn(Get $get): ?string => 'Masukkan Nama ' . $get('../../nama_1') ?? null
                                             )
-                                            ->prefix(fn (Get $get): ?string => $get('../../nama_1') ?? null)
+                                            ->prefix(fn(Get $get): ?string => $get('../../nama_1') ?? null)
                                             ->live(onBlur: true),
 
                                     ])->grid(2)->columnSpanFull()
-                                    ->itemLabel(fn (array $state, Get $get): ?string => $get('nama_1') . '' . $state['tingkat_1'] ?? null)
+                                    ->itemLabel(fn(array $state, Get $get): ?string => $get('nama_1') . '' . $state['tingkat_1'] ?? null)
 
 
                             ],
@@ -229,9 +237,9 @@ class ListWilayahs extends ListRecords
                                         TextInput::make('tingkat_1')
                                             ->label('RW')
                                             ->hiddenLabel()
-                                            ->placeholder(fn (Get $get): ?string => 'Masukkan Nomor ' . $get('../../nama_1') ?? null)
+                                            ->placeholder(fn(Get $get): ?string => 'Masukkan Nomor ' . $get('../../nama_1') ?? null)
                                             ->mask('999')
-                                            ->prefix(fn (Get $get): ?string => $get('../../nama_1') ?? null)
+                                            ->prefix(fn(Get $get): ?string => $get('../../nama_1') ?? null)
                                             ->numeric()
                                             ->minValue(1)
                                             ->live(onBlur: true),
@@ -241,7 +249,7 @@ class ListWilayahs extends ListRecords
                                                 ->label('Mulai dari RT')
                                                 ->hiddenLabel()
                                                 ->placeholder('Mulai dari ')
-                                                ->prefix(fn (Get $get): ?string => $get('../../nama_2') ?? null)
+                                                ->prefix(fn(Get $get): ?string => $get('../../nama_2') ?? null)
                                                 ->mask('999')
                                                 ->minValue(1)
                                                 ->live(onBlur: true)
@@ -258,7 +266,7 @@ class ListWilayahs extends ListRecords
                                             'class' => 'gap-10',
                                         ])->columns(2)->hiddenLabel(),
                                     ])->grid(2)->columnSpanFull()
-                                    ->itemLabel(fn (array $state, Get $get): ?string => $get('nama_1') . ' ' . str_pad($state['tingkat_1'], 2, '0', STR_PAD_LEFT) ?? null)
+                                    ->itemLabel(fn(array $state, Get $get): ?string => $get('nama_1') . ' ' . str_pad($state['tingkat_1'], 2, '0', STR_PAD_LEFT) ?? null)
 
                             ],
                             'Lengkap' => [
@@ -296,21 +304,21 @@ class ListWilayahs extends ListRecords
                                     ->schema([
                                         TextInput::make('tingkat_1')
                                             ->hiddenLabel()
-                                            ->prefix(fn (Get $get): ?string => $get('../../nama_1') ?? null)
-                                            ->placeholder(fn (Get $get): ?string => 'Masukkan Nama ' . $get('../../nama_1') ?? null)
+                                            ->prefix(fn(Get $get): ?string => $get('../../nama_1') ?? null)
+                                            ->placeholder(fn(Get $get): ?string => 'Masukkan Nama ' . $get('../../nama_1') ?? null)
                                             ->live(onBlur: true),
                                         Repeater::make('sub_parent')
                                             ->reorderable(false)
                                             ->deletable(false)
-                                            ->label(fn (Get $get): ?string => $get('../../nama_2') . 'dan' . $get('../../nama_3') ?? null)
+                                            ->label(fn(Get $get): ?string => $get('../../nama_2') . 'dan' . $get('../../nama_3') ?? null)
                                             ->helperText('Masukkan 001, 002, 010, dst.')
                                             ->hiddenLabel()
                                             ->schema([
                                                 TextInput::make('tingkat_2')
                                                     ->hiddenLabel()
-                                                    ->placeholder(fn (Get $get): ?string => 'Masukkan Nomor ' . $get('../../../../nama_2') ?? null)
+                                                    ->placeholder(fn(Get $get): ?string => 'Masukkan Nomor ' . $get('../../../../nama_2') ?? null)
                                                     ->mask('999')
-                                                    ->prefix(fn (Get $get): ?string => $get('../../../../nama_2') ?? null)
+                                                    ->prefix(fn(Get $get): ?string => $get('../../../../nama_2') ?? null)
                                                     ->numeric()
                                                     ->reactive()
                                                     ->minValue(1),
@@ -318,7 +326,7 @@ class ListWilayahs extends ListRecords
                                                     TextInput::make('Mulai')
                                                         ->label('Mulai dari ')
                                                         ->placeholder('Mulai dari ')
-                                                        ->prefix(fn (Get $get): ?string => $get('../../../../nama_3') ?? null)
+                                                        ->prefix(fn(Get $get): ?string => $get('../../../../nama_3') ?? null)
                                                         ->mask('999')
                                                         ->reactive()
                                                         ->minValue(1)
@@ -333,7 +341,7 @@ class ListWilayahs extends ListRecords
 
                                             ]),
                                     ])->grid(2)->columnSpanFull()
-                                    ->itemLabel(fn (array $state, Get $get): ?string => $get('nama_1') . ' ' . str_pad($state['tingkat_1'], 2, '0', STR_PAD_LEFT) ?? null)
+                                    ->itemLabel(fn(array $state, Get $get): ?string => $get('nama_1') . ' ' . str_pad($state['tingkat_1'], 2, '0', STR_PAD_LEFT) ?? null)
                             ],
 
                             default => [],

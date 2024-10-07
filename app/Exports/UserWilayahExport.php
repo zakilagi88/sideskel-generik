@@ -3,18 +3,22 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\FromCollection;
 
-class UserWilayahExport implements FromArray
+class UserWilayahExport implements FromCollection
+
+
 {
-    protected $users;
+    protected $userWilayah;
 
-    public function __construct(array $users)
+    public function __construct($userWilayah)
     {
-        $this->users = $users;
+        // Ensure $userWilayah is a collection
+        $this->userWilayah = collect($userWilayah);
     }
 
-    public function array(): array
+    public function collection()
     {
-        return $this->users;
+        return $this->userWilayah;
     }
 }
