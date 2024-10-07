@@ -4562,24 +4562,24 @@
         },
         {
             "name": "nette/schema",
-            "version": "v1.3.0",
+            "version": "v1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/schema.git",
-                "reference": "a6d3a6d1f545f01ef38e60f375d1cf1f4de98188"
+                "reference": "da801d52f0354f70a638673c4a0f04e16529431d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/schema/zipball/a6d3a6d1f545f01ef38e60f375d1cf1f4de98188",
-                "reference": "a6d3a6d1f545f01ef38e60f375d1cf1f4de98188",
+                "url": "https://api.github.com/repos/nette/schema/zipball/da801d52f0354f70a638673c4a0f04e16529431d",
+                "reference": "da801d52f0354f70a638673c4a0f04e16529431d",
                 "shasum": ""
             },
             "require": {
                 "nette/utils": "^4.0",
-                "php": "8.1 - 8.3"
+                "php": "8.1 - 8.4"
             },
             "require-dev": {
-                "nette/tester": "^2.4",
+                "nette/tester": "^2.5.2",
                 "phpstan/phpstan-nette": "^1.0",
                 "tracy/tracy": "^2.8"
             },
@@ -4618,9 +4618,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/schema/issues",
-                "source": "https://github.com/nette/schema/tree/v1.3.0"
+                "source": "https://github.com/nette/schema/tree/v1.3.2"
             },
-            "time": "2023-12-11T11:54:22+00:00"
+            "time": "2024-10-06T23:10:23+00:00"
         },
         {
             "name": "nette/utils",
@@ -6955,16 +6955,16 @@
         },
         {
             "name": "spatie/image",
-            "version": "3.7.3",
+            "version": "3.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/image.git",
-                "reference": "62897055045fa74efc6d1bf201c783841a679e99"
+                "reference": "d72d1ae07f91a3c1230e064acd4fd8c334ab237b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/image/zipball/62897055045fa74efc6d1bf201c783841a679e99",
-                "reference": "62897055045fa74efc6d1bf201c783841a679e99",
+                "url": "https://api.github.com/repos/spatie/image/zipball/d72d1ae07f91a3c1230e064acd4fd8c334ab237b",
+                "reference": "d72d1ae07f91a3c1230e064acd4fd8c334ab237b",
                 "shasum": ""
             },
             "require": {
@@ -6979,6 +6979,7 @@
             "require-dev": {
                 "ext-gd": "*",
                 "ext-imagick": "*",
+                "laravel/sail": "^1.34",
                 "pestphp/pest": "^2.28",
                 "phpstan/phpstan": "^1.10.50",
                 "spatie/pest-plugin-snapshots": "^2.1",
@@ -7011,7 +7012,7 @@
                 "spatie"
             ],
             "support": {
-                "source": "https://github.com/spatie/image/tree/3.7.3"
+                "source": "https://github.com/spatie/image/tree/3.7.4"
             },
             "funding": [
                 {
@@ -7023,7 +7024,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-08-06T12:32:33+00:00"
+            "time": "2024-10-07T09:03:34+00:00"
         },
         {
             "name": "spatie/image-optimizer",
@@ -8076,16 +8077,16 @@
         },
         {
             "name": "staudenmeir/eloquent-has-many-deep",
-            "version": "v1.20.2",
+            "version": "v1.20.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/staudenmeir/eloquent-has-many-deep.git",
-                "reference": "edcce8d8559d9559c997c177de06eb4bc173956d"
+                "reference": "b47868794ef5502a3c7aa927a011c5194c4b0e4a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/staudenmeir/eloquent-has-many-deep/zipball/edcce8d8559d9559c997c177de06eb4bc173956d",
-                "reference": "edcce8d8559d9559c997c177de06eb4bc173956d",
+                "url": "https://api.github.com/repos/staudenmeir/eloquent-has-many-deep/zipball/b47868794ef5502a3c7aa927a011c5194c4b0e4a",
+                "reference": "b47868794ef5502a3c7aa927a011c5194c4b0e4a",
                 "shasum": ""
             },
             "require": {
@@ -8098,9 +8099,9 @@
                 "barryvdh/laravel-ide-helper": "^3.0",
                 "illuminate/pagination": "^11.0",
                 "korridor/laravel-has-many-merged": "^1.1",
+                "larastan/larastan": "^2.9",
                 "mockery/mockery": "^1.6",
                 "orchestra/testbench": "^9.0",
-                "phpstan/phpstan": "^1.10",
                 "phpunit/phpunit": "^11.0",
                 "staudenmeir/eloquent-json-relations": "^1.11",
                 "staudenmeir/laravel-adjacency-list": "^1.21"
@@ -8131,7 +8132,7 @@
             "description": "Laravel Eloquent HasManyThrough relationships with unlimited levels",
             "support": {
                 "issues": "https://github.com/staudenmeir/eloquent-has-many-deep/issues",
-                "source": "https://github.com/staudenmeir/eloquent-has-many-deep/tree/v1.20.2"
+                "source": "https://github.com/staudenmeir/eloquent-has-many-deep/tree/v1.20.3"
             },
             "funding": [
                 {
@@ -8139,7 +8140,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2024-07-12T22:08:11+00:00"
+            "time": "2024-10-06T18:16:18+00:00"
         },
         {
             "name": "staudenmeir/eloquent-has-many-deep-contracts",
@@ -12234,16 +12235,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.3.6",
+            "version": "11.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "d62c45a19c665bb872c2a47023a0baf41a98bb2b"
+                "reference": "89fe0c530133c08f7fff89d3d727154e4e504925"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/d62c45a19c665bb872c2a47023a0baf41a98bb2b",
-                "reference": "d62c45a19c665bb872c2a47023a0baf41a98bb2b",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/89fe0c530133c08f7fff89d3d727154e4e504925",
+                "reference": "89fe0c530133c08f7fff89d3d727154e4e504925",
                 "shasum": ""
             },
             "require": {
@@ -12282,7 +12283,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "11.3-dev"
+                    "dev-main": "11.4-dev"
                 }
             },
             "autoload": {
@@ -12314,7 +12315,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.3.6"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.4.0"
             },
             "funding": [
                 {
@@ -12330,7 +12331,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-19T10:54:28+00:00"
+            "time": "2024-10-05T08:39:03+00:00"
         },
         {
             "name": "sebastian/cli-parser",
