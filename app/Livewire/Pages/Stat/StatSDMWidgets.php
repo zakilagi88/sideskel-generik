@@ -51,7 +51,7 @@ class StatSDMWidgets extends Component implements HasForms
                                 Select::make(name: 'key')
                                     ->hiddenLabel()
                                     ->placeholder(
-                                        fn () => 'Pilih ' . $this->record->nama
+                                        fn() => 'Pilih ' . $this->record->nama
                                     )
                                     ->multiple()
                                     ->live(onBlur: true)
@@ -131,11 +131,11 @@ class StatSDMWidgets extends Component implements HasForms
                                                     ->schema([
                                                         Livewire::make(SDMBarChart::class, ['filters' => $this->filters, 'record' => $this->record, 'chartData' => $this->chartData])
                                                             ->key('bar')
-                                                            ->hidden(fn ($record) => $record->key === 'umur')
+                                                            ->hidden(fn() => $this->record->key === 'umur')
                                                             ->hiddenLabel(),
                                                         Livewire::make(SDMPyramidChart::class, ['filters' => $this->filters, 'record' => $this->record, 'chartData' => $this->chartData])
                                                             ->key('pyramid')
-                                                            ->visible(fn ($record) => $record->key === 'umur')
+                                                            ->visible(fn() => $this->record->key === 'umur')
                                                             ->hiddenLabel(),
                                                     ]),
                                                 Tabs\Tab::make('Pie ')
@@ -191,7 +191,7 @@ class StatSDMWidgets extends Component implements HasForms
 
         return
             Tambahanable::with(['tambahan'])
-            ->where('tambahan_id', fn ($query) => $query->select('id')->from('tambahans')->where('slug', $this->record->slug))
+            ->where('tambahan_id', fn($query) => $query->select('id')->from('tambahans')->where('slug', $this->record->slug))
             ->selectRaw('
                         tambahan_id,
                         tambahanable_ket, 

@@ -17,13 +17,13 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Maatwebsite\Excel\Concerns\{Importable, SkipsOnFailure, SkipsOnError, ToCollection, WithChunkReading, WithEvents, WithHeadingRow, WithMultipleSheets, WithValidation};
+use Maatwebsite\Excel\Concerns\{Importable, SkipsOnFailure, SkipsOnError, ToCollection, WithChunkReading, WithEvents, WithHeadingRow, WithMultipleSheets, WithStartRow, WithValidation};
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Validators\Failure;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChunkReading, ShouldQueue, SkipsOnFailure, SkipsOnError, WithValidation, WithEvents, WithMultipleSheets
+class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChunkReading, ShouldQueue, SkipsOnFailure, SkipsOnError, WithValidation, WithEvents, WithMultipleSheets, WithStartRow
 {
 
     use Importable;
@@ -34,8 +34,18 @@ class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChun
     public function sheets(): array
     {
         return [
-            0 => $this,
+            'DATABASE' => $this,
         ];
+    }
+
+    public function startRow(): int
+    {
+        return 4;
+    }
+
+    public function headingRow(): int
+    {
+        return 3;
     }
 
     public function __construct(User $importedBy, int $importId)
@@ -60,6 +70,8 @@ class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChun
             ? $this->wilayah->where('depth', $depth)->pluck('wilayah_nama', 'wilayah_id')->toArray()
             : [];
     }
+
+
 
     public function concatWilayah($parent, $sub_parent = null, $child = null): string
     {
@@ -95,8 +107,8 @@ class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChun
                 [
                     'kk_alamat' => (string)$row['alamat_sekarang'],
                     'wilayah_id' => $this->findWilayahId($concatenated),
-                    'created_at' => self::formatTanggal($row['tanggal_update_data']),
-                    'updated_at' => self::formatTanggal($row['tanggal_update_data']),
+                    'created_at' => self::formatTanggal($row['tanggal_update_data']) ?? Carbon::now(),
+                    'updated_at' => self::formatTanggal($row['tanggal_update_data']) ?? Carbon::now(),
                 ]
             );
 
@@ -135,11 +147,10 @@ class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChun
                     'alamat_sebelumnya' => $row['alamat_sebelumnya'] ?? null,
                     'telepon' => $row['telepon'] ?? null,
                     'email' => $row['email'] ?? null,
-                    'created_at' => self::formatTanggal($row['tanggal_update_data']),
-                    'updated_at' => self::formatTanggal($row['tanggal_update_data']),
+                    'created_at' => self::formatTanggal($row['tanggal_update_data']) ?? Carbon::now(),
+                    'updated_at' => self::formatTanggal($row['tanggal_update_data']) ?? Carbon::now(),
                 ]
             );
-
 
             $pddCount++;
         }
@@ -228,7 +239,7 @@ class KartuKeluargaImportExcel implements ToCollection, WithHeadingRow, WithChun
 
                 // Simpan total ke database
                 Import::where('id', $this->importId)->update([
-                    'process_rows' => $reader->getTotalRows()['data'] - 1,
+                    'process_rows' => $reader->getTotalRows()['DATABASE'] - 1,
                     'success_rows' => $totalPdd,
                     'related_rows' => $totalKk,
                 ]);

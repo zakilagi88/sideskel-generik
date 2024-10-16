@@ -11,6 +11,7 @@ use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\ServiceProvider;
@@ -52,6 +53,14 @@ class AppServiceProvider extends ServiceProvider
         if (env('APP_ENV') !== 'local') {
             $this->app['request']->server->set('HTTPS', true);
         }
+
+        Gate::define('download-backup', function ($user) {
+            return dd($user->hasRole('admin'));
+        });
+
+        Gate::define('delete-backup', function ($user) {
+            return $user->hasRole('admin');
+        });
 
         Schema::defaultStringLength(191);
         Route::macro(

@@ -5,9 +5,11 @@ namespace App\Filament\Clusters\HalamanDesa\Resources;
 use App\Facades\Deskel;
 use App\Filament\Clusters\HalamanDesa;
 use App\Filament\Clusters\HalamanDesa\Resources\SaranaPrasaranaResource\Pages;
+use App\Filament\Exports\SaranaPrasaranaExporter;
 use App\Models\Deskel\SaranaPrasarana;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -17,6 +19,7 @@ use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\IconSize;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\TextColumn;
@@ -46,7 +49,7 @@ class SaranaPrasaranaResource extends Resource
             ->schema([
                 Hidden::make('deskel_profil_id')
                     ->default(
-                        fn () => $deskelProfile->id ?? null
+                        fn() => $deskelProfile->id ?? null
                     ),
                 TextInput::make('jenis')
                     ->inlineLabel()
@@ -92,40 +95,40 @@ class SaranaPrasaranaResource extends Resource
             ]);
     }
 
-    public static function generateInputs($state)
-    {
-        $inputs = [];
-        $keys = static::additionalData()[$state];
-        foreach ($keys as $key => $value) {
-            if (array_key_exists($key, self::getExtraSuffix())) {
-                $inputs[] = TextInput::make($key)
-                    ->suffix(self::getExtraSuffix()[$key])
-                    ->numeric()
-                    ->minValue(0)
-                    ->default(0)
-                    ->placeholder('Masukkan ' . $value)
-                    ->inlineLabel();
-                continue;
-            } else {
-                $inputs[] = TextInput::make($key)
-                    ->suffix('Buah')
-                    ->numeric()
-                    ->minValue(0)
-                    ->default(0)
-                    ->placeholder('Masukkan ' . $value)
+    // public static function generateInputs($state)
+    // {
+    //     $inputs = [];
+    //     $keys = static::additionalData()[$state];
+    //     foreach ($keys as $key => $value) {
+    //         if (array_key_exists($key, self::getExtraSuffix())) {
+    //             $inputs[] = TextInput::make($key)
+    //                 ->suffix(self::getExtraSuffix()[$key])
+    //                 ->numeric()
+    //                 ->minValue(0)
+    //                 ->default(0)
+    //                 ->placeholder('Masukkan ' . $value)
+    //                 ->inlineLabel();
+    //             continue;
+    //         } else {
+    //             $inputs[] = TextInput::make($key)
+    //                 ->suffix('Buah')
+    //                 ->numeric()
+    //                 ->minValue(0)
+    //                 ->default(0)
+    //                 ->placeholder('Masukkan ' . $value)
 
-                    ->inlineLabel();
-            }
-        }
-        return $inputs;
-    }
+    //                 ->inlineLabel();
+    //         }
+    //     }
+    //     return $inputs;
+    // }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 TextColumn::make('jenis')
-                    ->formatStateUsing(fn ($state) => ucwords(str_replace('_', ' ', $state)))
+                    ->formatStateUsing(fn($state) => ucwords(str_replace('_', ' ', $state)))
                     ->weight(FontWeight::SemiBold)
                     ->searchable()
                     ->sortable(),
@@ -134,13 +137,32 @@ class SaranaPrasaranaResource extends Resource
                         TextColumn::make('data')
                             ->getStateUsing(function ($record) {
                                 $labelKeys = array_column($record->data, 'nama');
-                                $formattedLabelKeys = array_map(fn ($label) => static::formattedLabel($label), $labelKeys);
+                                $formattedLabelKeys = array_map(fn($label) => static::formattedLabel($label), $labelKeys);
                                 return $formattedLabelKeys;
                             })
                             ->listWithLineBreaks()
-                            ->bulleted()
-                    ])->from('md'),
+                            ->bulleted(),
+                        TextColumn::make('data')
+                            ->getStateUsing(function ($record) {
+                                // jumlah dan satuan
+                                $jumlahValues = array_map(fn($data) => $data['jumlah'] . ' ' . $data['satuan'], $record->data);
+
+                                return $jumlahValues;
+                            })
+                            ->listWithLineBreaks(),
+                    ])
+                        ->from('md'),
                 ])->collapsed(false)
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(SaranaPrasaranaExporter::class)
+                    ->color('primary')
+                    ->label('Ekspor Data')
+                    ->formats([
+                        ExportFormat::Xlsx,
+                    ])
+                    ->columnMapping(),
             ])
             ->filters([
                 //
@@ -187,7 +209,7 @@ class SaranaPrasaranaResource extends Resource
                 'gedung_sekolah_sd' => 'Gedung Sekolah SD',
                 'gedung_sekolah_smp' => 'Gedung Sekolah SMP',
                 'gedung_sekolah_sma' => 'Gedung Sekolah SMA',
-                'gedung_perguruan_tinggi' => 'GedunG Perguruan Tinggi',
+                'gedung_perguruan_tinggi' => 'Gedung Perguruan Tinggi',
             ],
             'ibadah' =>
             [

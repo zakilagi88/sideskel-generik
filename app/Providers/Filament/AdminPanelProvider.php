@@ -304,7 +304,7 @@ class AdminPanelProvider extends PanelProvider
                                 ->url(fn(): string => PengaturanUmum::getUrl()),
                             NavigationItem::make('Backup Data')
                                 ->icon('fas-database')
-                                // ->visible(fn(): bool => $auth->can('page_Backups'))
+                                ->visible(fn(): bool => $auth->can('page_Backups'))
                                 ->isActiveWhen(fn(): bool => request()->routeIs('filament.panel.pages.backups'))
                                 ->url(fn(): string => Backups::getUrl()),
                         ]);

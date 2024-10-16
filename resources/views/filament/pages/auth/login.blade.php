@@ -33,7 +33,7 @@
 
         <div class="relative col-span-2 hidden sm:col-span-2 sm:flex bg-secondary-400 text-center rounded-r-lg mx-0">
             <div class="flex justify-center items-center w-full h-full">
-                <img src="{{ asset('storage/sites/sideskel.png') }}" alt="" class="object-contain h-80">
+                <img src="{{ asset('storage/sites/login-sideskel.png') }}" alt="" class="object-contain h-80">
             </div>
         </div>
 
