@@ -5,7 +5,6 @@ namespace App\Filament\Clusters\HalamanKependudukan\Resources;
 use App\Filament\Clusters\HalamanKependudukan;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\Pages;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource\RelationManagers\PenduduksRelationManager;
-use App\Models\Deskel\DesaKelurahanProfile;
 use App\Models\{KartuKeluarga,  Penduduk, Wilayah};
 use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;

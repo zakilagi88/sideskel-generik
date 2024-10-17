@@ -107,6 +107,34 @@ class SDMPieChart extends ApexChartWidget
                     ],
                 ],
             ],
+            'colors' => [
+                '#545454',  // Dark Gray
+                '#FF66C4',  // Light Pink
+                '#FF3131',  // Bright Red
+                '#00BF63',  // Green
+                '#004AAD',  // Blue
+                '#849D12',  // Olive Green
+                '#FF914D',  // Orange
+                '#E8DD78',  // Light Yellow
+                '#364A64',  // Navy
+                '#754D35',  // Brown
+                '#D6C6AF',  // Light Beige
+                '#0097B2',  // Cyan
+                '#C1FF72',  // Light Green
+                '#9D34B3',  // Purple
+                '#769F9E',  // Teal Gray
+                '#9F7679',  // Muted Pink
+                '#A6000F',  // Dark Red
+                '#D97706',  // Amber
+                '#14B8A6',  // Teal
+                '#6366F1',  // Blue-Violet
+                '#4B5563',  // Cool Gray
+                '#FACC15',  // Bright Yellow
+                '#0EA5E9',  // Light Blue
+                '#F53855',  // Pink
+                '#FFB4A2',  // Light Pink
+            ],
+
             'dataLabels' => [
                 'enabled' => true,
                 'offset' => 0,
