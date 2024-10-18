@@ -16,6 +16,9 @@ class EditPenduduk extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('Kembali')
+                ->url(route(static::$resource::getRouteBaseName() . '.index'))
+                ->button(),
             Actions\ViewAction::make(),
             Actions\DeleteAction::make(),
         ];
@@ -26,15 +29,7 @@ class EditPenduduk extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 
-    protected function beforeFill(): void
-    {
-        // Runs before the form fields are populated from the database.
-
-        // if ($this->record->audits()->latest()->first() == null) {
-        //     $this->record->fill($this->record->toArray());
-        // } else
-        //     $this->record->fill($this->record->audits()->latest()->first()->old_values);    
-    }
+    protected function beforeFill(): void {}
 
     protected function afterFill(): void
     {
@@ -84,23 +79,7 @@ class EditPenduduk extends EditRecord
         }
     }
 
-    // protected function mutateFormDataBeforeFill(array $data): array
-    // {
-    //     if ($data['status_pengajuan'] == 'BELUM DIVERIFIKASI') {
-    //         if ($this->record->audits()->latest()->first() == null) {
-    //             return $data;
-    //         } else {
-    //             foreach ($this->record->audits()->latest()->first()->old_values as $key => $value) {
-    //                 if (array_key_exists($key, $data)) {
-    //                     $data[$key] = $value;
-    //                 }
-    //             }
-    //             return $data;
-    //         }
-    //     } else {
-    //         return $data;
-    //     }
-    // }
+
 
     protected $listeners = [
         'auditRestored',

@@ -13,6 +13,9 @@ class EditBantuan extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('Kembali')
+                ->url(route(static::$resource::getRouteBaseName() . '.index'))
+                ->button(),
             Actions\DeleteAction::make(),
         ];
     }

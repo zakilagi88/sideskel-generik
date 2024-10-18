@@ -5,6 +5,7 @@ namespace App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\P
 use App\Enums\Kependudukan\StatusDasarType;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource;
 use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource\Widgets\PendudukOverview;
+use App\Filament\Pages\Dashboard;
 use App\Models\Dinamika;
 use App\Models\Kepindahan;
 use App\Models\Pendatang;
@@ -44,6 +45,10 @@ class ListPenduduks extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('beranda')
+                ->label('Beranda')
+                ->icon('fas-home')
+                ->url(Dashboard::getUrl()),
             Actions\CreateAction::make()->label('Tambah Penduduk')
                 ->url(route('filament.panel.kependudukan.resources.keluarga.create')),
         ];
@@ -59,8 +64,8 @@ class ListPenduduks extends ListRecords
     public function getTabs(): array
     {
         return [
-            'Warga' => Tab::make()->modifyQueryUsing(fn (Builder $query) => ($query->where('status_dasar', 'HIDUP')))->badge($this->statuswarga[StatusDasarType::HIDUP->value] ?? '0')->icon('fas-children')->badgeColor('primary'),
-            'Sementara' => Tab::make('Sementara')->modifyQueryUsing(fn (Builder $query) => ($query->where('status_penduduk', 'SEMENTARA')))->badge($this->sementara['SEMENTARA'] ?? '0')->icon('fas-people-group')->badgeColor('success'),
+            'Warga' => Tab::make()->modifyQueryUsing(fn(Builder $query) => ($query->where('status_dasar', 'HIDUP')))->badge($this->statuswarga[StatusDasarType::HIDUP->value] ?? '0')->icon('fas-children')->badgeColor('primary'),
+            'Sementara' => Tab::make('Sementara')->modifyQueryUsing(fn(Builder $query) => ($query->where('status_penduduk', 'SEMENTARA')))->badge($this->sementara['SEMENTARA'] ?? '0')->icon('fas-people-group')->badgeColor('success'),
             'Pindah' => Tab::make()
                 ->modifyQueryUsing(function (Builder $query) {
                     $query->where('status_dasar', 'PINDAH')->whereHas('dinamikas', function ($query) {

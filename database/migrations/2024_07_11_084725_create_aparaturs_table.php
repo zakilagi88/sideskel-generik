@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('niap')->unique()->nullable();
             $table->string('nip')->unique()->nullable();
             $table->string('foto')->nullable();
-            $table->foreignId('jabatan_id')->constrained('jabatans')->cascadeOnDelete();
+            $table->foreignId('jabatan_id')->nullable()->constrained('jabatans')->nullOnDelete();
             $table->string('pangkat_golongan')->nullable();
             $table->string('jenis_kelamin');
             $table->string('tempat_lahir');

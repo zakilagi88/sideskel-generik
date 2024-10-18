@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('tupoksi');
+            $table->integer('sort')->default(0);
             $table->timestamps();
         });
     }

@@ -14,8 +14,11 @@ class ListUsers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('beranda')
+                ->label('Beranda')
+                ->icon('fas-home')
+                ->url(Dashboard::getUrl()),
             Actions\CreateAction::make()->button()->label('Tambah Pengguna'),
-            Actions\Action::make('kembali')->label('Kembali Beranda')->url(Dashboard::getUrl())->color('secondary'),
         ];
     }
 

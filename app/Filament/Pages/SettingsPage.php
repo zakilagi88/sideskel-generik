@@ -44,9 +44,17 @@ abstract class SettingsPage extends Page
         $this->fillForm($settings);
     }
 
-    protected function initializeExtraData(): void
+    protected function getHeaderActions(): array
     {
+        return [
+            Action::make('beranda')
+                ->label('Beranda')
+                ->icon('fas-home')
+                ->url(Dashboard::getUrl()),
+        ];
     }
+
+    protected function initializeExtraData(): void {}
 
     protected function loadSettings(): array
     {

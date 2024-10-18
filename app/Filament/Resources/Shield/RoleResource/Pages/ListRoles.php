@@ -14,8 +14,11 @@ class ListRoles extends ListRecords
     protected function getActions(): array
     {
         return [
+            Actions\Action::make('beranda')
+                ->label('Beranda')
+                ->icon('fas-home')
+                ->url(Dashboard::getUrl()),
             Actions\CreateAction::make()->button()->label('Tambah Peran'),
-            Actions\Action::make('kembali')->label('Kembali Beranda')->url(Dashboard::getUrl())->color('secondary'),
         ];
     }
 }

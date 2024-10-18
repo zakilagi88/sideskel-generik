@@ -3,6 +3,7 @@
 namespace App\Filament\Clusters\HalamanDesa\Resources\DeskelProfileResource\Pages;
 
 use App\Filament\Clusters\HalamanDesa\Resources\DeskelProfileResource;
+use App\Filament\Pages\Dashboard;
 use App\Settings\GeneralSettings;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -29,5 +30,15 @@ class ListDeskelProfiles extends ListRecords
     public function getTitle(): string | Htmlable
     {
         return 'Identitas ' . $this->settings['sebutan_deskel'];
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\Action::make('beranda')
+                ->label('Beranda')
+                ->icon('fas-home')
+                ->url(Dashboard::getUrl())
+        ];
     }
 }

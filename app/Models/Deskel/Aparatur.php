@@ -51,6 +51,9 @@ class Aparatur extends Model
 
     protected $casts = [
         'foto' => 'array',
+        'tanggal_lahir' => 'date',
+        'tgl_kep_pengangkatan' => 'date',
+        'tgl_kep_pemberhentian' => 'date',
     ];
 
     public function getFotoUrl()

@@ -4,6 +4,7 @@ namespace App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResou
 
 use App\Exports\TemplateImport;
 use App\Filament\Clusters\HalamanKependudukan\Resources\KartuKeluargaResource;
+use App\Filament\Pages\Dashboard;
 use App\Imports\Import;
 use App\Imports\Importer;
 use App\Imports\KartuKeluargaImport;
@@ -31,27 +32,16 @@ class ListKartukeluargas extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Actions\Action::make('testing')
-            //     ->openUrlInNewTab(true)
-            //     ->label('Download Data Testing')
-            //     ->size(ActionSize::Small)
-            //     ->color('info')
-            //     ->button()
-            //     ->action(
-            //         function () {
-            //             return response()->download('test/datatesting.xlsx');
-            //         }
-            //     ),
-
-            Actions\CreateAction::make()->label('Tambah Keluarga')
-                ->label('Tambah Keluarga')
-                ->size(ActionSize::Small)
+            Actions\Action::make('beranda')
+                ->label('Beranda')
+                ->icon('fas-home')
+                ->url(Dashboard::getUrl()),
+            Actions\CreateAction::make()
+                ->label('Tambah Data')
                 ->color('primary')
                 ->button(),
-
             ActionsAction::make('Import')
-                ->label('Import Data')
-                ->size(ActionSize::Small)
+                ->label('Impor Data')
                 ->form([
                     FileUpload::make('file')
                         ->label('Upload File')

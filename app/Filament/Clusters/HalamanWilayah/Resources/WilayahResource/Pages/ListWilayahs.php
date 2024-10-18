@@ -46,6 +46,10 @@ class ListWilayahs extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('beranda')
+                ->label('Beranda')
+                ->icon('fas-home')
+                ->url(Dashboard::getUrl()),
             Actions\CreateAction::make()->label('Tambah Data'),
             Actions\Action::make('generate')
                 ->modalWidth(MaxWidth::SixExtraLarge)

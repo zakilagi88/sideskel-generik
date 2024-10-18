@@ -16,6 +16,7 @@ class Jabatan extends Model
     protected $fillable = [
         'nama',
         'tupoksi',
+        'sort',
     ];
 
     public function aparaturs(): HasMany

@@ -13,6 +13,9 @@ class ViewRole extends ViewRecord
     protected function getActions(): array
     {
         return [
+            Actions\Action::make('Kembali')
+                ->url(route(static::$resource::getRouteBaseName() . '.index'))
+                ->button(),
             Actions\EditAction::make(),
         ];
     }

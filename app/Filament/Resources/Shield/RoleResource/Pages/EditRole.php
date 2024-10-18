@@ -19,8 +19,10 @@ class EditRole extends EditRecord
     protected function getActions(): array
     {
         return [
-            Actions\DeleteAction::make()->hidden(fn () => $this->record->name === 'Admin'),
-            Actions\Action::make('Kembali')->url(Dashboard::getUrl())->color('info')
+            Actions\Action::make('Kembali')
+                ->url(route(static::$resource::getRouteBaseName() . '.index'))
+                ->button(),
+            Actions\DeleteAction::make()->hidden(fn() => $this->record->name === 'Admin'),
         ];
     }
 

@@ -42,6 +42,7 @@ class JabatanResource extends Resource
                     ->maxLength(100),
                 Textarea::make('tupoksi')
                     ->placeholder('Masukkan Tupoksi Jabatan')
+                    ->required()
                     ->autosize(),
             ]);
     }
@@ -54,6 +55,7 @@ class JabatanResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('tupoksi')
+                    ->limit(50)
                     ->searchable()
                     ->sortable(),
             ])
@@ -68,7 +70,9 @@ class JabatanResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('sort')
+            ->reorderable('sort');
     }
 
     public static function getPages(): array

@@ -183,6 +183,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                         ->inlineLabel()
                                         ->label('NIAP/NIPD')
                                         ->minLength(18)
+                                        ->unique(ignoreRecord: true)
                                         ->required(fn(Get $get): bool => !filled($get('nip')))
                                         ->live()
                                         ->placeholder('NIAP'),
@@ -190,10 +191,12 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                         ->inlineLabel()
                                         ->label('NIP')
                                         ->reactive()
+                                        ->unique(ignoreRecord: true)
                                         ->minLength(18)
                                         ->required(fn(Get $get): bool => !filled($get('niap')))
                                         ->placeholder('NIP'),
                                     Select::make('jabatan_id')
+                                        ->label('Jabatan')
                                         ->inlineLabel()
                                         ->options(
                                             fn() => Jabatan::pluck('nama', 'id')
@@ -205,28 +208,34 @@ class AparaturResource extends Resource implements HasShieldPermissions
                                 Hidden::make('slug')
                                     ->default(fn() => 'd-' . Aparatur::latest()->first()?->id . time()),
                                 TextInput::make('nama')
+                                    ->label('Nama Lengkap')
                                     ->disabled($isPenduduk)
                                     ->required(),
                                 Select::make('pendidikan')
+                                    ->label('Pendidikan Terakhir')
                                     ->disabled($isPenduduk)
                                     ->options(PendidikanType::class)
                                     ->required(),
                                 Select::make('jenis_kelamin')
+                                    ->label('Jenis Kelamin')
                                     ->disabled($isPenduduk)
                                     ->options(JenisKelaminType::class)
                                     ->required(),
                                 TextInput::make('tempat_lahir')
+                                    ->label('Tempat Lahir')
                                     ->disabled($isPenduduk)
                                     ->required(),
                                 DatePicker::make('tanggal_lahir')
+                                    ->label('Tanggal Lahir')
                                     ->disabled($isPenduduk)
                                     ->format('d-M-Y')
                                     ->required(),
                                 Select::make('agama')
+                                    ->label('Agama')
                                     ->disabled($isPenduduk)
                                     ->options(AgamaType::class)
                                     ->required(),
-                                TextInput::make('pangkat_golongan'),
+                                TextInput::make('pangkat_golongan')->label('Pangkat/Golongan')->placeholder('Belum Diisi'),
                                 TextInput::make('no_kep_pengangkatan')
                                     ->label('Nomor Keputusan Pengangkatan'),
                                 DatePicker::make('tgl_kep_pengangkatan')
@@ -271,6 +280,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
                     ->alignment(Alignment::Left)
                     ->searchable(),
                 TextColumn::make('jabatan.nama')
+                    ->label('Jabatan')
                     ->weight(FontWeight::SemiBold)
                     ->searchable(),
                 TextColumn::make('pangkat_golongan')
@@ -278,6 +288,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
                     ->placeholder('Belum Diisi')
                     ->weight(FontWeight::SemiBold),
                 TextColumn::make('jenis_kelamin')
+                    ->label('Jenis Kelamin')
                     ->weight(FontWeight::SemiBold)
                     ->alignment(Alignment::Center),
                 IconColumn::make('status_pegawai')
@@ -289,10 +300,12 @@ class AparaturResource extends Resource implements HasShieldPermissions
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->alignment(Alignment::Center),
                 TextColumn::make('tempat_lahir')
+                    ->label('Tempat Lahir')
                     ->weight(FontWeight::SemiBold)
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->alignment(Alignment::Center),
                 TextColumn::make('tanggal_lahir')
+                    ->label('Tanggal Lahir')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->weight(FontWeight::SemiBold)
                     ->alignment(Alignment::Center)
@@ -300,20 +313,24 @@ class AparaturResource extends Resource implements HasShieldPermissions
                         return Carbon::parse($state)->format('d-M-Y');
                     }),
                 TextColumn::make('agama')
+                    ->label('Agama')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->weight(FontWeight::SemiBold)
                     ->alignment(Alignment::Center),
                 TextColumn::make('keterangan')
+                    ->label('Keterangan')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->weight(FontWeight::SemiBold)
                     ->alignment(Alignment::Center)
                     ->limit(50),
                 TextColumn::make('no_kep_pengangkatan')
+                    ->label('No. Kep. Pengangkatan')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label('No. Kep. Pengangkatan')
                     ->weight(FontWeight::SemiBold)
                     ->alignment(Alignment::Center),
                 TextColumn::make('tgl_kep_pengangkatan')
+                    ->label('Tgl. Kep. Pengangkatan')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label('Tgl. Kep. Pengangkatan')
                     ->weight(FontWeight::SemiBold)
@@ -322,6 +339,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
                         return Carbon::parse($state)->format('d-M-Y');
                     }),
                 TextColumn::make('no_kep_pemberhentian')
+                    ->label('No. Kep. Pemberhentian')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label('No. Kep. Pemberhentian')
                     ->weight(FontWeight::SemiBold)

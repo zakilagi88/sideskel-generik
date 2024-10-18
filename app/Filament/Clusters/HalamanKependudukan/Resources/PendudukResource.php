@@ -34,9 +34,11 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\HtmlString;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use Illuminate\Support\Str;
 
 class PendudukResource extends Resource implements HasShieldPermissions
 {
@@ -267,6 +269,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                                             ->default(false)
                                             ->onColor('success')
                                             ->offColor('danger'),
+
                                     ]
                                 ),
                         ])->columnSpan(['lg' => 1]),
@@ -305,6 +308,7 @@ class PendudukResource extends Resource implements HasShieldPermissions
                     ->sortable(),
                 TextColumn::make('nama_lengkap')
                     ->searchable()
+                    
                     ->formatStateUsing(fn($state) => ucwords(strtolower($state)))
                     ->sortable(),
                 TextColumn::make('wilayah.wilayah_nama')

@@ -3,7 +3,7 @@
 namespace App\Filament\Clusters\HalamanKependudukan\Resources\DinamikaResource\Pages;
 
 use App\Filament\Clusters\HalamanKependudukan\Resources\DinamikaResource;
-
+use App\Filament\Pages\Dashboard;
 use App\Livewire\Widgets\Tables\Dinamika\DinamikaTable;
 
 use Filament\Actions;
@@ -25,7 +25,10 @@ class ListDinamikas extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Actions\CreateAction::make(),
+            Actions\Action::make('beranda')
+                ->label('Beranda')
+                ->icon('fas-home')
+                ->url(Dashboard::getUrl()),
         ];
     }
 
