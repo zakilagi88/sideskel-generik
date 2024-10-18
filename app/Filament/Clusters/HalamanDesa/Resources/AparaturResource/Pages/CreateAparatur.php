@@ -13,10 +13,19 @@ class CreateAparatur extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $nik = $data['nik'] ?? null;
 
-        $penduduk = Penduduk::where('nik', $nik)->first();
+        $isPenduduk = $data['is_penduduk'] == 'terdata';
 
+        if ($isPenduduk) {
+            $data = $this->getPendudukData($data);
+        }
+
+        return $data;
+    }
+
+    protected function getPendudukData(array $data): array
+    {
+        $penduduk = Penduduk::where('nik', $data['nik'])->first();
 
         $data['nama'] = $penduduk->nama_lengkap;
         $data['tempat_lahir'] = $penduduk->tempat_lahir;
