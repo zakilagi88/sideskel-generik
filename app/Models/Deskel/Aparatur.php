@@ -27,6 +27,7 @@ class Aparatur extends Model
 
     protected $fillable = [
         'id', // tambahkan 'id' agar bisa diisi sort
+        'sort',
         'nama',
         'slug',
         'niap',

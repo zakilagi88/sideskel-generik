@@ -267,7 +267,7 @@ class AparaturResource extends Resource implements HasShieldPermissions
                     ->grow(false),
                 TextColumn::make('nama')
                     ->weight(FontWeight::SemiBold)
-                    ->description(fn(Aparatur $record) => 'NIAP/NIPD: ' . $record->niap ?? 'NIP: ' . $record->nip)
+                    ->description(fn(Aparatur $record) => isset($record->niap) ? 'NIAP: ' . $record->niap : 'NIP: ' . $record->nip)
                     ->alignment(Alignment::Left)
                     ->searchable(),
                 TextColumn::make('jabatan.nama')
@@ -347,7 +347,9 @@ class AparaturResource extends Resource implements HasShieldPermissions
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('sort')
+            ->reorderable('sort');
     }
 
     public static function getRelations(): array

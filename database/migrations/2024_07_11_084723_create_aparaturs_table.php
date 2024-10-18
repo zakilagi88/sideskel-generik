@@ -32,6 +32,7 @@ return new class extends Migration
             $table->string('status_pegawai')->default('Aktif');
             $table->string('masa_jabatan')->nullable();
             $table->string('keterangan')->nullable();
+            $table->integer('sort')->default(0);
             $table->timestamps();
         });
     }
