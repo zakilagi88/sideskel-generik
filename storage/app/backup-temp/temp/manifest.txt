@@ -6582,7 +6582,7 @@ C:\Sites\SIDeskel\app\Models\Penduduk
 C:\Sites\SIDeskel\app\Models\Penduduk\PendudukView.php
 C:\Sites\SIDeskel\app\Models\Penduduk.php
 C:\Sites\SIDeskel\app\Models\Provinsi.php
-C:\Sites\SIDeskel\app\Models\RekapitulasiBulanan.php
+C:\Sites\SIDeskel\app\Models\Rekapitulasi.php
 C:\Sites\SIDeskel\app\Models\StatKategori.php
 C:\Sites\SIDeskel\app\Models\StatSDM.php
 C:\Sites\SIDeskel\app\Models\Tambahan.php

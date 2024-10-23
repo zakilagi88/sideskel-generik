@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Widgets\Tables;
 
+use App\Filament\Exports\PendudukViewExporter;
 use App\Livewire\Widgets\Charts\StatSDMBarChart;
 use App\Models\KartuKeluarga;
 use App\Models\Penduduk;
@@ -9,9 +10,11 @@ use App\Models\Penduduk\PendudukView;
 use App\Models\StatSDM;
 use App\Models\Tambahan;
 use App\Models\Tambahanable;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -44,8 +47,24 @@ class StatSDMTable extends Component implements HasTable, HasForms
             )
             ->queryStringIdentifier(identifier: $this->getRecordKey())
             ->heading(
-                fn () => 'Tabel Penduduk Berdasarkan ' . ucfirst($this->record->nama)
+                fn() => 'Tabel Penduduk Berdasarkan ' . ucfirst($this->record->nama)
             )
+            ->headerActions([
+                ExportAction::make()
+
+                    ->exporter(PendudukViewExporter::class)
+                    ->color('primary')
+                    ->label('Unduh Data')
+                    ->formats([
+                        ExportFormat::Xlsx,
+                    ])
+                    ->columnMapping(false)
+                    ->modifyQueryUsing(
+                        function (Builder $query) {
+                            $query->selectRaw('*, ? as custom_key', [$this->record->key]);
+                        }
+                    )
+            ])
             ->columns([
                 TextColumn::make('index')
                     ->label('No')
@@ -123,14 +142,14 @@ class StatSDMTable extends Component implements HasTable, HasForms
 
         return
             Tambahanable::with(['tambahan'])
-            ->where('tambahan_id', fn ($query) => $query->select('id')->from('tambahans')->where('slug', $this->record->slug))
+            ->where('tambahan_id', fn($query) => $query->select('id')->from('tambahans')->where('slug', $this->record->slug))
             ->selectRaw('
-                                tambahan_id,
-                                tambahanable_ket, 
-                                SUM(CASE WHEN p.jenis_kelamin = "Laki-laki" THEN 1 ELSE 0 END) as laki_laki,
-                                SUM(CASE WHEN p.jenis_kelamin = "Perempuan" THEN 1 ELSE 0 END) as perempuan,
-                                COUNT(*) as total
-                            ')
+                        tambahan_id,
+                        tambahanable_ket, 
+                        SUM(CASE WHEN p.jenis_kelamin = "Laki-laki" THEN 1 ELSE 0 END) as laki_laki,
+                        SUM(CASE WHEN p.jenis_kelamin = "Perempuan" THEN 1 ELSE 0 END) as perempuan,
+                        COUNT(*) as total
+                    ')
             ->when(
                 $this->record->sasaran == 'Penduduk',
                 function ($query) {

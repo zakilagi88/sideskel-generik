@@ -70,7 +70,7 @@ class DinamikaResource extends Resource implements HasShieldPermissions
                     ->color('primary')
                     ->html()
                     ->label('NIK')
-                    ->url(fn ($record) => PendudukResource::getUrl('edit', ['record' => $record->nik]))
+                    ->url(fn($record) => PendudukResource::getUrl('edit', ['record' => $record->nik]))
                     ->openUrlInNewTab()
                     ->sortable(),
                 TextColumn::make('penduduk.nama_lengkap')
@@ -78,7 +78,7 @@ class DinamikaResource extends Resource implements HasShieldPermissions
                     ->sortable(),
                 TextColumn::make('penduduk.kartuKeluargas.kk_id')
                     ->label(
-                        fn () => new HtmlString(
+                        fn() => new HtmlString(
                             '<p class="text-sm text-left">No. KK</p> <p class="text-sm text-gray-500 text-left">Kepala Keluarga</p>'
                         )
                     )
@@ -86,9 +86,9 @@ class DinamikaResource extends Resource implements HasShieldPermissions
                     ->html()
                     ->color('primary')
                     ->description(
-                        fn ($record) => $record->penduduk->kartuKeluargas?->kepalaKeluarga?->nama_lengkap
+                        fn($record) => $record->penduduk->kartuKeluargas?->kepalaKeluarga?->nama_lengkap
                     )
-                    ->url(fn ($record) => null)
+                    ->url(fn($record) => KartuKeluargaResource::getUrl('edit', ['record' => $record->penduduk->kartuKeluargas->kk_id]))
                     ->placeholder('Kartu Keluarga Tidak Terdata')
                     ->openUrlInNewTab()
                     ->sortable(),
@@ -125,7 +125,7 @@ class DinamikaResource extends Resource implements HasShieldPermissions
                             self::restoredAuditNotification();
                         })
                         ->requiresConfirmation()
-                        ->visible(fn (User $user) => $user->can('restoreAudit', Dinamika::class))
+                        ->visible(fn(User $user) => $user->can('restoreAudit', Dinamika::class))
                         ->after(function ($livewire) {
                             $livewire->dispatch('auditRestored');
                         }),

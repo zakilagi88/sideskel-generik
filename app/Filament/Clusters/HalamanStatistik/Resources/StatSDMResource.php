@@ -7,6 +7,7 @@ use App\Filament\Clusters\HalamanStatistik\Resources\StatSDMResource\Pages;
 use App\Livewire\Widgets\Charts\Stat\SDMBarChart;
 use App\Livewire\Widgets\Charts\Stat\SDMPieChart;
 use App\Livewire\Widgets\Charts\Stat\SDMPyramidChart;
+use App\Livewire\Widgets\Tables\StatSDMTable;
 use App\Models\Penduduk\PendudukView;
 use App\Models\StatSDM;
 use App\Models\Wilayah;
@@ -74,7 +75,7 @@ class StatSDMResource extends Resource implements HasShieldPermissions
             ->schema([
                 Forms\Components\TextInput::make('nama')
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state)))
+                    ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state)))
                     ->maxLength(255),
                 Forms\Components\Select::make('key')
                     ->options(EnumQueryService::getEnumOptions())
@@ -91,6 +92,10 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                     ->maxLength(255),
                 Forms\Components\Toggle::make('status')
                     ->required(),
+                Livewire::make(StatSDMTable::class, ['record' => $key])
+                    ->columnSpanFull()
+                    ->hiddenOn('create')
+                    ->label('Tabel Statistik'),
                 Tabs::make('grafik')
                     ->columnSpanFull()
                     ->hiddenOn('create')
@@ -101,11 +106,11 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Livewire::make(SDMBarChart::class, ['chartData' => $query])
                                     ->hiddenOn('create')
-                                    ->hidden(fn (?Model $record): bool => $record === null || $record->key === 'umur')
+                                    ->hidden(fn(?Model $record): bool => $record === null || $record->key === 'umur')
                                     ->label('Grafik Bar Statistik'),
                                 Livewire::make(SDMPyramidChart::class, ['chartData' => $query])
                                     ->hiddenOn('create')
-                                    ->hidden(fn (?Model $record): bool => $record === null || $record->key !== 'umur')
+                                    ->hidden(fn(?Model $record): bool => $record === null || $record->key !== 'umur')
                                     ->label('Grafik Piramida Statistik'),
                             ]),
                         Tab::make('Grafik Pie')
@@ -114,7 +119,7 @@ class StatSDMResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Livewire::make(SDMPieChart::class, ['chartData' => $query])
                                     ->hiddenOn('create')
-                                    ->hidden(fn (?Model $record): bool => $record === null)
+                                    ->hidden(fn(?Model $record): bool => $record === null)
                                     ->label('Grafik Pie Statistik'),
                             ]),
                     ])

@@ -8,8 +8,11 @@ use App\Filament\Clusters\HalamanKependudukan\Resources\PendudukResource;
 use App\Filament\Exports\PendudukExporter;
 use App\Models\Penduduk;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Enums\ActionSize;
 use Filament\Tables\Actions\Action;
@@ -136,12 +139,12 @@ class PenduduksRelationManager extends RelationManager
             ])
             ->actions([
                 DissociateAction::make()
-                    ->label('Pisahkan dari Keluarga')
+                    ->label('Pisahkan Anggota Keluarga')
                     ->color('danger')
                     ->size(ActionSize::Small)
                     ->requiresConfirmation()
                     ->modalHeading('Apakah Anda Yakin?')
-                    ->modalDescription('Data yang tidak valid akan dihapus dari daftar tambahan.')
+                    ->modalDescription('Data anggota keluarga akan dipisahkan dari Kartu Keluarga.')
                     ->hidden(fn($record) => (($record->status_hubungan->value === 'KEPALA KELUARGA') || ($this->getOwnerRecord()->penduduks->count() <= 1)))
                     ->button(),
                 EditAction::make('edit_kepala')
@@ -163,6 +166,7 @@ class PenduduksRelationManager extends RelationManager
                     )
                     ->form([
                         Select::make('status_hubungan')
+                            ->label('Ganti Status Hubungan')
                             ->options(
                                 fn() => collect(StatusHubunganType::cases())
                                     ->mapWithKeys(fn($value, $key) => [$value->value => $value->name])
@@ -170,6 +174,7 @@ class PenduduksRelationManager extends RelationManager
                             )
                             ->dehydrateStateUsing(fn(string $state): string => ucwords($state)),
                         Select::make('nik')
+                            ->label('Pilih Kepala Keluarga Baru')
                             ->key('dynamic-form')
                             ->options(fn() => $this->getOwnerRecord()->penduduks()->whereNot('status_hubungan', 'KEPALA KELUARGA')->pluck('nama_lengkap', 'nik'))
                             ->dehydrateStateUsing(fn(string $state): string => ucwords($state)),
@@ -178,17 +183,37 @@ class PenduduksRelationManager extends RelationManager
                     ->label('Ganti Hubungan Keluarga')
                     ->color('warning')
                     ->size(ActionSize::Small)
+                    ->requiresConfirmation()
                     ->hidden(fn($record) => $record->status_hubungan->value === 'KEPALA KELUARGA')
                     ->button()
                     ->form([
+                        ToggleButtons::make('jadikan_kepala')
+                            ->label('Apakah Ingin Menjadikan Kepala Keluarga?')
+                            ->required()
+                            ->boolean()
+                            ->visible(fn() => ($this->getOwnerRecord()->penduduks()->where('status_hubungan', 'KEPALA KELUARGA'))->count() == 0)
+                            ->live()
+                            ->inline(),
                         Select::make('status_hubungan')
                             ->options(
-                                fn() => collect(StatusHubunganType::cases())
+                                fn($record) => collect(StatusHubunganType::cases())
                                     ->mapWithKeys(fn($value, $key) => [$value->value => $value->name])
-                                    ->filter(fn($value, $key) => $key !== 'KEPALA KELUARGA')
+                                    ->filter(fn($value, $key) => $key !== 'KEPALA KELUARGA' && $key !== $record->status_hubungan->value)
                             )
+                            ->disabled(fn(Get $get) => $get('jadikan_kepala') ? true : false)
                             ->dehydrateStateUsing(fn(string $state): string => ucwords($state)),
-                    ]),
+                    ])
+                    ->using(
+                        function ($record, $data) {
+                            if (isset($data['jadikan_kepala'])) {
+                                $record->update(['status_hubungan' => 'KEPALA KELUARGA']);
+                                return $record;
+                            } else {
+                                $record->update(['status_hubungan' => $data['status_hubungan']]);
+                                return $record;
+                            }
+                        }
+                    ),
             ], ActionsPosition::AfterCells)
             ->paginated(false);
     }

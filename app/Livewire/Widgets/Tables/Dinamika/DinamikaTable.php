@@ -2,9 +2,14 @@
 
 namespace App\Livewire\Widgets\Tables\Dinamika;
 
+use App\Filament\Exports\RekapitulasiExporter;
 use App\Services\RekapitulasiService;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
+use Filament\Support\Enums\Alignment;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
@@ -23,28 +28,13 @@ class DinamikaTable extends TableWidget
     public function table(Table $table): Table
     {
         $bulan = $this->filterData['bulan'] ?? date('m');
-        $namaBulan = [
-            '01' => 'Januari',
-            '02' => 'Februari',
-            '03' => 'Maret',
-            '04' => 'April',
-            '05' => 'Mei',
-            '06' => 'Juni',
-            '07' => 'Juli',
-            '08' => 'Agustus',
-            '09' => 'September',
-            '10' => 'Oktober',
-            '11' => 'November',
-            '12' => 'Desember',
-        ];
-        $bulan = $namaBulan[$bulan];
         $tahun = $this->filterData['tahun'] ?? date('Y');
         /** @var \App\Models\User */
         $wilayah = Filament::auth()->user()->wilayah_id;
 
         $query = new RekapitulasiService();
         return $table
-            ->query(fn () => $query->getRekapitulasiQuery($bulan, $tahun, $wilayah))
+            ->query(fn() => $query->getRekapitulasiQuery($bulan, $tahun, $wilayah))
             ->heading('Dinamika Penduduk Bulan ' . $bulan . ' Tahun ' . $tahun)
             ->queryStringIdentifier('dinamika')
             ->columns([
@@ -55,15 +45,51 @@ class DinamikaTable extends TableWidget
                 TextColumn::make('Perincian')
                     ->label('Perincian')
                     ->alignLeft(),
-                TextColumn::make('Laki_Laki')
-                    ->label('Laki-laki')
-                    ->alignCenter(),
-                TextColumn::make('Perempuan')
-                    ->label('Perempuan')
-                    ->alignCenter(),
+                ColumnGroup::make(
+                    'WNA',
+                    [
+                        TextColumn::make('WNA_lk')
+                            ->label('Laki-laki')
+                            ->alignCenter(),
+                        TextColumn::make('WNA_pr')
+                            ->label('Perempuan')
+                            ->alignCenter(),
+                        TextColumn::make('WNA_total')
+                            ->label('Total')
+                            ->alignCenter(),
+                    ]
+                )
+                    ->alignment(Alignment::Center)
+                    ->wrapHeader(),
+                ColumnGroup::make(
+                    'WNI',
+                    [
+                        TextColumn::make('WNI_lk')
+                            ->label('Laki-laki')
+                            ->alignCenter(),
+                        TextColumn::make('WNI_pr')
+                            ->label('Perempuan')
+                            ->alignCenter(),
+                        TextColumn::make('WNI_total')
+                            ->label('Total')
+                            ->alignCenter(),
+                    ]
+                )
+                    ->alignment(Alignment::Center)
+                    ->wrapHeader(),
                 TextColumn::make('Total')
                     ->label('Total')
                     ->alignCenter(),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(RekapitulasiExporter::class)
+                    ->color('primary')
+                    ->label('Unduh Data')
+                    ->formats([
+                        ExportFormat::Xlsx,
+                    ])
+                    ->columnMapping(),
             ])
             ->deferLoading()
             ->deferFilters()

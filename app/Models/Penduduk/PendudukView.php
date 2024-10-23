@@ -11,6 +11,8 @@ class PendudukView extends Model
 {
     use HasFactory;
 
+    protected $table = 'penduduk_view';
+
     public static function getView($key, $wilayahId = null)
     {
 
